@@ -1,0 +1,120 @@
+#ifndef CORE_SYNC_INPUT_DATA_H_
+#define CORE_SYNC_INPUT_DATA_H_
+
+#include "../Core/Inputs/Input.h"
+
+namespace DreamEngine::Core::Sync
+{
+using namespace DreamEngine::Core::Inputs;
+
+struct InputData
+{
+    float mousePositionX;
+    float mousePositionY;
+    KeyState keyKpNum0State;
+    KeyState keyKpNum1State;
+    KeyState keyKpNum2State;
+    KeyState keyKpNum3State;
+    KeyState keyKpNum4State;
+    KeyState keyKpNum5State;
+    KeyState keyKpNum6State;
+    KeyState keyKpNum7State;
+    KeyState keyKpNum8State;
+    KeyState keyKpNum9State;
+    KeyState keyNum0State;
+    KeyState keyNum1State;
+    KeyState keyNum2State;
+    KeyState keyNum3State;
+    KeyState keyNum4State;
+    KeyState keyNum5State;
+    KeyState keyNum6State;
+    KeyState keyNum7State;
+    KeyState keyNum8State;
+    KeyState keyNum9State;
+    KeyState keyAState;
+    KeyState keyBState;
+    KeyState keyCState;
+    KeyState keyDState;
+    KeyState keyEState;
+    KeyState keyFState;
+    KeyState keyGState;
+    KeyState keyHState;
+    KeyState keyIState;
+    KeyState keyJState;
+    KeyState keyKState;
+    KeyState keyLState;
+    KeyState keyMState;
+    KeyState keyNState;
+    KeyState keyOState;
+    KeyState keyPState;
+    KeyState keyQState;
+    KeyState keyRState;
+    KeyState keySState;
+    KeyState keyTState;
+    KeyState keyUState;
+    KeyState keyVState;
+    KeyState keyWState;
+    KeyState keyXState;
+    KeyState keyYState;
+    KeyState keyZState;
+    KeyState keyF1State;
+    KeyState keyF2State;
+    KeyState keyF3State;
+    KeyState keyF4State;
+    KeyState keyF5State;
+    KeyState keyF6State;
+    KeyState keyF7State;
+    KeyState keyF8State;
+    KeyState keyF9State;
+    KeyState keyF10State;
+    KeyState keyF11State;
+    KeyState keyF12State;
+    KeyState keyTabState;
+    KeyState keyEscapeState;
+    KeyState keyLeftAltState;
+    KeyState keyRightAltState;
+    KeyState keyLeftControlState;
+    KeyState keyRightControlState;
+    KeyState keyLeftShiftState;
+    KeyState keyRightShiftState;
+    KeyState keySpaceState;
+    KeyState keyBackspaceState;
+    KeyState keySlashState;
+    KeyState keyBackslashState;
+    KeyState keyCapsLockState;
+    KeyState keyEnterState;
+    KeyState keyApostropheState;
+    KeyState keyCommaState;
+    KeyState keyDeleteState;
+    KeyState keyPageUpState;
+    KeyState keyPageDownState;
+    KeyState keyInsertState;
+    KeyState keyHomeState;
+    KeyState keyEndState;
+    KeyState keyPrintScreenState;
+    KeyState keyScrollLockState;
+    KeyState keyPauseState;
+    KeyState keyUpState;
+    KeyState keyDownState;
+    KeyState keyLeftState;
+    KeyState keyRightState;
+    KeyState keyEqualState;
+    KeyState keyGraveAccentState;
+    KeyState keySemicolonState;
+    KeyState keyMinusState;
+    KeyState keyLeftBracketState;
+    KeyState keyRightBracketState;
+    KeyState keyPeriodState;
+    KeyState keyWorld1State;
+    KeyState keyWorld2State;
+    KeyState mouseButtonLeftState;
+    KeyState mouseButtonMiddleState;
+    KeyState mouseButtonRightState;
+    KeyState mouseButton4State;
+    KeyState mouseButton5State;
+    KeyState mouseButton6State;
+    KeyState mouseButton7State;
+    KeyState mouseButton8State;
+};
+}  // namespace DreamEngine::Core::Sync
+#endif
