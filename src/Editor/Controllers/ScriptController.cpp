@@ -1,6 +1,9 @@
 #include "ScriptController.h"
 
 #include <string>
+
+#include "DotNetCliController.h"
+#include "../EditorDefine.h"
 #include "../Singletons/EditorSingleton.h"
 #include "../../Core/Application.h"
 #include "../../Core/Loggers/LoggerSingleton.h"
@@ -42,22 +45,17 @@ bool ScriptController::BuildSolution()
 {
     LoggerSingleton::Instance().LogTrace("ScriptController::BuildSolution -> Start");
 
-    std::string command = "dotnet build ";
-    auto& projectConfig = EditorSingleton::Instance().GetProjectConfiguration();
+    const auto& projectConfig = EditorSingleton::Instance().GetProjectConfiguration();
+    const int result = DotNetCliController::Build(projectConfig.csProjectPath, projectConfig.csSolution);
 
-    command += projectConfig.csProjectPath + "\\" + projectConfig.csSolution;
-
-    // Execute the command
-    int result = std::system(command.c_str());
-
-    if (result == 0)
+    if (result == EDITOR_DOTNET_CLI_COMMAND_RESULT_SUCCESS)
     {
         LoggerSingleton::Instance().LogInfo("Build succeeded!");
 
         return true;
     }
     
-    LoggerSingleton::Instance().LogError("Build failed with error code: " + result);
+    LoggerSingleton::Instance().LogError("Build failed with error code: " + std::to_string(result));
 
     return false;
 }

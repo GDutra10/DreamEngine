@@ -28,6 +28,7 @@ class GlobalResourceManager
     void AddMesh(const std::string& resourceId, Mesh* mesh);
     void AddScript(Script* script);
     void AddScript(const std::string& resourceId, Script* script);
+    void Clear();
     void RemoveMaterial(const Material* material);
     void RemoveScript(const Script* script);
     Shader* GetShader(const std::string& resourceId);

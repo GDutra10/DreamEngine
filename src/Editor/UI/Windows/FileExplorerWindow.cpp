@@ -112,11 +112,11 @@ void FileExplorerWindow::DrawContent()
     }
 
     // Check if the selected file is a scene file
-    if (m_sSelectedFile.extension() == ".scene" && m_sSelectedFile != EditorSingleton::Instance().GetSelectedScenePath())
+    if (m_sSelectedFile.extension() == EDITOR_DEFAULT_SCENE_FILE_EXTENSION && m_sSelectedFile != EditorSingleton::Instance().GetSelectedScenePath())
         EditorSingleton::Instance().SetSelectedScenePath(m_sSelectedFile);
 
     // Check if the selected file is a material file
-    if (m_sSelectedFile.extension()== ".material" && m_sSelectedFile != EditorSingleton::Instance().GetSelectedMaterialPath())
+    if (m_sSelectedFile.extension()== EDITOR_DEFAULT_MATERIAL_FILE_EXTENSION && m_sSelectedFile != EditorSingleton::Instance().GetSelectedMaterialPath())
         EditorSingleton::Instance().SetSelectedMaterialPath(m_sSelectedFile);
 }
 

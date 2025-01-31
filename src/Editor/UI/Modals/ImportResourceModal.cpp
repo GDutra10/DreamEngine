@@ -39,6 +39,18 @@ void ImportResourceModal::DrawContent()
     ImGui::BeginGroup();
 
     // Add Material
+    ImGui::Text("Scene");
+    if (ImGui::Button("Add##import.resource.add.scene", buttonSize))
+        m_getNamePopup.Open("Scene File Name", [this](const std::string& name) {
+            Result result = EditorSingleton::Instance().GetResourceController().CreateSceneFile(name);
+
+            if (result.isOk)
+                Close();
+
+            return result;
+        });
+
+    // Add Material
     ImGui::Text("Material");
     if (ImGui::Button("Add##import.resource.add.material", buttonSize))
         m_getNamePopup.Open("Material File Name", [this](const std::string& name) {
@@ -66,7 +78,11 @@ void ImportResourceModal::DrawContent()
     // Import Model
     ImGui::Text("Model");
     if (ImGui::Button("Import##import.resource.import.model", buttonSize))
-        m_fileDialog.Open([this](const std::string& filePath) { CreateMeshesFromFile(filePath); });
+        m_fileDialog.Open([this](const std::string& filePath) -> bool
+        {
+            CreateMeshesFromFile(filePath);
+            return true;
+        });
 
     ImGui::EndGroup();
 }

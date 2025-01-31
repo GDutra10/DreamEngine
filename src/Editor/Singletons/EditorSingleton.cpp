@@ -75,6 +75,11 @@ EditorLogger* EditorSingleton::GetEditorLogger() const
     return m_editorLogger;
 }
 
+ProjectController& EditorSingleton::GetProjectController()
+{
+    return m_projectController;
+}
+
 ResourceController& EditorSingleton::GetResourceController()
 {
     return m_resourceController;
@@ -101,6 +106,11 @@ void EditorSingleton::SetSelectedEntity(Entity* entity)
 {
     m_pSelectedEntity = entity;
     m_isViewSceneData = false;
+}
+
+void EditorSingleton::SetProjectConfiguration(const ProjectConfiguration& projectConfig) const
+{
+    m_projectConfig = projectConfig;
 }
 
 EditorSingleton::EditorSingleton(ProjectConfiguration& projectConfig, EditorConfiguration& editorConfig, Scene* pEditorScene)

@@ -15,7 +15,7 @@
 #endif
 
 #ifndef CORECLR_PATH
-#define CORECLR_PATH "C:\\Program Files\\dotnet\\shared\\Microsoft.NETCore.App\\8.0.5"
+#define CORECLR_PATH "C:\\Program Files\\dotnet\\shared\\Microsoft.NETCore.App\\9.0.1"
 #endif
 
 using namespace DreamEngine::Core::Scripting;

@@ -42,6 +42,8 @@ void EntityManager::Update()
         else // remove the tag in entity_map
             m_entityMap.erase(entityTag);
 
+        EntityMemoryPool::Instance().RemoveEntity(entity->GetId());
+
         delete entity;
     }
 
@@ -116,7 +118,8 @@ const std::map<std::string, std::vector<Entity*>>& EntityManager::GetEntityMap()
 
 void EntityManager::Reset()
 {
-    m_entities.clear();
+    for (Entity* entity : m_entities)
+        RemoveEntity(entity);
 }
 
 void EntityManager::AddChildToRemove(Entity* entity, std::vector<Entity*>& entitiesToRemove)

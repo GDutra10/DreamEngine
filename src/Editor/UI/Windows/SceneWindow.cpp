@@ -78,9 +78,9 @@ void SceneWindow::DrawContent()
             ImGui::EndGroup();
             //ImGui::SetItemAllowOverlap();
         }
-        
-        ImGui::EndChild();
     }
+
+    ImGui::EndChild();
 }
 
 void SceneWindow::ImGizmoRender()
