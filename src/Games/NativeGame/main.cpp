@@ -29,6 +29,7 @@ int main()
     scenes.emplace("FirstScene", firstScene);
     
     Game* game = new Game(900, 600, "", scenes);
+    game->hasScriptEngine = false;
 
     Application::Instance().Run(
         900, 

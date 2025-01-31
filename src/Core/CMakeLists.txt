@@ -71,7 +71,10 @@ add_library (Core STATIC
 	"Render/Material.h"
 	"Render/RenderType.h" 
 	"Render/TextureType.h" 
-	"Render/Shape.h"  
+	"Render/Shape.h"
+	"Render/FrameBuffer.h"
+	"Render/OpenGL/OpenGLFrameBuffer.h"
+	"Render/OpenGL/OpenGLFrameBuffer.cpp"
 	"Render/OpenGL/OpenGLMesh.h" 
 	"Render/OpenGL/OpenGLMesh.cpp" 
 	"Render/OpenGL/OpenGLShader.h" 
@@ -106,7 +109,7 @@ add_library (Core STATIC
 
 	"Vendors/glad.h"
 	"Vendors/glfw3.h" 
-   )
+    )
 
 # add link libraries
 target_link_libraries(Core PRIVATE glm glfw glad)

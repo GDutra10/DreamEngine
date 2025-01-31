@@ -38,7 +38,7 @@ void Application::Run(const int width, const int height, const std::string& name
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
             throw std::exception("Failed to initialized GLAD");
 
-        if (!game->path.empty())
+        if (game->hasScriptEngine)
             m_scriptEngine = new ScriptEngine();
 
         m_renderAPI->Initialize(width, height);
@@ -200,7 +200,7 @@ void Application::KeyCallback(GLFWwindow* window, int key, int scancode, int act
 
 void Application::FrameBufferSizeCallback(GLFWwindow* window, const int width, const int height)
 {
-    Application::Instance().GetRenderAPI()->RescaleFrameBuffer(width, height);
+    Application::Instance().GetRenderAPI()->RescaleFrameBuffers(width, height);
 }
 
 MouseButton Application::GetMouseButtonByGLFW(const int mouseButton)

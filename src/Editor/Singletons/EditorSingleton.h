@@ -11,6 +11,7 @@
 #include "../Models/SceneData.h"
 #include "../Loggers/EditorLogger.h"
 #include "../../Core/GameSystem/Scene.h"
+#include "../../Core/Render/FrameBuffer.h"
 
 namespace DreamEngine::Editor::Singletons
 {
@@ -18,6 +19,7 @@ namespace DreamEngine::Editor::Singletons
     using namespace DreamEngine::Editor::Models;
     using namespace DreamEngine::Editor::Loggers;
     using namespace DreamEngine::Core::ECS;
+    using namespace DreamEngine::Core::Render;
     using namespace std::filesystem;
 
 class EditorSingleton final
@@ -39,6 +41,7 @@ class EditorSingleton final
     [[nodiscard]] ProjectController& GetProjectController();
     [[nodiscard]] ResourceController& GetResourceController();
     [[nodiscard]] ScriptController& GetScriptController();
+    [[nodiscard]] FrameBuffer* GetViewPortFbo() const;
     void SetSelectedPath(const path& path);
     void SetSelectedScenePath(const path& scene) { m_selectedScenePath = scene; }
     void SetSelectedMaterialPath(const path& material) { m_selectedMaterialPath = material; }
@@ -46,6 +49,7 @@ class EditorSingleton final
     void SetSelectedEntity(Entity* entity);
     void SetIsViewSceneData(bool value) { m_isViewSceneData = value; }
     void SetProjectConfiguration(const ProjectConfiguration& projectConfig) const;
+    void SetViewPortFbo(FrameBuffer* fbo) { m_viewPortFbo = fbo; }
    private:
     EditorSingleton(ProjectConfiguration& projectConfig, EditorConfiguration& editorConfig, Scene* pEditorScene);
     static EditorSingleton* m_sEditorSingleton;
@@ -63,6 +67,7 @@ class EditorSingleton final
     ProjectController m_projectController;
     ResourceController m_resourceController;
     ScriptController m_scriptController;
+    FrameBuffer* m_viewPortFbo;
 };
 
 }  // namespace DreamEngine::Editor
