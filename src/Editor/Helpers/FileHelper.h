@@ -5,6 +5,17 @@
 #include <vector>
 #include <filesystem>
 
+#define MAX_PATH 260
+
+typedef void* HMODULE;
+typedef void* FARPROC;
+typedef unsigned long DWORD;
+
+extern "C"
+{
+    __declspec(dllimport) DWORD __stdcall GetModuleFileNameA(HMODULE hModule, char* lpFilename, DWORD nSize);
+}
+
 namespace DreamEngine::Editor::Helpers
 {
     using namespace std;
@@ -14,6 +25,7 @@ class FileHelper
    public:
     static vector<string> GetFilesWithExtension(const path& directory, const string& extension);
     static vector<path> GetAllFilesInCurrentDirectory(const path& directoryPath);
+    static path GetExecutablePath();
 
    private:
    

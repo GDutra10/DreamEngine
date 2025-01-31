@@ -2,49 +2,77 @@
 #include <filesystem>
 #include <vector>
 #include <string>
+
+#include "../../Helpers/ImGuiHelper.h"
 #include "../../Singletons/EditorSingleton.h"
 #include "../../Vendors/imgui/imgui.h"
 
 using namespace DreamEngine::Editor::UI::Modals;
 using namespace DreamEngine::Editor::Singletons;
 
-FileDialogModal::FileDialogModal(const std::string& title) : BaseModal(title){}
+FileDialogModal::FileDialogModal(const std::string& title) : BaseModal(title) {}
 
-void FileDialogModal::Open(const std::function<void(std::string)>& callbackOk)
+void FileDialogModal::Open(const std::function<bool(std::string)>& callbackOk, const FileDialogConfig& config)
 {
-    m_callbackOk = callbackOk;
     selectedFile = "";
-    currentPath = EditorSingleton::Instance().GetSelectedPath().string();
+    m_callbackOk = callbackOk;
+    m_config = config;
+    m_config.shouldRenderOnlyTheCurrentPath = config.shouldRenderOnlyTheCurrentPath;
+    m_config.shouldRenderOnlyFolder = config.shouldRenderOnlyFolder;
+    currentPath = config.shouldUseCurrentPath
+        ? EditorSingleton::Instance().GetSelectedPath().string()
+        : current_path().root_path().string();
 
     BaseModal::Open();
 }
 
 void FileDialogModal::DrawContent()
 {
-    std::vector<std::string> files;
-
-    for (const auto& entry : std::filesystem::directory_iterator(currentPath))
+    if (m_config.shouldRenderOnlyTheCurrentPath)
     {
-        files.push_back(entry.path().filename().string());
-    }
+        std::vector<std::string> files;
 
-    ImGui::Text("Current Path: %s", currentPath.c_str());
-
-    if (ImGui::BeginListBox("##file.dialog.modal.file.list"))
-    {
-        for (const auto& file : files)
+        for (const auto& entry : directory_iterator(currentPath))
         {
-            if (ImGui::Selectable(file.c_str()))
-                selectedFile = file;
+            files.push_back(entry.path().filename().string());
         }
-        ImGui::EndListBox();
+
+        ImGui::Text("Current Path: %s", currentPath.c_str());
+
+        if (ImGui::BeginListBox("##file.dialog.modal.file.list"))
+        {
+            for (const auto& file : files)
+            {
+                if (m_config.shouldRenderOnlyFolder && !is_directory(file))
+                    continue;
+
+                if (!is_directory(file) && m_config.shouldRenderByExtension && file.find(m_config.extension) == std::string::npos)
+                    continue;
+
+                if (ImGui::Selectable(file.c_str()))
+                    selectedFile = file;
+            }
+            ImGui::EndListBox();
+        }
+
+        ImGui::Text(selectedFile.c_str());
+
+        if (ImGui::Button("OK"))
+        {
+            if (m_callbackOk(currentPath.empty() || selectedFile.empty() ? "" : currentPath + "/" + selectedFile))
+                Close();
+        }
     }
-
-    ImGui::Text(selectedFile.c_str());
-
-    if (ImGui::Button("OK"))
+    else
     {
-        m_callbackOk(currentPath.empty() || selectedFile.empty() ? "" : currentPath + "/" + selectedFile);
-        Close();
+        ImGui::BeginGroup();
+        Helpers::ImGuiHelper::DrawDirectoryTree(currentPath, selectedFile, [this](const path& path)
+        {
+            if (m_callbackOk(path.string()))
+            {
+                Close();
+            }
+        }, m_config);
+        ImGui::EndGroup();
     }
 }

@@ -21,6 +21,7 @@ class ResourceController
     static Result CreateMaterialFile(const std::string& filename);
     static Result CreateTextureFile(const std::string& filename);
     static Result CreateMeshFileFromModelFile(const std::string& filename);
+    static Result CreateSceneFile(const std::string& filename);
     static void SaveMaterialFile(const Material* material, const std::string& pathAndFilename);
     static void DeleteMaterialFile(const std::string& pathAndFilename);
     static Material* LoadMaterial(const std::string pathAndFilename);
@@ -30,6 +31,7 @@ class ResourceController
     static void LoadTextures(const std::vector<std::string>& textureFiles);
     static void LoadModels(const std::vector<std::string>& modelFiles);
     static void AddScripts(const std::vector<ScriptInfo>& scriptInfos);
+    static void UnloadAllResources();
    private:
     static BaseModelImporter* m_modelImporter;
     static void DeleteMaterialFromResourceManager(const Material* material);

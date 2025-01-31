@@ -106,7 +106,7 @@ add_library (Core STATIC
 
 	"Vendors/glad.h"
 	"Vendors/glfw3.h" 
-  )
+   "Render/FrameBuffer.h")
 
 # add link libraries
 target_link_libraries(Core PRIVATE glm glfw glad)

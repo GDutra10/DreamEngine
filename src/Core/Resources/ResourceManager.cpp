@@ -61,6 +61,30 @@ void ResourceManager::AddScript(const std::string& resourceId, Script* script)
     script->resourceId = resourceId;
 }
 
+void ResourceManager::Clear()
+{
+    for (auto& it : m_materials)
+        delete it.second;
+
+    for (auto& it : m_meshes)
+        delete it.second;
+
+    for (auto& it : m_scripts)
+        delete it.second;
+
+    for (auto& it : m_shaders)
+        delete it.second;
+
+    for (auto& it : m_textures)
+        delete it.second;
+
+    m_materials.clear();
+    m_meshes.clear();
+    m_scripts.clear();
+    m_shaders.clear();
+    m_textures.clear();
+}
+
 void ResourceManager::RemoveMaterial(const Material* material)
 {
     m_materials.erase(material->resourceId);

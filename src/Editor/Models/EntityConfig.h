@@ -4,7 +4,6 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "SceneConfig.h"
 #include "../../Core/ECS/Components/TransformComponent.h"
 #include "../../Core/ECS/Components/MeshComponent.h"
 

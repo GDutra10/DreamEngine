@@ -96,8 +96,9 @@ void CameraEditorController::Rotate()
         m_camera.front = glm::normalize(frontVec);
 
         // Recalculate the right and up vector
-        const glm::vec3 right = glm::normalize(glm::cross(m_camera.front, m_camera.up));
-        m_camera.up = glm::normalize(glm::cross(right, m_camera.front));
+        const glm::vec3 right = glm::normalize(glm::cross(m_camera.front, m_camera.worldUp));
+        if (glm::length(right) > 0.0f)
+            m_camera.up = glm::normalize(glm::cross(right, m_camera.front));
     }
     else
     {
@@ -115,7 +116,8 @@ void CameraEditorController::UpdateCameraVectors() const
     front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
     front = glm::normalize(front);
     // also re-calculate the Right and Up vector
-    m_camera.right = glm::normalize(
-        glm::cross(front, m_camera.up));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
-    m_camera.up = glm::normalize(glm::cross(m_camera.right, m_camera.front));
+    m_camera.right = glm::normalize(glm::cross(front, m_camera.worldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+
+    if (glm::length((m_camera.right)) > 0.0f)
+        m_camera.up = glm::normalize(glm::cross(m_camera.right, m_camera.front));
 }
