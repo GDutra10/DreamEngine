@@ -4,6 +4,7 @@
 
 #include "OpenGLMesh.h"
 #include "OpenGLShader.h"
+#include "OpenGLFrameBuffer.h"
 #include "../../Vendors/glad.h"
 #include "../../ECS/Components/TransformComponent.h"
 #include "../../ECS/Components/MeshComponent.h"
@@ -30,33 +31,6 @@ void OpenGLRenderAPI::Initialize(int width, int height)
 
     // Disable face culling for debugging
     //glDisable(GL_CULL_FACE);
-
-    // Create a framebuffer object
-    glGenFramebuffers(1, &fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
-    // Create a texture to render to viewport
-    glGenTextures(1, &texColorBuffer);
-    glBindTexture(GL_TEXTURE_2D, texColorBuffer);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,texColorBuffer, 0);
-
-    // https://uysalaltas.github.io/2022/01/09/OpenGL_Imgui.html
-    // Create a render buffer object, keep rendering data with performance
-    glGenRenderbuffers(1, &m_rbo);
-    glBindRenderbuffer(GL_RENDERBUFFER, m_rbo);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_rbo);
-
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-        Loggers::LoggerSingleton::Instance().LogError("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
-
-    // Unbind buffers
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }
 
 Shader* OpenGLRenderAPI::CreateShader(const std::string name, const std::string& vertexCode, const std::string& fragmentCode)
@@ -139,6 +113,14 @@ Mesh* OpenGLRenderAPI::CreateMesh(const std::vector<Vertex>& vertices, const std
     return new OpenGLMesh(vertices, indices, textures);
 }
 
+FrameBuffer* OpenGLRenderAPI::CreateFrameBuffer(int width, int height)
+{
+    FrameBuffer* frameBuffer = new OpenGLFrameBuffer(width, height, m_rbo);
+    m_frameBuffers.push_back(frameBuffer);
+
+    return frameBuffer;
+}
+
 void OpenGLRenderAPI::AfterRender(int width, int height)
 {
     // Bind back to default framebuffer
@@ -153,37 +135,16 @@ void OpenGLRenderAPI::AfterRender(int width, int height)
     RenderAPI::AfterRender(width, height);
 }
 
-void OpenGLRenderAPI::RescaleFrameBuffer(const int width, const int height) const
-{
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
-    glViewport(0, 0, width, height);
-
-    glBindTexture(GL_TEXTURE_2D, 0);  // Unbind any existing texture
-    glBindTexture(GL_TEXTURE_2D, texColorBuffer);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texColorBuffer, 0);
-
-    glBindRenderbuffer(GL_RENDERBUFFER, m_rbo);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_rbo);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    GLenum err = glGetError();
-
-    if (err != GL_NO_ERROR)
-    {
-        Loggers::LoggerSingleton::Instance().LogError("OpenGLRenderAPI::RescaleFrameBuffer -> OpenGL error: " + std::to_string(err));
-    }
-}
-
 void OpenGLRenderAPI::BeforeRender()
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    for (FrameBuffer* frameBuffer : m_frameBuffers)
+    {
+        if (frameBuffer == nullptr)
+            continue;
+
+        glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer->id);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
 
     RenderAPI::BeforeRender();
 }

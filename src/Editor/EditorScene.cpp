@@ -49,7 +49,12 @@ void EditorScene::Initialize()
     Application::Instance().GetRenderAPI()->AddBeforeRenderEntitiesCallbacks([this]() { UpdateBackgroundColor(); });
     Application::Instance().GetRenderAPI()->AddBeforeRenderEntitiesCallbacks([this]() { StartImGuiFrame(); });
     Application::Instance().GetRenderAPI()->AddAfterRenderEntitiesCallbacks([this](int width, int height) { FinishImGuiFrame(); });
+    
     EditorSingleton::Instance().SetEntityManager(m_entityManager);
+    
+    Game* game = Application::Instance().GetGame();
+    FrameBuffer* frameBuffer = Application::Instance().GetRenderAPI()->CreateFrameBuffer(game->width, game->height);
+    EditorSingleton::Instance().SetViewPortFbo(frameBuffer);
 
     // initialize camera controller
     m_pCameraEditorController = new CameraEditorController(this->GetCamera());

@@ -120,6 +120,15 @@ void RenderAPI::AddAfterRenderEntityCallbacks(const std::function<void(Entity* e
     m_afterRenderEntityCallbacks.push_back(callback);
 }
 
+void RenderAPI::RescaleFrameBuffers(int width, int height) const
+{
+    for (FrameBuffer* frameBuffer : m_frameBuffers)
+    {
+        if (frameBuffer != nullptr)
+            frameBuffer->Rescale(width, height);
+    }
+}
+
 void RenderAPI::BeforeRender()
 {
     for (std::function<void()>& beforeRenderEntitiesCallback : m_beforeRenderEntitiesCallbacks)

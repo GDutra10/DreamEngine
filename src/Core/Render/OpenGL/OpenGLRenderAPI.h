@@ -15,8 +15,8 @@ class OpenGLRenderAPI : public RenderAPI
     Shader* CreateShader(std::string name, const std::string& vertexCode, const std::string& fragmentCode) override;
     Texture* CreateTexture(unsigned char* data, int width, int height, int nrChannels) override;
     Mesh* CreateMesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const std::vector<Texture*>& textures) override;
+    FrameBuffer* CreateFrameBuffer(int width, int height) override;
     void AfterRender(int width, int height) override;
-    void RescaleFrameBuffer(int width, int height) const override;
 
    protected:
     unsigned int m_rbo = 0;

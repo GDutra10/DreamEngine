@@ -14,6 +14,7 @@ class Game
     int width;
     int height;
     std::string path;
+    bool hasScriptEngine = true;
     Game(const int width, const int height, const std::string& path, std::map<std::string, Scene*> scenes)
         : width(width), height(height), path(path), m_scenes(std::move(scenes)){}
     Scene* GetActiveScene() { return m_activeScene; }

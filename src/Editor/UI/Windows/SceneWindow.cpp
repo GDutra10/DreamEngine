@@ -50,7 +50,7 @@ void SceneWindow::DrawContent()
         // Invisible button to handle clicks
         //ImGui::SetItemAllowOverlap();
         ImGui::SetCursorPos({0, 0});
-        ImGui::Image((void*)(intptr_t)Application::Instance().GetRenderAPI()->texColorBuffer, ImGui::GetContentRegionAvail(), ImVec2(0, 1), ImVec2(1, 0));
+        ImGui::Image((void*)(intptr_t)EditorSingleton::Instance().GetViewPortFbo()->textureColorBuffer, ImGui::GetContentRegionAvail(), ImVec2(0, 1), ImVec2(1, 0));
 
         // Check if the image is hovered
         //bool isHovered = ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
