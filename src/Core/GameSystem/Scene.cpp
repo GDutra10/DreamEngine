@@ -2,6 +2,7 @@
 
 #include "ECS/Components/DirectionalLightComponent.h"
 #include "ECS/Components/ScriptComponent.h"
+#include "ECS/Components/NativeScriptComponent.h"
 #include "Scripting/ScriptEngine.h"
 #include "Sync/EntitySynchronizer.h"
 #include "Sync/GameSynchronizer.h"
@@ -35,6 +36,17 @@ void Scene::Update(const float deltaTime)
 
     for (Entity* entity : m_entityManager->GetEntities())
     {
+        // native script
+        NativeScriptComponent& nativeScriptComponent = entity->GetComponent<NativeScriptComponent>();
+
+        if (nativeScriptComponent.has && nativeScriptComponent.script != nullptr)
+        {
+            nativeScriptComponent.script->entity = entity;
+            nativeScriptComponent.script->Initialize();
+            nativeScriptComponent.script->Update();
+        }
+
+        // script
         ScriptComponent& scriptComponent = entity->GetComponent<ScriptComponent>();
 
         if (m_mustRunScriptComponents && scriptComponent.has && scriptComponent.script != nullptr)

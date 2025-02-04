@@ -32,8 +32,8 @@ int main()
     game->hasScriptEngine = false;
 
     Application::Instance().Run(
-        900, 
-        600,
+        game->width, 
+        game->height,
         "Native Game", 
         openGL,
         game);

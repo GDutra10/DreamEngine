@@ -8,7 +8,14 @@ project(NativeGame)
 add_executable (NativeGame
 	"main.cpp"
     "FirstScene.h"
-    "FirstScene.cpp")
+    "FirstScene.cpp"
+
+    "Scripts/BoxScript.h"
+    "Scripts/BoxScript.cpp"
+
+    "Vendors/stb_image.cpp"
+    "Vendors/stb_image.h"
+)
 
 # add link libraries
 target_link_libraries(NativeGame PRIVATE Profiling Core glm glfw glad)

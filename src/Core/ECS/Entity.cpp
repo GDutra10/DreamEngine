@@ -6,7 +6,7 @@ using namespace DreamEngine::Core::ECS;
 
 void Entity::Destroy() const
 {
-    EntityMemoryPool::Instance().SetActive(m_id, false);
+    EntityMemoryPool::Instance().RemoveEntity(m_id);
 }
 
 bool Entity::IsActive() const
@@ -65,6 +65,7 @@ template MaterialComponent& Entity::GetComponent<MaterialComponent>();
 template ScriptComponent& Entity::GetComponent<ScriptComponent>();
 template ChildrenComponent& Entity::GetComponent<ChildrenComponent>();
 template ParentComponent& Entity::GetComponent<ParentComponent>();
+template NativeScriptComponent& Entity::GetComponent<NativeScriptComponent>();
 template bool Entity::HasComponent<TransformComponent>() const;
 template bool Entity::HasComponent<MeshComponent>() const;
 template bool Entity::HasComponent<DirectionalLightComponent>() const;
@@ -72,3 +73,4 @@ template bool Entity::HasComponent<MaterialComponent>() const;
 template bool Entity::HasComponent<ScriptComponent>() const;
 template bool Entity::HasComponent<ChildrenComponent>() const;
 template bool Entity::HasComponent<ParentComponent>() const;
+template bool Entity::HasComponent<NativeScriptComponent>() const;
