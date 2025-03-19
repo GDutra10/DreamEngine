@@ -20,6 +20,7 @@ class ProjectWindow : public BaseWindow
     void DrawContent() override;
    private:
     ImportResourceModal* m_importResourcePopup;
+    FileDialogConfig m_fileDialogConfig;
 };
 
 }  // namespace DreamEngine::Editor::UI::Windows

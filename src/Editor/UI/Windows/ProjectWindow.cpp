@@ -14,7 +14,9 @@ using namespace DreamEngine::Editor::Singletons;
 
 ProjectWindow::ProjectWindow(const std::string& title) : BaseWindow(title),
 m_importResourcePopup(new ImportResourceModal("Import Resource"))
-{}
+{
+    m_fileDialogConfig = {true, true, true};
+}
 
 void ProjectWindow::DrawContent()
 {
@@ -29,5 +31,10 @@ void ProjectWindow::DrawContent()
 
     m_importResourcePopup->Draw();
 
-    ImGuiHelper::DrawDirectoryTree(projectPath, selectedPath, [this](const path& path) { EditorSingleton::Instance().SetSelectedPath(path); });
+    ImGuiHelper::DrawDirectoryTree(
+        projectPath, 
+        selectedPath, 
+        [this](const path& path) { EditorSingleton::Instance().SetSelectedPath(path); }, 
+        m_fileDialogConfig
+    );
 }
