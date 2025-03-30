@@ -3,9 +3,11 @@
 #include "Render/OpenGL/OpenGLRenderAPI.h"
 #include "../Core/Inputs/Input.h"
 #include "../Core/Resources/GlobalResourceManager.h"
+#include "../Core/Loggers/LoggerSingleton.h"
 
 using namespace DreamEngine::Core;
 using namespace DreamEngine::Core::Inputs;
+using namespace DreamEngine::Core::Loggers;
 using namespace DreamEngine::Core::Resources;
 using namespace DreamEngine::Core::Render::OpenGL;
 
@@ -22,62 +24,71 @@ Application& Application::Instance()
 
 void Application::Run(const int width, const int height, const std::string& name, const RenderType renderType, Game* game)
 {
-    SetRenderAPI(renderType);
 
-    if (m_renderAPI == nullptr)
-        throw std::exception("Render is null!");
-
-    GLFWInit();
-    InitializeWindow(width, height, name);
-
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-        throw std::exception("Failed to initialized GLAD");
-
-    m_scriptEngine = new ScriptEngine();
-    m_renderAPI->Initialize(width, height);
-    m_game = game;
-    m_game->width = width;
-    m_game->height = height;
-
-    // TODO: Load the assets(ResourceManager) by the first scene file
-    // TODO: Initialize entities from the first scene file
-
-    while (true)
+    try
     {
-        if (m_game->GetActiveScene() == nullptr)
-            m_game->ChangeActiveScene();
+        SetRenderAPI(renderType);
 
-        // TODO: Updates logic
+        if (m_renderAPI == nullptr)
+            throw std::exception("Render is null!");
 
-        if (glfwWindowShouldClose(m_window))
-            break;
+        GLFWInit();
+        InitializeWindow(width, height, name);
 
-        // show cursor
-        glfwSetInputMode(m_window, GLFW_CURSOR,
-                         m_game->GetActiveScene()->GetShowCursor()
-                             ? GLFW_CURSOR_NORMAL
-                             : GLFW_CURSOR_DISABLED);
+        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+            throw std::exception("Failed to initialized GLAD");
 
-        // per-frame time logic
-        const float currentFrame = static_cast<float>(glfwGetTime());
-        m_deltaTime = currentFrame - m_lastFrame;
-        m_lastFrame = currentFrame;
+        if (game->hasScriptEngine)
+            m_scriptEngine = new ScriptEngine();
 
-        // update scene and entities
-        m_game->GetActiveScene()->Update(m_deltaTime);
+        m_renderAPI->Initialize(width, height);
+        m_game = game;
+        m_game->width = width;
+        m_game->height = height;
 
-        // render
-        m_renderAPI->Render(m_game);
+        // TODO: Load the assets(ResourceManager) by the first scene file
+        // TODO: Initialize entities from the first scene file
 
-        int displayW, displayH;
-        glfwGetFramebufferSize(m_window, &displayW, &displayH);
-        m_renderAPI->AfterRender(width, height);
+        while (true)
+        {
+            if (m_game->GetActiveScene() == nullptr)
+                m_game->ChangeActiveScene();
 
-        glfwSwapBuffers(m_window);
-        glfwPollEvents();
+            // TODO: Updates logic
+
+            if (glfwWindowShouldClose(m_window))
+                break;
+
+            // show cursor
+            glfwSetInputMode(m_window, GLFW_CURSOR, m_game->GetActiveScene()->GetShowCursor() ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+
+            // per-frame time logic
+            const float currentFrame = static_cast<float>(glfwGetTime());
+            m_deltaTime = currentFrame - m_lastFrame;
+            m_lastFrame = currentFrame;
+
+            // update scene and entities
+            m_game->GetActiveScene()->Update(m_deltaTime);
+
+            // render
+            m_renderAPI->Render(m_game);
+
+            int displayW, displayH;
+            glfwGetFramebufferSize(m_window, &displayW, &displayH);
+            m_renderAPI->AfterRender(width, height);
+
+            glfwSwapBuffers(m_window);
+            glfwPollEvents();
+        }
+
+        glfwTerminate();
     }
-
-    glfwTerminate();
+    catch (const std::exception& e)
+    {
+        std::string exception = e.what();
+        LoggerSingleton::Instance().LogError("Exception: " + exception);
+        glfwTerminate();
+    }
 }
 
 GLFWwindow* Application::GetWindow() const
@@ -131,6 +142,7 @@ void Application::GLFWInit()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);  // Debug context
 
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -188,7 +200,7 @@ void Application::KeyCallback(GLFWwindow* window, int key, int scancode, int act
 
 void Application::FrameBufferSizeCallback(GLFWwindow* window, const int width, const int height)
 {
-    Application::Instance().GetRenderAPI()->RescaleFrameBuffer(width, height);
+    Application::Instance().GetRenderAPI()->RescaleFrameBuffers(width, height);
 }
 
 MouseButton Application::GetMouseButtonByGLFW(const int mouseButton)

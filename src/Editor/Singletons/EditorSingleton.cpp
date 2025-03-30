@@ -90,6 +90,11 @@ ScriptController& EditorSingleton::GetScriptController()
     return m_scriptController;
 }
 
+FrameBuffer* EditorSingleton::GetViewPortFbo() const
+{
+    return m_viewPortFbo;
+}
+
 void EditorSingleton::SetSelectedPath(const path& path)
 {
     m_selectedPath = path;

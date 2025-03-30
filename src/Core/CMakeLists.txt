@@ -29,6 +29,7 @@ add_library (Core STATIC
 	"ECS/Components/MeshComponent.h"
 	"ECS/Components/DirectionalLightComponent.h"
 	"ECS/Components/MaterialComponent.h"
+	"ECS/Components/NativeScriptComponent.h"
 	"ECS/Components/ScriptComponent.h"
 	"ECS/Components/ChildrenComponent.h"
 	"ECS/Components/ParentComponent.h"
@@ -71,7 +72,10 @@ add_library (Core STATIC
 	"Render/Material.h"
 	"Render/RenderType.h" 
 	"Render/TextureType.h" 
-	"Render/Shape.h"  
+	"Render/Shape.h"
+	"Render/FrameBuffer.h"
+	"Render/OpenGL/OpenGLFrameBuffer.h"
+	"Render/OpenGL/OpenGLFrameBuffer.cpp"
 	"Render/OpenGL/OpenGLMesh.h" 
 	"Render/OpenGL/OpenGLMesh.cpp" 
 	"Render/OpenGL/OpenGLShader.h" 
@@ -87,8 +91,10 @@ add_library (Core STATIC
 	"Resources/GlobalResourceManager.h" 
 	"Resources/GlobalResourceManager.cpp" 
 	
-	"Scripting/ScriptEngine.h"
 	"Scripting/coreclrhost.h"
+	"Scripting/NativeScript.h"
+	"Scripting/NativeScript.cpp"
+	"Scripting/ScriptEngine.h"
 	"Scripting/ScriptEngine.cpp" 
 	"Scripting/Script.h" 
 	"Scripting/Script.cpp" 
@@ -105,8 +111,8 @@ add_library (Core STATIC
 	"Sync/GameSynchronizer.cpp"
 
 	"Vendors/glad.h"
-	"Vendors/glfw3.h" 
-   )
+	"Vendors/glfw3.h"
+	)
 
 # add link libraries
 target_link_libraries(Core PRIVATE glm glfw glad)

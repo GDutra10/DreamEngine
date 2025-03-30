@@ -25,6 +25,7 @@ add_subdirectory("src/Core")
 add_subdirectory("src/Profiling")
 add_subdirectory("src/Editor")
 # add_subdirectory("src/CSharpCore")
+add_subdirectory("src/Games/NativeGame")
 add_subdirectory("src/Vendors/glfw")
 
 set(GLM_DIR "src/Vendors/glm")
