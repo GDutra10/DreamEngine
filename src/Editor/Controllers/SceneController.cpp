@@ -6,6 +6,7 @@
 #include "../Singletons/EditorSingleton.h"
 #include "../../Core/Application.h"
 #include "../../Core/Loggers/LoggerSingleton.h"
+#include "../Serializers/SceneDataSerializer.h"
 
 using namespace DreamEngine::Core;
 using namespace DreamEngine::Core::ECS::Components;
@@ -22,40 +23,59 @@ bool SceneController::ShouldLoadSceneData(path& path)
 void SceneController::LoadSceneData(path& path, EntityManager* entityManager)
 {
     entityManager->Reset();
-    //delete EditorSingleton::Instance().sceneData;  // ?Delete previous scene data?
-    SceneData* sceneData = ReadSceneFile(path.string());
+    std::ifstream file(path.string());
+
+    SceneData* sceneData = &Serializers::SceneDataSerializer::Deserialize(file);
     EditorSingleton::Instance().sceneData = sceneData;
-    Scene* scene = Application::Instance().GetGame()->GetActiveScene();
-    Camera& camera = scene->GetCamera();
+    Scene* s = Application::Instance().GetGame()->GetActiveScene();
+    Camera& c = s->GetCamera();
 
-    // set camera props
-    camera.fovDegree = sceneData->config.camera.fovDegree;
-    camera.far = sceneData->config.camera.far;
-    camera.front = sceneData->config.camera.front;
-    camera.near = sceneData->config.camera.near;
-    camera.position = sceneData->config.camera.position;
-    camera.up = sceneData->config.camera.up;
+     // set camera props
+    c.fovDegree = sceneData->config.camera.fovDegree;
+    c.far = sceneData->config.camera.far;
+    c.front = sceneData->config.camera.front;
+    c.front.z = -1;
+    c.near = sceneData->config.camera.near;
+    c.position = sceneData->config.camera.position;
+    c.up.x = sceneData->config.camera.up.x;
+    c.up.y = sceneData->config.camera.up.y;
+    c.up.z = sceneData->config.camera.up.z;
 
-    for (EntityConfig& entityConfig : EditorSingleton::Instance().sceneData->entities)
-    {
-        LoggerSingleton::Instance().LogInfo("Loading Entity: " + entityConfig.name);
+    // TODO: remove
+    //delete EditorSingleton::Instance().sceneData;  // ?Delete previous scene data?
+    //SceneData* sceneData = ReadSceneFile(path.string());
+    //EditorSingleton::Instance().sceneData = sceneData;
+    //Scene* scene = Application::Instance().GetGame()->GetActiveScene();
+    //Camera& camera = scene->GetCamera();
 
-        Entity* entity = entityManager->AddEntity(entityConfig.tag);
-        entity->GetName().assign(entityConfig.name);
+    //// set camera props
+    //camera.fovDegree = sceneData->config.camera.fovDegree;
+    //camera.far = sceneData->config.camera.far;
+    //camera.front = sceneData->config.camera.front;
+    //camera.near = sceneData->config.camera.near;
+    //camera.position = sceneData->config.camera.position;
+    //camera.up = sceneData->config.camera.up;
 
-        for (const string& component : entityConfig.components)
-        {
-            // TODO: set components
-            if (component == "Transform")
-            {
-                TransformComponent& transformComponent = entity->GetComponent<TransformComponent>();
-                transformComponent.has = true;
-                transformComponent.SetPosition(entityConfig.transform.GetPosition());
-                transformComponent.SetScale(entityConfig.transform.GetScale());
-                transformComponent.SetRotation(entityConfig.transform.GetRotation());
-            }
-        }
-    }
+    //for (EntityConfig& entityConfig : EditorSingleton::Instance().sceneData->entities)
+    //{
+    //    LoggerSingleton::Instance().LogInfo("Loading Entity: " + entityConfig.name);
+
+    //    Entity* entity = entityManager->AddEntity(entityConfig.tag);
+    //    entity->GetName().assign(entityConfig.name);
+
+    //    for (const string& component : entityConfig.components)
+    //    {
+    //        // TODO: set components
+    //        if (component == "Transform")
+    //        {
+    //            TransformComponent& transformComponent = entity->GetComponent<TransformComponent>();
+    //            transformComponent.has = true;
+    //            transformComponent.SetPosition(entityConfig.transform.GetPosition());
+    //            transformComponent.SetScale(entityConfig.transform.GetScale());
+    //            transformComponent.SetRotation(entityConfig.transform.GetRotation());
+    //        }
+    //    }
+    //}
 }
 
 SceneData* SceneController::ReadSceneFile(const std::string& filePath)

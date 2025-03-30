@@ -14,6 +14,7 @@
 #include "../Serializers/TextureSerializer.h"
 #include "../EditorDefine.h"
 #include "../Importers/AssimpModelImporter.h"
+#include "../Serializers/SceneDataSerializer.h"
 
 using namespace DreamEngine::Core::Loggers;
 using namespace DreamEngine::Core::ECS::Components;
@@ -154,6 +155,57 @@ Result ResourceController::CreateMeshFileFromModelFile(const std::string& filena
     {
         // TODO: delete all meshes and textures
         //DeleteMaterialFromResourceManager(newMaterial);
+    }
+
+    return result;
+}
+
+Result ResourceController::CreateSceneFile(const std::string& filename)
+{
+    LoggerSingleton::Instance().LogTrace("ResourceController::CreateSceneFile -> Start");
+    Result result = {"", true};
+    string pathAndFileName = EditorSingleton::Instance().GetSelectedPath().string() + "\\" + filename + EDITOR_DEFAULT_SCENE_FILE_EXTENSION;
+
+    // validations
+    if (filename.empty())
+    {
+        LoggerSingleton::Instance().LogWarning("ResourceController::CreateSceneFile -> Filename is empty");
+        return {"File name is empty", false};
+    }
+
+    if (exists(pathAndFileName))
+    {
+        std::string validation = "File already exists in this directory";
+        LoggerSingleton::Instance().LogWarning(validation);
+        return {validation, false};
+    }
+
+    try
+    {
+        // Create File
+        LoggerSingleton::Instance().LogTrace("ResourceController::CreateSceneFile -> Creating and saving the file");
+        std::ofstream file(pathAndFileName);
+
+        if (file.is_open())
+        {
+            SceneData sceneData;
+            file << SceneDataSerializer::Serialize(sceneData);
+            file.close();
+
+            LoggerSingleton::Instance().LogTrace("ResourceController::CreateSceneFile -> Scene '" + filename + "' saved");
+        }
+        else
+        {
+            LoggerSingleton::Instance().LogError("Failed to open the file");
+            result.errorMessage = "Failed to create the file";
+            result.isOk = false;
+        }
+    }
+    catch (const std::exception& e)
+    {
+        LoggerSingleton::Instance().LogError(e.what());
+        result.errorMessage = "An error occured! Please check the Output Window to see the error";
+        result.isOk = false;
     }
 
     return result;
@@ -389,6 +441,11 @@ void ResourceController::AddScripts(const std::vector<ScriptInfo>& scriptInfos)
         GlobalResourceManager::Instance().RemoveScript(script);
 
     LoggerSingleton::Instance().LogTrace("ResourceController::AddScripts -> Finish");
+}
+
+void ResourceController::UnloadAllResources()
+{
+    GlobalResourceManager::Instance().Clear();
 }
 
 Result ResourceController::TryAddToResourceManager(Material* material, const bool mustGenerateResourceId)

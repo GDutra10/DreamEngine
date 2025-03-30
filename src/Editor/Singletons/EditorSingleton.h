@@ -3,6 +3,7 @@
 
 #include <filesystem>
 
+#include "../Controllers/ProjectController.h"
 #include "../Controllers/ResourceController.h"
 #include "../Controllers/ScriptController.h"
 #include "../Models/ProjectConfiguration.h"
@@ -35,6 +36,7 @@ class EditorSingleton final
     [[nodiscard]] Scene* GetEditorScene() const;
     [[nodiscard]] bool IsViewSceneData() const;
     [[nodiscard]] EditorLogger* GetEditorLogger() const;
+    [[nodiscard]] ProjectController& GetProjectController();
     [[nodiscard]] ResourceController& GetResourceController();
     [[nodiscard]] ScriptController& GetScriptController();
     void SetSelectedPath(const path& path);
@@ -43,6 +45,7 @@ class EditorSingleton final
     void SetEntityManager(EntityManager* entityManager);
     void SetSelectedEntity(Entity* entity);
     void SetIsViewSceneData(bool value) { m_isViewSceneData = value; }
+    void SetProjectConfiguration(const ProjectConfiguration& projectConfig) const;
    private:
     EditorSingleton(ProjectConfiguration& projectConfig, EditorConfiguration& editorConfig, Scene* pEditorScene);
     static EditorSingleton* m_sEditorSingleton;
@@ -57,6 +60,7 @@ class EditorSingleton final
     Scene* m_pEditorScene;
     bool m_isViewSceneData = false;
     std::string m_selectedPathByProject;
+    ProjectController m_projectController;
     ResourceController m_resourceController;
     ScriptController m_scriptController;
 };

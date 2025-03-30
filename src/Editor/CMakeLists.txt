@@ -38,9 +38,9 @@ add_executable (Editor
 	
 	"Models/EditorConfiguration.h"
 	"Models/EditorConfiguration.cpp"
-	"Models/EntityConfig.h"	
+		
 	"Models/ProjectConfiguration.h"
-	"Models/ProjectConfiguration.cpp"
+	
 	"Models/Result.h"
 	"Models/SceneData.h"
 	"Models/SceneConfig.h"
@@ -121,7 +121,18 @@ add_executable (Editor
 	"Vendors/imgui/imgui_impl_opengl3_loader.h"
 	"Vendors/imgui/imgui_impl_glfw.cpp"
 	"Vendors/imgui/imgui_impl_glfw.h"
-    )
+     
+	"UI/Modals/OpenProjectModal.h"
+	"UI/Modals/OpenProjectModal.cpp"
+	"Controllers/ProjectController.h"
+	"Controllers/ProjectController.cpp"
+	"Controllers/DotNetCliController.h"
+	"Controllers/DotNetCliController.cpp"
+	"Models/FileDialogConfig.h"
+	"Serializers/ProjectConfigurationSerializer.h"
+	"Serializers/ProjectConfigurationSerializer.cpp" 
+	"Serializers/SceneDataSerializer.h"
+	"Serializers/SceneDataSerializer.cpp")
 
 # add link libraries
 target_link_libraries(Editor PRIVATE Profiling Core glm glfw glad assimp nlohmann_json)

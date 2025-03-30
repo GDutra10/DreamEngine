@@ -10,5 +10,11 @@ struct Result
     std::string errorMessage;
     bool isOk;
 };
+
+template <typename T>
+struct ResultWithData : public Result
+{
+    T data;
+};
 }  // namespace DreamEngine::Editor::Models
 #endif

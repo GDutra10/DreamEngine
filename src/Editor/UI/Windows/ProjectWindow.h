@@ -18,9 +18,9 @@ class ProjectWindow : public BaseWindow
 
    protected:
     void DrawContent() override;
-    static void DrawDirectoryTree(const path& directoryPath, std::string& selectedPath);
    private:
     ImportResourceModal* m_importResourcePopup;
+    FileDialogConfig m_fileDialogConfig;
 };
 
 }  // namespace DreamEngine::Editor::UI::Windows

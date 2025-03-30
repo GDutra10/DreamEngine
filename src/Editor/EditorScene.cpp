@@ -1,6 +1,5 @@
 #include "EditorScene.h"
 
-#include "EditorDefine.h"
 #include "Helpers/FileHelper.h"
 #include "Serializers/MaterialSerializer.h"
 #include "Singletons/EditorSingleton.h"
@@ -10,9 +9,7 @@
 #include "Vendors/imgui/ImGuizmo.h"
 #include "Vendors/stb_image.h"
 #include "../Core/Application.h"
-#include "../Core/EngineDefine.h"
 #include "../Core/Loggers/LoggerSingleton.h"
-#include "../Core/Resources/GlobalResourceManager.h"
 #include "../Core/Render/Factories/MeshFactory.h"
 #include "../Core/Inputs/Input.h"
 #include "../Core/IO/File.h"
@@ -31,8 +28,6 @@ EditorScene::EditorScene(
     ProjectConfiguration& projectConfig,
     EditorConfiguration& editorConfig)
     : Scene(std::move(name))
-      , m_projectConfig(projectConfig)
-      , m_editorConfig(editorConfig)
       , m_hierarchyWindow(HierarchyWindow("Hierarchy"))
       , m_loggerWindow(LoggerWindow("Output"))
       , m_propertyWindow(PropertyWindow("Property"))
@@ -41,6 +36,7 @@ EditorScene::EditorScene(
       , m_fileExplorerWindow(FileExplorerWindow("File Explorer"))
       , m_resourceManagerWindow(ResourceManagerWindow("Resource Manager"))
       , m_materialWindow(MaterialWindow("Material"))
+      , m_openProjectModal(OpenProjectModal("Open Project"))
 {
     EditorSingleton::Initialize(projectConfig, editorConfig, this);
 }
@@ -64,8 +60,7 @@ void EditorScene::Initialize()
     // configure stb_image to flip loaded texture's on the y-axis
     stbi_set_flip_vertically_on_load(true);
 
-    LoadDefaultResources();
-    LoadResourcesFromProject();
+    EditorSingleton::Instance().GetProjectController().LoadProjectConfiguration();
 }
 
 void EditorScene::Unload()
@@ -79,6 +74,11 @@ void EditorScene::Update(const float deltaTime)
 {
     Scene::Update(deltaTime);
     m_pCameraEditorController->Update(m_sceneWindow.IsFocused());
+}
+
+ProjectConfiguration& EditorScene::GetProjectConfiguration() const
+{
+    return EditorSingleton::Instance().GetProjectConfiguration();
 }
 
 void EditorScene::InitializeImGui()
@@ -108,76 +108,13 @@ void EditorScene::InitializeImGui()
     ImGui_ImplOpenGL3_CreateFontsTexture();
 }
 
-void EditorScene::LoadDefaultResources()
-{
-    // add default shader
-    const std::string vertexShader = File::ReadAllText("Assets/Shaders/default.vert.glsl");
-    const std::string fragmentShader = File::ReadAllText("Assets/Shaders/default.frag.glsl");
-    Shader* shader = Application::Instance().GetRenderAPI()->CreateShader(DEFAULT_SHADER_NAME, vertexShader, fragmentShader);
-    shader->name = DEFAULT_SHADER_NAME;
-    GlobalResourceManager::Instance().AddShader(shader->name, shader);
-
-    // add default material
-    Material* material = new Material();
-    material->name = DEFAULT_MATERIAL_NAME;
-    material->shader = shader;
-    material->specular = {0.5f, 0.5f, 0.5f};
-    material->ambient = {0.2f, 0.2f, 0.2f};
-    material->diffuse = {0.8f, 0.8f, 0.8f};
-    material->shininess = 32.0f;
-    GlobalResourceManager::Instance().AddMaterial(DEFAULT_MATERIAL_NAME, material);
-
-    // add default texture
-    int width, height, nrChannels;
-    unsigned char* data = stbi_load("Assets/Textures/defaulttexture.jpg", &width, &height, &nrChannels, 0);
-    Texture* texture = Application::Instance().GetRenderAPI()->CreateTexture(data, width, height, nrChannels);
-    texture->name = DEFAULT_TEXTURE_NAME;
-    stbi_image_free(data);
-
-    if (texture != nullptr)
-    {
-        texture->type = Diffuse;
-        GlobalResourceManager::Instance().AddTexture(DEFAULT_TEXTURE_NAME, texture);
-    }
-
-    Mesh* cubeMesh = MeshFactory::CreateMesh(Cube);
-    cubeMesh->name = DEFAULT_CUBE_MESH_NAME;
-    GlobalResourceManager::Instance().AddMesh(DEFAULT_CUBE_MESH_NAME, cubeMesh);
-
-    Mesh* sphereMesh = MeshFactory::CreateMesh(Sphere);
-    sphereMesh->name = DEFAULT_SPHERE_MESH_NAME;
-    GlobalResourceManager::Instance().AddMesh(DEFAULT_SPHERE_MESH_NAME, sphereMesh);
-
-    Mesh* capsuleMesh = MeshFactory::CreateMesh(Capsule);
-    capsuleMesh->name = DEFAULT_CAPSULE_MESH_NAME;
-    GlobalResourceManager::Instance().AddMesh(DEFAULT_CAPSULE_MESH_NAME, capsuleMesh);
-
-    Mesh* cylinderMesh = MeshFactory::CreateMesh(Cylinder);
-    cylinderMesh->name = DEFAULT_CYLINDER_MESH_NAME;
-    GlobalResourceManager::Instance().AddMesh(DEFAULT_CYLINDER_MESH_NAME, cylinderMesh);
-
-    Mesh* planeMesh = MeshFactory::CreateMesh(Plane);
-    planeMesh->name = DEFAULT_PLANE_MESH_NAME;
-    GlobalResourceManager::Instance().AddMesh(DEFAULT_PLANE_MESH_NAME, planeMesh);
-}
-
-void EditorScene::LoadResourcesFromProject() const
-{
-    // TODO: load all resources from the project
-
-    EditorSingleton::Instance().GetScriptController().ReloadScripts();
-    ResourceController* resourceController = &EditorSingleton::Instance().GetResourceController();
-
-    std::vector<std::string> materialFiles = Helpers::FileHelper::GetFilesWithExtension(m_projectConfig.projectPath, EDITOR_DEFAULT_MATERIAL_FILE_EXTENSION);
-    resourceController->LoadMaterials(materialFiles);
-
-    std::vector<std::string> modelFiles = Helpers::FileHelper::GetFilesWithExtension(m_projectConfig.projectPath, EDITOR_DEFAULT_MODEL_FILE_EXTENSION);
-    resourceController->LoadModels(modelFiles);
-}
-
 void EditorScene::DrawMenuBar()
 {
+    ProjectConfiguration& projectConfiguration = GetProjectConfiguration();
+
     // Create a menu bar
+    bool mustOpenProjectModal = false;
+
     if (ImGui::BeginMainMenuBar())
     {
         if (ImGui::BeginMenu("File"))
@@ -185,8 +122,9 @@ void EditorScene::DrawMenuBar()
             if (ImGui::MenuItem("Open", "Ctrl+O"))
             {
                 // Handle Open action
+                mustOpenProjectModal = true;
             }
-            if (ImGui::MenuItem("Save", "Ctrl+S"))
+            if (ImGui::MenuItem("Save", "Ctrl+S", false, projectConfiguration.isLoaded))
             {
                 // Handle Save action
             }
@@ -196,7 +134,7 @@ void EditorScene::DrawMenuBar()
             }
             ImGui::EndMenu();
         }
-        if (ImGui::BeginMenu("Edit"))
+        if (ImGui::BeginMenu("Edit", projectConfiguration.isLoaded))
         {
             if (ImGui::MenuItem("Undo", "Ctrl+Z"))
             {
@@ -208,7 +146,7 @@ void EditorScene::DrawMenuBar()
             }
             ImGui::EndMenu();
         }
-        if (ImGui::BeginMenu("Assets"))
+        if (ImGui::BeginMenu("Assets", projectConfiguration.isLoaded))
         {
             if (ImGui::MenuItem("Recompile Scripts"))
                 EditorSingleton::Instance().GetScriptController().ReloadScripts();
@@ -235,7 +173,7 @@ void EditorScene::DrawMenuBar()
             }
             ImGui::EndMenu();
         }
-        if (ImGui::BeginMenu("Window"))
+        if (ImGui::BeginMenu("Window", projectConfiguration.isLoaded))
         {
             if (ImGui::MenuItem("Editor"))
             {
@@ -253,6 +191,12 @@ void EditorScene::DrawMenuBar()
         }
         ImGui::EndMainMenuBar();
     }
+
+    if (mustOpenProjectModal)
+        m_openProjectModal.Open();
+
+    // modals
+    m_openProjectModal.Draw();
 }
 
 void EditorScene::StartImGuiFrame()
@@ -268,14 +212,18 @@ void EditorScene::FinishImGuiFrame()
     ImGui::DockSpaceOverViewport();
 
     DrawMenuBar();
-    m_hierarchyWindow.Draw();
-    m_loggerWindow.Draw();
-    m_propertyWindow.Draw();
-    m_projectWindow.Draw();
-    m_sceneWindow.Draw();
-    m_fileExplorerWindow.Draw();
-    m_resourceManagerWindow.Draw();
-    m_materialWindow.Draw();
+
+    if (GetProjectConfiguration().isLoaded)
+    {
+        m_hierarchyWindow.Draw();
+        m_loggerWindow.Draw();
+        m_propertyWindow.Draw();
+        m_projectWindow.Draw();
+        m_sceneWindow.Draw();
+        m_fileExplorerWindow.Draw();
+        m_resourceManagerWindow.Draw();
+        m_materialWindow.Draw();    
+    }
 
     ImGui::Render();
 

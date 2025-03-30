@@ -138,19 +138,25 @@ void PropertyWindow::DrawSceneData(SceneData* sceneData)
             ImGui::TextColored(ImGuiHelper::GetImVec4Red(), "X");
             ImGui::SameLine();
             ImGui::SetNextItemWidth(NEXT_ROW_VECTOR_3_INPUT_WIDTH);
-            ImGui::InputFloat("##scene.camera.up.x", &camera.up.x, 0, 0, "%.2f");
+            float upX = std::isnan(camera.up.x) ? 0.0f : camera.up.x;
+            ImGui::InputFloat("##scene.camera.up.x", &upX, 0, 0, "%.2f");
+            camera.up.x = upX;
 
             ImGui::SameLine();
             ImGui::TextColored(ImGuiHelper::GetImVec4Green(), "Y");
             ImGui::SameLine();
             ImGui::SetNextItemWidth(NEXT_ROW_VECTOR_3_INPUT_WIDTH);
-            ImGui::InputFloat("##scene.camera.up.y", &camera.up.y, 0, 0, "%.2f");
+            float upY = std::isnan(camera.up.y) ? 0.0f : camera.up.y;
+            ImGui::InputFloat("##scene.camera.up.y", &upY, 0, 0, "%.2f");
+            camera.up.y = upY;
 
             ImGui::SameLine();
             ImGui::TextColored(ImGuiHelper::GetImVec4Blue(), "Z");
             ImGui::SameLine();
             ImGui::SetNextItemWidth(NEXT_ROW_VECTOR_3_INPUT_WIDTH);
-            ImGui::InputFloat("##scene.camera.up.z", &camera.up.z, 0, 0, "%.2f");
+            float upZ = std::isnan(camera.up.z) ? 0.0f : camera.up.z;
+            ImGui::InputFloat("##scene.camera.up.z", &upZ, 0, 0, "%.2f");
+            camera.up.z = upZ;
 
             ImGuiHelper::PrepareRow("Fov");
             ImGui::InputFloat("##scene.camera.fov", &camera.fovDegree, 0, 0, "%.2f");

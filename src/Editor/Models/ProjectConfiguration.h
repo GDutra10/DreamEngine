@@ -15,7 +15,7 @@ struct ProjectConfiguration
     std::string csProjectDebugPath;
     std::string csProjectDebugDll;
     std::map<std::string, std::string> sceneDefinitions;
-    static ProjectConfiguration LoadProjectConfiguration(const std::string& projectPath, const std::string& projectName);
+    bool isLoaded = false;
 };
 
 }  // namespace DreamEngine::Editor::Models

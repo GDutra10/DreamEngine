@@ -9,7 +9,7 @@ using namespace DreamEngine::Editor::Helpers;
 
 Texture* TextureHelper::LoadTextureFromFile(const std::string& filePath)
 {
-    stbi_set_flip_vertically_on_load(true);
+    stbi_set_flip_vertically_on_load(false);
 
     const std::string path = std::filesystem::current_path().string() + "\\" + filePath;
     int width, height, channels;

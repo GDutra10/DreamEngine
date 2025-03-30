@@ -1,5 +1,7 @@
 #include "FileHelper.h"
 
+#include <iostream>
+
 using namespace DreamEngine::Editor::Helpers;
 
 vector<string> FileHelper::GetFilesWithExtension(const path& directory, const string& extension)
@@ -32,3 +34,23 @@ vector<path> FileHelper::GetAllFilesInCurrentDirectory(const path& directoryPath
 
     return files;
 }
+
+#if defined(_WIN32) || defined(_WIN64)
+
+path FileHelper::GetExecutablePath()
+{
+    char buffer[MAX_PATH];
+    GetModuleFileNameA(NULL, buffer, MAX_PATH);
+    return std::filesystem::path(buffer).parent_path();
+}
+#elif defined(__linux__)
+#include <unistd.h>
+#include <limits.h>
+
+path FileHelper::GetExecutablePath()
+{
+    char buffer[MAX_PATH];
+    ssize_t count = readlink("/proc/self/exe", buffer, PATH_MAX);
+    return std::filesystem::path(std::string(buffer, (count > 0) ? count : 0)).parent_path();
+}
+#endif

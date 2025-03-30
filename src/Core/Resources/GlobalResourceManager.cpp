@@ -63,6 +63,11 @@ void GlobalResourceManager::AddScript(const std::string& resourceId, Script* scr
     m_resourceManager.AddScript(resourceId, script);
 }
 
+void GlobalResourceManager::Clear()
+{
+    m_resourceManager.Clear();
+}
+
 void GlobalResourceManager::RemoveMaterial(const Material* material)
 {
     m_resourceManager.RemoveMaterial(material);

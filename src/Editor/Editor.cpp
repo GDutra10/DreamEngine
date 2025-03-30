@@ -43,10 +43,11 @@ using namespace DreamEngine::Editor::Singletons;
 
 int main()
 {
-    std::string projectPath = "C:/Users/gui_d/source/cplusplus/DreamEngine/out/build/x64-debug/src/Editor/Projects/MyAwesomeProject/"; // TODO: parametrized this
-    std::string projectName = "MyAwesomeProject.deproj"; // TODO: parametrized this
-    auto editorConfiguration = EditorConfiguration::LoadEditorConfiguration();
-    auto projectConfiguration = ProjectConfiguration::LoadProjectConfiguration(projectPath, projectName);
+    // TODO: came in args
+    //std::string projectPath = "C:/Users/gui_d/source/cplusplus/DreamEngine/out/build/x64-debug/src/Editor/Projects/MyAwesomeProject/"; // TODO: parametrized this
+    //std::string projectName = "MyAwesomeProject.deproj"; // TODO: parametrized this
+    EditorConfiguration editorConfiguration = EditorConfiguration::LoadEditorConfiguration();
+    ProjectConfiguration projectConfiguration = {}; //ProjectConfiguration::LoadProjectConfiguration(projectPath, projectName);
 
     // adding logs
     #ifdef _DEBUG
