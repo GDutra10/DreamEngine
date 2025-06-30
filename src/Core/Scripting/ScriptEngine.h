@@ -60,6 +60,7 @@ class ScriptEngine
     static unsigned int m_sDomainId;
     void* m_pCoreClrLibrary = nullptr;
     bool m_isAssemblyLoaded = false;
+    std::string m_coreClrPath;
     // coreclr functions
     static coreclr_initialize_ptr m_spCoreClrInitialize;
     static coreclr_create_delegate_ptr m_spCoreClrCreateDelegate;
@@ -76,9 +77,11 @@ class ScriptEngine
     static assembliesUnloadDelegate m_spAssembliesUnloadDelegate;
 
     bool Initialize();
+    static std::string FindCoreCLRPath();
     bool LoadCoreCLR(const std::string& coreClrPath);
     bool InitCoreCLR();
     bool CreateCoreCLRDelegates();
+    static std::string NormalizePath(const std::string& path);
 
     // helper functions
     static HMODULE LoadLibrary(const char* path);
