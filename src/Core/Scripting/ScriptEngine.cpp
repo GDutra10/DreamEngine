@@ -1,7 +1,8 @@
-#include "ScriptEngine.h"
+﻿#include "ScriptEngine.h"
 
 #include <filesystem>
 #include <iostream>
+#include <regex>
 #include <vector>
 
 #include "../Loggers/LoggerSingleton.h"
@@ -12,10 +13,6 @@
 
 #ifndef SCRIPT_ENGINE_SCRIPT_MANAGER_NAME
 #define SCRIPT_ENGINE_SCRIPT_MANAGER_NAME "DreamEngine.Managers.ScriptManager"
-#endif
-
-#ifndef CORECLR_PATH
-#define CORECLR_PATH "C:\\Program Files\\dotnet\\shared\\Microsoft.NETCore.App\\9.0.1"
 #endif
 
 using namespace DreamEngine::Core::Scripting;
@@ -47,15 +44,56 @@ ScriptEngine::~ScriptEngine() = default;
 
 bool ScriptEngine::Initialize()
 {
-    const static std::string coreClrPath = CORECLR_PATH;
+    m_coreClrPath = FindCoreCLRPath();
 
-    if (!LoadCoreCLR(coreClrPath))
+    if (!LoadCoreCLR(m_coreClrPath))
         return false;
 
     if (!InitCoreCLR())
         return false;
 
     return CreateCoreCLRDelegates();
+}
+
+std::string ScriptEngine::FindCoreCLRPath()
+{
+    // 1. Check environment variable
+    const char* envPath = std::getenv("CORECLR_PATH");
+
+    if (envPath && std::filesystem::exists(envPath))
+    {
+        std::string envPathStr = std::string(envPath);
+        LoggerSingleton::Instance().LogTrace("Using CORECLR_PATH from environment: " + envPathStr);
+        return envPathStr;
+    }
+
+#ifdef _WIN32
+    std::string basePath = "C:/Program Files/dotnet/shared/Microsoft.NETCore.App/";
+#else
+    std::string basePath = "/usr/share/dotnet/shared/Microsoft.NETCore.App/";
+#endif
+
+    if (!std::filesystem::exists(basePath))
+        throw std::runtime_error("Can't find CoreCLR base directory!");
+
+    if (std::filesystem::exists(basePath))
+    {
+        std::string latest;
+        for (auto& entry : std::filesystem::directory_iterator(basePath))
+        {
+            if (entry.is_directory())
+            {
+                latest = entry.path().string();  // Just pick the last for now
+            }
+        }
+        if (!latest.empty())
+        {
+            LoggerSingleton::Instance().LogTrace("Using latest detected CoreCLR version: " + latest);
+            return NormalizePath(latest);
+        }
+    }
+
+    throw std::exception("Can't find CoreCLR!");
 }
 
 void ScriptEngine::LoadAssembly(const std::string& assemblyPath)
@@ -230,12 +268,22 @@ bool ScriptEngine::InitCoreCLR()
     std::string dreamEnginePath = executablePath + "\\" + "DreamEngine.dll";
 
     // Paths for CoreCLR
-    std::string tpaPaths = BuildTpaList(CORECLR_PATH) + ";" + dreamEnginePath;
+    std::string tpaPaths = BuildTpaList(m_coreClrPath) + ";" + dreamEnginePath;
     std::string nativePath = executablePath + "\\" + "Core.dll";
 
     // Property keys and values
-    std::vector<const char*> propertyKeys = {"TRUSTED_PLATFORM_ASSEMBLIES", "APP_PATHS", "NATIVE_DLL_SEARCH_DIRECTORIES"};
-    std::vector<const char*> propertyValues = {tpaPaths.c_str(), dreamEnginePath.c_str(), nativePath.c_str()};
+    std::vector<const char*> propertyKeys = 
+    {
+        "TRUSTED_PLATFORM_ASSEMBLIES",
+        "APP_PATHS",
+        "NATIVE_DLL_SEARCH_DIRECTORIES"
+    };
+    std::vector<const char*> propertyValues = 
+    {
+        tpaPaths.c_str(),
+        executablePath.c_str(),
+        nativePath.c_str()
+    };
 
     // Get pointers to the keys and values
     const char** keysPtr = propertyKeys.data();
@@ -243,13 +291,15 @@ bool ScriptEngine::InitCoreCLR()
     int propertyCount = static_cast<int>(propertyKeys.size());
 
     // Initialize CoreCLR
-    int initStatus = m_spCoreClrInitialize(GetExecutablePath().c_str(),  // Path to your C++ executable
-                                           "DreamEngineDomain",          // Friendly name for the AppDomain
-                                           propertyCount,                // Number of properties
-                                           keysPtr,                      // Pointer to keys
-                                           valuesPtr,                    // Pointer to values
-                                           &m_spHostHandle,              // [OUT] Handle to the runtime
-                                           &m_sDomainId                  // [OUT] AppDomain ID
+    std::string exePath = GetExecutablePath();
+    int initStatus = m_spCoreClrInitialize(
+        exePath.c_str(),              // Path to your C++ executable
+        "DreamEngineDomain",          // Friendly name for the AppDomain
+        propertyCount,                // Number of properties
+        keysPtr,                      // Pointer to keys
+        valuesPtr,                    // Pointer to values
+        &m_spHostHandle,              // [OUT] Handle to the runtime
+        &m_sDomainId                  // [OUT] AppDomain ID
     );
 
     keysPtr = nullptr;
@@ -265,6 +315,17 @@ bool ScriptEngine::InitCoreCLR()
     }
 
     LoggerSingleton::Instance().LogInfo("CoreCLR initialized successfully!");
+}
+
+std::string ScriptEngine::NormalizePath(const std::string& path)
+{
+#ifdef _WIN32
+    std::string normalized = path;
+    std::replace(normalized.begin(), normalized.end(), '/', '\\');
+    return normalized;
+#else
+    return path;
+#endif
 }
 
 bool ScriptEngine::CreateCoreCLRDelegates()
