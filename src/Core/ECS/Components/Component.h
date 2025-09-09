@@ -2,10 +2,11 @@
 #define CORE_ECS_COMPONENTS_COMPONENT_H_
 
 #include <type_traits>
+#include "CoreExport.h"
 
 namespace DreamEngine::Core::ECS::Components
 {
-class Component
+class CORE_API Component
 {
    public:
     bool has = false;

@@ -8,7 +8,7 @@
 namespace DreamEngine::Core::GameSystem
 {
 
-class Game
+class CORE_API Game
 {
    public:
     int width;

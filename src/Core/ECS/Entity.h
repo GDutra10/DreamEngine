@@ -5,6 +5,7 @@
 #include "Components/Component.h"
 #include "Sync/EntityData.h"
 #include "glm/fwd.hpp"
+#include "CoreExport.h"
 
 namespace DreamEngine::Core::ECS
 {
@@ -12,7 +13,7 @@ namespace DreamEngine::Core::ECS
 using namespace DreamEngine::Core::ECS::Components;
 using namespace DreamEngine::Core::Sync;
 
-class Entity
+class CORE_API Entity
 {
     friend class EntityManager;
 

@@ -3,9 +3,11 @@
 
 #include <string>
 
+#include "CoreExport.h"
+
 namespace DreamEngine::Core::Resources
 {
-class Resource
+class CORE_API Resource
 {
 public:
     std::string resourceId;

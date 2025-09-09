@@ -14,7 +14,7 @@ namespace DreamEngine::Core::GameSystem
 using namespace DreamEngine::Core::ECS;
 using namespace DreamEngine::Core::Resources;
 
-class Scene
+class CORE_API Scene
 {
    public:
     virtual ~Scene() = default;

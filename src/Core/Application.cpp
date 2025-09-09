@@ -22,7 +22,7 @@ Application& Application::Instance()
     return application;
 }
 
-void Application::Run(const int width, const int height, const std::string& name, const RenderType renderType, Game* game)
+void Application::Run(int width, int height, const std::string& name, const RenderType renderType, Game* game)
 {
 
     try
@@ -43,8 +43,6 @@ void Application::Run(const int width, const int height, const std::string& name
 
         m_renderAPI->Initialize(width, height);
         m_game = game;
-        m_game->width = width;
-        m_game->height = height;
 
         // TODO: Load the assets(ResourceManager) by the first scene file
         // TODO: Initialize entities from the first scene file
@@ -58,6 +56,12 @@ void Application::Run(const int width, const int height, const std::string& name
 
             if (glfwWindowShouldClose(m_window))
                 break;
+
+             // update window size
+            glfwGetWindowSize(m_window, &width, &height);
+
+            m_game->width = width;
+            m_game->height = height;
 
             // show cursor
             glfwSetInputMode(m_window, GLFW_CURSOR, m_game->GetActiveScene()->GetShowCursor() ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
@@ -75,7 +79,7 @@ void Application::Run(const int width, const int height, const std::string& name
 
             int displayW, displayH;
             glfwGetFramebufferSize(m_window, &displayW, &displayH);
-            m_renderAPI->AfterRender(width, height);
+            m_renderAPI->AfterRender(m_game->width, m_game->height);
 
             glfwSwapBuffers(m_window);
             glfwPollEvents();
@@ -165,6 +169,8 @@ void Application::InitializeWindow(const int width, const int height, const std:
 
     // tell GLFW to capture our mouse
     glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    glfwPollEvents();
 }
 
 void Application::MousePositionCallback(GLFWwindow* window, double xPosIn, double yPosIn)

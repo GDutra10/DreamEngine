@@ -7,7 +7,7 @@
 
 namespace DreamEngine::Core::Loggers
 {
-class Logger abstract
+class CORE_API Logger abstract
 {
    public:
     virtual ~Logger() = default;

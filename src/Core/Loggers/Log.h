@@ -7,7 +7,7 @@
 
 namespace DreamEngine::Core::Loggers
 {
-struct Log
+struct CORE_API Log
 {
     std::chrono::time_point<std::chrono::system_clock> dateTime;
     std::string message;

@@ -1,7 +1,6 @@
 #ifndef CORE_MATH_MATH_H
 #define CORE_MATH_MATH_H
 
-
 #include <array>
 #include <cmath>
 
@@ -10,8 +9,6 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/matrix_decompose.hpp"
 #include "glm/gtx/quaternion.hpp"
-
-
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846f
@@ -83,7 +80,7 @@ namespace DreamEngine::Core::Math
         return result;
     }*/
 
-    inline glm::vec3 scaleVector(const glm::vec3& v, float desiredLength)
+    inline CORE_API glm::vec3 scaleVector(const glm::vec3& v, float desiredLength)
 	{
 		float mag = glm::length(v);
 		if (glm::epsilonEqual(mag, 0.0f, glm::epsilon<float>()))
@@ -92,7 +89,7 @@ namespace DreamEngine::Core::Math
 		return v * desiredLength / mag;
 	}
 
-    inline glm::mat4 composeTransformation(const glm::vec3 position, const glm::vec3 rotation, const glm::vec3 scale)
+    inline CORE_API glm::mat4 composeTransformation(const glm::vec3 position, const glm::vec3 rotation, const glm::vec3 scale)
     {
         glm::mat4 result(1.f);
 
@@ -105,7 +102,7 @@ namespace DreamEngine::Core::Math
         return result;
     }
 
-    inline bool decompose(const glm::mat4& transform, glm::vec3& translation,
+    inline CORE_API bool decompose(const glm::mat4& transform, glm::vec3& translation,
                             glm::quat& rotation, glm::vec3& scale)
     {
         using namespace glm;

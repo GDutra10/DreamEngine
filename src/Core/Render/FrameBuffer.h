@@ -1,9 +1,11 @@
 #ifndef CORE_RENDER_FRAME_BUFFER_H_
 #define CORE_RENDER_FRAME_BUFFER_H_
 
+#include "CoreExport.h"
+
 namespace DreamEngine::Core::Render
 {
-class FrameBuffer
+class CORE_API FrameBuffer
 {
    public:
     unsigned int id = 0;

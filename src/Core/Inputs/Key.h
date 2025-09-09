@@ -1,9 +1,11 @@
 #ifndef CORE_INPUTS_KEY_H_
 #define CORE_INPUTS_KEY_H_
 
+#include "CoreExport.h"
+
 namespace DreamEngine::Core::Inputs
 {
-enum Key
+enum CORE_API Key
 {
     KP_NUM_0,
     KP_NUM_1,

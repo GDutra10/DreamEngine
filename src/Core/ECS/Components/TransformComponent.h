@@ -9,7 +9,7 @@
 
 namespace DreamEngine::Core::ECS::Components
 {
-class TransformComponent : public Component
+class CORE_API TransformComponent : public Component
 {
    public:
     glm::mat4 transform = glm::mat4(1.0f);

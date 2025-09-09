@@ -8,7 +8,7 @@ namespace DreamEngine::Core::ECS::Components
 {
 using namespace DreamEngine::Core::Render;
 
-class MeshComponent : public Component
+class CORE_API MeshComponent : public Component
 {
    public:
     Mesh* mesh;

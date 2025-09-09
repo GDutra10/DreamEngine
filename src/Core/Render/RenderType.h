@@ -4,7 +4,7 @@
 namespace DreamEngine::Core::Render
 {
 
-enum RenderType
+enum CORE_API RenderType
 {
     none,
     openGL,

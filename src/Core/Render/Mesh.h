@@ -7,9 +7,11 @@
 #include "Texture.h"
 #include "Shader.h"
 
+#include "CoreExport.h"
+
 namespace DreamEngine::Core::Render
 {
-class Mesh : public Resource
+class CORE_API Mesh : public Resource
 {
    public:
     // mesh data

@@ -1,9 +1,11 @@
 #ifndef CORE_INPUTS_MOUSE_BUTTON_H_
 #define CORE_INPUTS_MOUSE_BUTTON_H_
 
+#include "CoreExport.h"
+
 namespace DreamEngine::Core::Inputs
 {
-enum MouseButton
+enum CORE_API MouseButton
 {
     MOUSE_BUTTON_LEFT,
     MOUSE_BUTTON_MIDDLE,

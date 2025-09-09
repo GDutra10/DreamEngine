@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.10)
 project(Core)
 
 # Add source to this project's executable.
-add_library (Core STATIC
+add_library (Core SHARED
 	"Timer.cpp"
 	"Timer.h"
 	"Serializers/IJsonSerializable.h"
@@ -112,13 +112,19 @@ add_library (Core STATIC
 
 	"Vendors/glad.h"
 	"Vendors/glfw3.h"
-	)
+	 "Loggers/LoggerExternal.h" "Loggers/LoggerExternal.cpp" "Loggers/ConsoleLogger.cpp" "Loggers/LoggerSingleton.cpp" "Helpers/DateHelper.cpp" "Helpers/LoggerHelper.cpp")
+
+	
+set_target_properties(Core PROPERTIES
+    WINDOWS_EXPORT_ALL_SYMBOLS ON
+    POSITION_INDEPENDENT_CODE ON
+)
 
 # add link libraries
 target_link_libraries(Core PRIVATE glm glfw glad)
 
 # Include GLFW headers
-target_include_directories(Core PRIVATE ${CMAKE_SOURCE_DIR}/src/Vendors/glfw/include)
+target_include_directories(Core PUBLIC ${CMAKE_SOURCE_DIR}/src/Vendors/glfw/include)
 target_include_directories(Core PRIVATE ${GLM_DIR})
 target_include_directories(Core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 

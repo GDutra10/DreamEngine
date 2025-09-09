@@ -39,6 +39,7 @@ public:
     void Update(float deltaTime) override;
 
    private:
+    bool m_imGuiInitialized = false;
     ImGuiIO* m_io = nullptr;
     HierarchyWindow m_hierarchyWindow;
     LoggerWindow m_loggerWindow;

@@ -5,7 +5,7 @@
 
 namespace DreamEngine::Core::ECS::Components
 {
-class ChildrenComponent : public Component
+class CORE_API ChildrenComponent : public Component
 {
    public:
     std::vector<Entity*> children;

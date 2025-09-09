@@ -20,7 +20,7 @@ using namespace DreamEngine::Core::Render;
 using namespace DreamEngine::Core::Inputs;
 using namespace DreamEngine::Core::Scripting;
 
-class Application
+class CORE_API Application
 {
    public:
     static Application& Instance();

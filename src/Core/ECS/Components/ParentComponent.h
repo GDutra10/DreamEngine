@@ -7,7 +7,7 @@
 namespace DreamEngine::Core::ECS::Components
 {
 
-class ParentComponent : public Component
+class CORE_API ParentComponent : public Component
 {
    public:
     Entity* parent;

@@ -9,7 +9,7 @@ namespace DreamEngine::Core::ECS::Components
 {
 using namespace DreamEngine::Core::Render;
 
-class DirectionalLightComponent : public Component
+class CORE_API DirectionalLightComponent : public Component
 {
    public:
     glm::vec3 specular = {0, 0, 0};
