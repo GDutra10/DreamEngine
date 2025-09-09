@@ -2,9 +2,11 @@
 #define CORE_COLOR_H_
 #include <glm/glm.hpp>
 
+#include "CoreExport.h"
+
 namespace DreamEngine::Core
 {
-struct Color
+struct CORE_API Color
 {
     float red = 0;
     float green = 0;

@@ -8,7 +8,7 @@ namespace DreamEngine::Core::Render
 {
 using namespace DreamEngine::Core::Resources;
 
-class Material : public Resource
+class CORE_API Material : public Resource
 {
 public:
     Shader* shader = nullptr;

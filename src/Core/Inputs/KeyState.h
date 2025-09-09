@@ -3,7 +3,7 @@
 
 namespace DreamEngine::Core::Inputs
 {
-enum class KeyState
+enum CORE_API KeyState
 {
    Release,
    Press,

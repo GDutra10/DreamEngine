@@ -9,7 +9,7 @@
 
 namespace DreamEngine::Core::Inputs
 {
-class Input
+class CORE_API Input
 {
    public:
     static glm::vec2 mousePosition;

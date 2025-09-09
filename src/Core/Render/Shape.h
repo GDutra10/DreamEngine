@@ -1,10 +1,12 @@
 #ifndef CORE_RENDER_SHAPE_H_
 #define CORE_RENDER_SHAPE_H_
 
+#include "CoreExport.h"
+
 namespace DreamEngine::Core::Render
 {
 
-enum Shape
+enum CORE_API Shape
 {
     Cube,
     Sphere,

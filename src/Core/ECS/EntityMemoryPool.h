@@ -27,7 +27,7 @@ typedef std::tuple<std::vector<TransformComponent>,
                    std::vector<NativeScriptComponent> 
    > EntityComponentVectorTuple;
 
-class EntityMemoryPool
+class CORE_API EntityMemoryPool
 {
    public:
     static EntityMemoryPool& Instance();

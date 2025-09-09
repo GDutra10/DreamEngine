@@ -9,12 +9,14 @@
 #include "../ECS/Entity.h"
 #include "../GameSystem/Game.h"
 
+#include "CoreExport.h"
+
 namespace DreamEngine::Core::Render
 {
 using namespace DreamEngine::Core::ECS;
 using namespace DreamEngine::Core::GameSystem;
 
-class RenderAPI
+class CORE_API RenderAPI
 {
    public:
     virtual ~RenderAPI() = default;

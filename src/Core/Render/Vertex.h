@@ -5,9 +5,11 @@
 
 #include "../../Vendors/glm/glm/glm.hpp"
 
+#include "CoreExport.h"
+
 namespace DreamEngine::Core::Render
 {
-class Vertex
+class CORE_API Vertex
 {
 public:
     glm::vec3 position;

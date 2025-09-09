@@ -6,11 +6,13 @@
 #include "../Resources/Resource.h"
 #include "../Sync/EntityData.h"
 
+#include "CoreExport.h"
+
 namespace DreamEngine::Core::Scripting
 {
 using namespace DreamEngine::Core::Resources;
 using namespace DreamEngine::Core::Sync;
-class Script : public Resource
+class CORE_API Script : public Resource
 {
    public:
     Script(const std::string& className, const std::string& assemblyName);

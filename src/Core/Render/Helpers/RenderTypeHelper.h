@@ -8,7 +8,7 @@ namespace DreamEngine::Core::Render::Helpers
 {
 using namespace DreamEngine::Core::Render;
 
-class RenderTypeHelper
+class CORE_API RenderTypeHelper
 {
    public:
     static std::string ToString(const RenderType renderType)

@@ -2,10 +2,11 @@
 #define CORE_HELPERS_GUID_HELPER_H
 
 #include <string>
+#include "CoreExport.h"
 
 namespace DreamEngine::Core::Helpers
 {
-class GUIDHelper
+class CORE_API GUIDHelper
 {
    public:
     static std::string GenerateGUID();

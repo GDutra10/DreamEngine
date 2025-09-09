@@ -8,7 +8,7 @@ namespace DreamEngine::Core::ECS::Components
 {
 using namespace DreamEngine::Core::Render;
 
-class MaterialComponent : public Component
+class CORE_API MaterialComponent : public Component
 {
    public:
     Material* material;

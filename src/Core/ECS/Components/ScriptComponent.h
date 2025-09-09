@@ -8,7 +8,7 @@ namespace DreamEngine::Core::ECS::Components
 {
 using namespace DreamEngine::Core::Scripting;
 
-class ScriptComponent : public Component
+class CORE_API ScriptComponent : public Component
 {
    public:
     Script* script;

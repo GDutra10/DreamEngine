@@ -1,13 +1,14 @@
 #ifndef CORE_GAME_SYSTEM_CAMERA_H_
 #define CORE_GAME_SYSTEM_CAMERA_H_
 
+#include "CoreExport.h"
 #include "../../Vendors/glm/glm/glm.hpp"
 #include "../../Vendors/glm/glm/ext/matrix_clip_space.hpp"
 #include "../../Vendors/glm/glm/ext/matrix_transform.hpp"
 
 namespace DreamEngine::Core::GameSystem
 {
-struct Camera
+struct CORE_API Camera
 {
     glm::vec3 position = {0, 0, 0};
     glm::vec3 front = {0, 0, -1};

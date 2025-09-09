@@ -14,45 +14,20 @@
 #include "../helpers/DateHelper.h"
 #include "../helpers/LoggerHelper.h"
 
+#include "CoreExport.h"
+
 namespace DreamEngine::Core::Loggers
 {
 
 using namespace DreamEngine::Core::Helpers;
 
-class ConsoleLogger final : public Logger
+class CORE_API ConsoleLogger final : public Logger
 {
    public:
-    void Process(const Log log) override
-    {
-        std::cout 
-            << GetColor(log.logLevel)
-            << DateHelper::ToString(log.dateTime) 
-            << " "
-            << LoggerHelper::GetLogLevel(log) 
-            << " " 
-            << log.message 
-            << "\r\n";
-    }
+    void Process(const Log log) override;
 
    private:
-    static std::string GetColor(const LogLevel logLevel)
-    {
-        switch (logLevel)
-        {
-            case LogLevel::Trace:
-                return LOG_BLUE;
-            case LogLevel::Debug:
-                return LOG_GREEN;
-            case LogLevel::Info:
-                return LOG_RESET;
-            case LogLevel::Warning:
-                return LOG_YELLOW;
-            case LogLevel::Error:
-                return LOG_RED;
-            default:
-                return LOG_RESET;
-        }
-    }
+    static std::string GetColor(const LogLevel logLevel);
 };
 }  // namespace DreamEngine::Core::Loggers
 #endif

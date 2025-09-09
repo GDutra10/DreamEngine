@@ -7,7 +7,7 @@
 
 namespace DreamEngine::Core::ECS
 {
-class EntityManager
+class CORE_API EntityManager
 {
    public:
     EntityManager();

@@ -13,7 +13,7 @@ namespace DreamEngine::Core::Resources
 
 using namespace DreamEngine::Core::Render;
 
-class GlobalResourceManager
+class CORE_API GlobalResourceManager
 {
    public:
     static GlobalResourceManager& Instance();

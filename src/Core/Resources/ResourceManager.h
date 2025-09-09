@@ -7,6 +7,7 @@
 #include "../Render/Material.h"
 #include "../Render/Mesh.h"
 #include "../Scripting/Script.h"
+#include "CoreExport.h"
 
 namespace DreamEngine::Core::Resources
 {
@@ -14,7 +15,7 @@ namespace DreamEngine::Core::Resources
 using namespace DreamEngine::Core::Render;
 using namespace DreamEngine::Core::Scripting;
 
-class ResourceManager
+class CORE_API ResourceManager
 {
    public:
     ResourceManager() = default;

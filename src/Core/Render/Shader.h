@@ -5,10 +5,12 @@
 #include "../../Vendors/glm/glm/glm.hpp"
 #include "../Resources/Resource.h"
 
+#include "CoreExport.h"
+
 namespace DreamEngine::Core::Render
 {
 using namespace DreamEngine::Core::Resources;
-class Shader : public Resource
+class CORE_API Shader : public Resource
 {
    public:
     unsigned int id;

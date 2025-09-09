@@ -3,10 +3,11 @@
 
 #include <chrono>
 #include <string>
+#include "CoreExport.h"
 
 namespace DreamEngine::Core::Loggers
 {
-enum LogLevel
+enum CORE_API LogLevel
 {
     Trace,
     Debug,

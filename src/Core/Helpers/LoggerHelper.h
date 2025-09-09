@@ -4,31 +4,16 @@
 #include <string>
 #include "../Loggers/Log.h"
 
+#include "CoreExport.h"
+
 namespace DreamEngine::Core::Helpers
 {
 using namespace DreamEngine::Core::Loggers;
 
-class LoggerHelper
+class CORE_API LoggerHelper
 {
    public:
-    static std::string GetLogLevel(const Log& log)
-    {
-        switch (log.logLevel)
-        {
-            case LogLevel::Trace:
-                return "[TRACE]";
-            case LogLevel::Debug:
-                return "[DEBUG]";
-            case LogLevel::Info:
-                return "[INFO]";
-            case LogLevel::Warning:
-                return "[WARN]";
-            case LogLevel::Error:
-                return "[ERROR]";
-            default:
-                return "[NONE]";
-        }
-    }
+    static std::string GetLogLevel(const Log& log);
 };
 }  // namespace DreamEngine::Core::Helpers
 #endif

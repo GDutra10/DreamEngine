@@ -8,7 +8,7 @@ namespace DreamEngine::Core::ECS::Components
 {
 using namespace DreamEngine::Core::Scripting;
 
-class NativeScriptComponent : public Component
+class CORE_API NativeScriptComponent : public Component
 {
    public:
     NativeScript* script = nullptr;

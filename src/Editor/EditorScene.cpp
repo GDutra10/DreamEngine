@@ -107,9 +107,12 @@ void EditorScene::InitializeImGui()
         SetStyleEngine();
 
     // init openGL
-    ImGui_ImplGlfw_InitForOpenGL(Core::Application::Instance().GetWindow(),
-                                 true);
-    ImGui_ImplOpenGL3_Init();
+    const auto app = Core::Application::Instance();
+
+    assert(app.GetWindow() != nullptr);
+
+    ImGui_ImplGlfw_InitForOpenGL(app.GetWindow(), true);
+    ImGui_ImplOpenGL3_Init("#version 130");
     ImGui_ImplOpenGL3_CreateFontsTexture();
 }
 
@@ -232,8 +235,6 @@ void EditorScene::FinishImGuiFrame()
 
     ImGui::Render();
 
-    glViewport(0, 0, (int)m_io->DisplaySize.x, (int)m_io->DisplaySize.y);
-
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
     if (m_io->ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -243,8 +244,6 @@ void EditorScene::FinishImGuiFrame()
         ImGui::RenderPlatformWindowsDefault();
         glfwMakeContextCurrent(backupCurrentContext);
     }
-
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 // update the scene background by scene config data

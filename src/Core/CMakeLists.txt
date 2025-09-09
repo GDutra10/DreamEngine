@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.10)
 project(Core)
 
 # Add source to this project's executable.
-add_library (Core STATIC
+add_library (Core SHARED
 	"Timer.cpp"
 	"Timer.h"
 	"Serializers/IJsonSerializable.h"
@@ -43,9 +43,11 @@ add_library (Core STATIC
 	"GameSystem/Scene.cpp"
 
 	"Helpers/DateHelper.h"
+	"Helpers/DateHelper.cpp"
 	"Helpers/GUIDHelper.h"
 	"Helpers/GUIDHelper.cpp"
-	"Helpers/LoggerHelper.h"	
+	"Helpers/LoggerHelper.h"
+	"Helpers/LoggerHelper.cpp"
 
 	"IO/File.h"
 	"IO/File.cpp"
@@ -55,11 +57,15 @@ add_library (Core STATIC
 	"Inputs/KeyState.h"
 	"Inputs/MouseButton.h"
 
+	"Loggers/ConsoleLogger.h" 
+	"Loggers/ConsoleLogger.cpp"
 	"Loggers/Log.h" 
 	"Loggers/LogLevel.h" 
 	"Loggers/Logger.h" 
-	"Loggers/ConsoleLogger.h" 
-	"Loggers/LoggerSingleton.h" 
+	"Loggers/LoggerSingleton.h"
+	"Loggers/LoggerSingleton.cpp"
+	"Loggers/LoggerExternal.h"
+	"Loggers/LoggerExternal.cpp"
 
 	"Math/Math.h" 
 
@@ -112,13 +118,19 @@ add_library (Core STATIC
 
 	"Vendors/glad.h"
 	"Vendors/glfw3.h"
-	)
+)
+
+	
+set_target_properties(Core PROPERTIES
+    WINDOWS_EXPORT_ALL_SYMBOLS ON
+    POSITION_INDEPENDENT_CODE ON
+)
 
 # add link libraries
 target_link_libraries(Core PRIVATE glm glfw glad)
 
 # Include GLFW headers
-target_include_directories(Core PRIVATE ${CMAKE_SOURCE_DIR}/src/Vendors/glfw/include)
+target_include_directories(Core PUBLIC ${CMAKE_SOURCE_DIR}/src/Vendors/glfw/include)
 target_include_directories(Core PRIVATE ${GLM_DIR})
 target_include_directories(Core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 

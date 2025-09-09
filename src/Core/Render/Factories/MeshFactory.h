@@ -4,12 +4,14 @@
 #include "../Mesh.h"
 #include "../Shape.h"
 
+#include "CoreExport.h"
+
 namespace DreamEngine::Core::Render::Factories
 {
     using namespace DreamEngine::Core::Render;
 
-class MeshFactory
-{
+class CORE_API MeshFactory
+    {
 public:
     static Mesh* CreateMesh(Shape shape);
 

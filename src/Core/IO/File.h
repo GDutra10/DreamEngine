@@ -3,9 +3,11 @@
 
 #include <string>
 
+#include "CoreExport.h"
+
 namespace DreamEngine::Core::IO
 {
-class File
+class CORE_API File
 {
 public:
     static std::string ReadAllText(const std::string& filePath);

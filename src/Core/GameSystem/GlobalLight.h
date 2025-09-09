@@ -7,7 +7,7 @@
 namespace DreamEngine::Core::GameSystem
 {
     using namespace DreamEngine::Core::ECS::Components;
-class GlobalLight
+class CORE_API GlobalLight
 {
    public:
     DirectionalLightComponent directionalLight;

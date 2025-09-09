@@ -2,10 +2,11 @@
 #define CORE_TIMER_H_
 
 #include <chrono>
+#include "CoreExport.h"
 
 namespace DreamEngine::Core
 {
-class Timer 
+class CORE_API Timer
 {
 public:
     void Start();

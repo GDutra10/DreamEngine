@@ -7,7 +7,7 @@
 namespace DreamEngine::Core::Render
 {
 using namespace DreamEngine::Core::Resources;
-class Texture : public Resource
+class CORE_API Texture : public Resource
 {
    public:
     unsigned int id = 0;
