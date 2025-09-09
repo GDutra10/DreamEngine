@@ -6,54 +6,51 @@ public static class Logger
 {
     private static class NativeMethods
     {
-        [DllImport("Core.dll", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void Log(string message);
+        private const string CoreDll = "Core"; // or "Core.dll" on Windows
 
-        [DllImport("Core.dll", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void LogError(string message);
 
-        [DllImport("Core.dll", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void LogInfo(string message);
+        [DllImport(CoreDll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "Core_LogTrace")]
+        public static extern void LogTrace([MarshalAs(UnmanagedType.LPUTF8Str)] string message);
+
+        [DllImport(CoreDll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "Core_LogDebug")]
+        public static extern void LogDebug([MarshalAs(UnmanagedType.LPUTF8Str)] string message);
+
+        [DllImport(CoreDll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "Core_LogInfo")]
+        public static extern void LogInfo([MarshalAs(UnmanagedType.LPUTF8Str)] string message);
+
+        [DllImport(CoreDll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "Core_LogWarning")]
+        public static extern void LogWarning([MarshalAs(UnmanagedType.LPUTF8Str)] string message);
+
+        [DllImport(CoreDll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "Core_LogError")]
+        public static extern void LogError([MarshalAs(UnmanagedType.LPUTF8Str)] string message);
     }
 
-    // Temporally solution
+    private const string Template = "[SCRIPT] {0}";
 
-    private static void Log(string level, string message)
-    {
-        var now = DateTime.Now.ToString("dd/MM/yyyyy HH:mm:ss:ffff");
-        
-        Console.WriteLine($"{now} {level}[SCRIPT] {message}");
-    }
-
-    public static void Log(string message)
-    {
-        Log("", message);
-    }
+    private static string GetMessage(string message) => string.Format(Template, message);
 
     public static void LogTrace(string message)
     {
-        Log("[TRACE]", message);
+        NativeMethods.LogTrace(GetMessage(message));
     }
 
     public static void LogDebug(string message)
     {
-        Log("[DEBUG]", message);
+        NativeMethods.LogDebug(GetMessage(message));
     }
 
     public static void LogInfo(string message)
     {
-        Log("[INFO]", message);
+        NativeMethods.LogInfo(GetMessage(message));
     }
 
     public static void LogWarning(string message)
     {
-        Log("[WARN]", message);
+        NativeMethods.LogWarning(GetMessage(message));
     }
 
     public static void LogError(string message)
     {
-        Log("[ERROR]", message);
+        NativeMethods.LogError(GetMessage(message));
     }
-
-    
 }
