@@ -43,9 +43,11 @@ add_library (Core SHARED
 	"GameSystem/Scene.cpp"
 
 	"Helpers/DateHelper.h"
+	"Helpers/DateHelper.cpp"
 	"Helpers/GUIDHelper.h"
 	"Helpers/GUIDHelper.cpp"
-	"Helpers/LoggerHelper.h"	
+	"Helpers/LoggerHelper.h"
+	"Helpers/LoggerHelper.cpp"
 
 	"IO/File.h"
 	"IO/File.cpp"
@@ -55,11 +57,15 @@ add_library (Core SHARED
 	"Inputs/KeyState.h"
 	"Inputs/MouseButton.h"
 
+	"Loggers/ConsoleLogger.h" 
+	"Loggers/ConsoleLogger.cpp"
 	"Loggers/Log.h" 
 	"Loggers/LogLevel.h" 
 	"Loggers/Logger.h" 
-	"Loggers/ConsoleLogger.h" 
-	"Loggers/LoggerSingleton.h" 
+	"Loggers/LoggerSingleton.h"
+	"Loggers/LoggerSingleton.cpp"
+	"Loggers/LoggerExternal.h"
+	"Loggers/LoggerExternal.cpp"
 
 	"Math/Math.h" 
 
@@ -112,7 +118,7 @@ add_library (Core SHARED
 
 	"Vendors/glad.h"
 	"Vendors/glfw3.h"
-	 "Loggers/LoggerExternal.h" "Loggers/LoggerExternal.cpp" "Loggers/ConsoleLogger.cpp" "Loggers/LoggerSingleton.cpp" "Helpers/DateHelper.cpp" "Helpers/LoggerHelper.cpp")
+)
 
 	
 set_target_properties(Core PROPERTIES
