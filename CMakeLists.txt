@@ -15,6 +15,11 @@ endif()
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Stop adding a 'd' suffix for Debug (and others) everywhere
+set(CMAKE_DEBUG_POSTFIX "")
+set(CMAKE_RELWITHDEBINFO_POSTFIX "")
+set(CMAKE_MINSIZEREL_POSTFIX "")
+
 # Set global output directories
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)

@@ -13,7 +13,10 @@ add_library (Core SHARED
 
 	"Application.h"
 	"Application.cpp"
+	
 	"Color.h"
+	"CoreCApi.h"
+	"CoreCApi.cpp"
 	"CoreExport.h"
 	"EngineDefine.h"
 
@@ -118,7 +121,7 @@ add_library (Core SHARED
 
 	"Vendors/glad.h"
 	"Vendors/glfw3.h"
-)
+ )
 
 	
 set_target_properties(Core PROPERTIES

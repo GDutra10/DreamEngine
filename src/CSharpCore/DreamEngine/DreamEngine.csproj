@@ -7,6 +7,18 @@
     <BaseOutputPath></BaseOutputPath>
   </PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)'=='Debug'">
+		<!-- where the compiled EXE/DLL goes -->
+		<OutputPath>$(MSBuildProjectDirectory)/../../../out/build/x64-debug/bin/</OutputPath>
+
+		<!-- optional: keep obj files together too -->
+		<IntermediateOutputPath>$(MSBuildProjectDirectory)/../../../out/build/obj/Debug/</IntermediateOutputPath>
+
+		<!-- optional: avoid .../net9.0 and .../win-x64 suffixes -->
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+	</PropertyGroup>
+
   <ItemGroup>
     <Folder Include="ECS\Components\" />
   </ItemGroup>
