@@ -9,9 +9,9 @@ void Entity::Destroy() const
     EntityMemoryPool::Instance().RemoveEntity(m_id);
 }
 
-bool Entity::IsActive() const
+bool Entity::GetIsActive() const
 {
-    return EntityMemoryPool::Instance().GetActive(m_id);
+    return !m_shouldIgnore;
 }
 
 size_t Entity::GetId() const
@@ -29,9 +29,19 @@ std::string& Entity::GetName()
     return EntityMemoryPool::Instance().GetName(m_id);
 }
 
-void Entity::SetActive(const bool value) const
+std::string& Entity::GetIdentifier()
 {
-    EntityMemoryPool::Instance().SetActive(m_id, value);
+    return m_identifier;
+}
+
+void Entity::SetIdentifier(const std::string& identifier)
+{
+    m_identifier = identifier;
+}
+
+void Entity::SetActive(const bool value)
+{
+    m_shouldIgnore = !value;
 }
 
 glm::mat4 Entity::GetTransform()
@@ -58,19 +68,20 @@ bool Entity::HasComponent() const
 }
 
 // Explicit template instantiation for specific types
-template TransformComponent& Entity::GetComponent<TransformComponent>();
-template MeshComponent& Entity::GetComponent<MeshComponent>();
-template DirectionalLightComponent& Entity::GetComponent<DirectionalLightComponent>();
-template MaterialComponent& Entity::GetComponent<MaterialComponent>();
-template ScriptComponent& Entity::GetComponent<ScriptComponent>();
-template ChildrenComponent& Entity::GetComponent<ChildrenComponent>();
-template ParentComponent& Entity::GetComponent<ParentComponent>();
-template NativeScriptComponent& Entity::GetComponent<NativeScriptComponent>();
-template bool Entity::HasComponent<TransformComponent>() const;
-template bool Entity::HasComponent<MeshComponent>() const;
-template bool Entity::HasComponent<DirectionalLightComponent>() const;
-template bool Entity::HasComponent<MaterialComponent>() const;
-template bool Entity::HasComponent<ScriptComponent>() const;
-template bool Entity::HasComponent<ChildrenComponent>() const;
-template bool Entity::HasComponent<ParentComponent>() const;
-template bool Entity::HasComponent<NativeScriptComponent>() const;
+template CORE_API TransformComponent& Entity::GetComponent<TransformComponent>();
+template CORE_API MeshComponent& Entity::GetComponent<MeshComponent>();
+template CORE_API DirectionalLightComponent& Entity::GetComponent<DirectionalLightComponent>();
+template CORE_API MaterialComponent& Entity::GetComponent<MaterialComponent>();
+template CORE_API ScriptComponent& Entity::GetComponent<ScriptComponent>();
+template CORE_API ChildrenComponent& Entity::GetComponent<ChildrenComponent>();
+template CORE_API ParentComponent& Entity::GetComponent<ParentComponent>();
+template CORE_API NativeScriptComponent& Entity::GetComponent<NativeScriptComponent>();
+template CORE_API bool Entity::HasComponent<TransformComponent>() const;
+template CORE_API bool Entity::HasComponent<MeshComponent>() const;
+template CORE_API bool Entity::HasComponent<DirectionalLightComponent>() const;
+template CORE_API bool Entity::HasComponent<MaterialComponent>() const;
+template CORE_API bool Entity::HasComponent<ScriptComponent>() const;
+template CORE_API bool Entity::HasComponent<ChildrenComponent>() const;
+template CORE_API bool Entity::HasComponent<ParentComponent>() const;
+template CORE_API bool Entity::HasComponent<NativeScriptComponent>() const;
+

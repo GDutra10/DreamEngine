@@ -18,7 +18,9 @@ add_executable (NativeGame
 )
 
 # add link libraries
-target_link_libraries(NativeGame PRIVATE Profiling Core glm glfw glad)
+target_link_libraries(NativeGame 
+    PUBLIC glm::glm
+    PRIVATE Profiling Core glfw glad)
 
 target_include_directories(NativeGame PRIVATE ${CMAKE_SOURCE_DIR}/../Core)
 target_include_directories(NativeGame PRIVATE ${CMAKE_SOURCE_DIR}/src/Vendors/glfw/include)

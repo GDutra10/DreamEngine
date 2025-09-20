@@ -189,6 +189,13 @@ Result ResourceController::CreateSceneFile(const std::string& filename)
         if (file.is_open())
         {
             SceneData sceneData;
+            sceneData.globalLight.transform.position = {0.f, 500.f, 0.f};
+            sceneData.globalLight.transform.rotation= {0.f, 0.f, 0.f};
+            sceneData.globalLight.transform.scale = {0.f, 0.f, 0.f};
+            sceneData.globalLight.directionalLight.color = {1.f, 1.f, 1.f};
+            sceneData.globalLight.directionalLight.specular = {1.f, 1.f, 1.f};
+            sceneData.globalLight.directionalLight.influence = 2.0f;
+
             file << SceneDataSerializer::Serialize(sceneData);
             file.close();
 

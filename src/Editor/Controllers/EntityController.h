@@ -15,6 +15,7 @@ class EntityController
 {
    public:
     EntityController() = default;
+    static void AddEntity();
     static void DeleteEntity(Entity* entity);
     
    private:

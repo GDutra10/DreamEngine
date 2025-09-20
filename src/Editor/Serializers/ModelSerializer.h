@@ -12,7 +12,7 @@ using namespace DreamEngine::Editor::Models;
 class ModelSerializer
 {
    public:
-    static std::string Serialize(Model& model);
+    static std::string Serialize(const Model& model);
     static Model& Deserialize(std::ifstream& stream);
 };
 

@@ -56,7 +56,10 @@ add_subdirectory(src/CSharpCore) # This should contain a custom CMakeLists.txt t
 
 # ---- External Libraries ----
 set(GLM_DIR "src/Vendors/glm")
-add_subdirectory(${GLM_DIR})
+#add_subdirectory(${GLM_DIR})
+add_library(glm INTERFACE)
+target_include_directories(glm INTERFACE "${GLM_DIR}")
+add_library(glm::glm ALIAS glm)
 
 set(ASSIMP_DIR "src/Vendors/assimp")
 add_subdirectory(${ASSIMP_DIR})

@@ -19,19 +19,16 @@ void HierarchyWindow::DrawContent()
 {
     EntityManager* entityManager = EditorSingleton::Instance().GetEntityManager();
 
-    if (m_sceneController.ShouldLoadSceneData(m_selectedScenePath))
+    if (SceneController::ShouldLoadSceneData(m_selectedScenePath))
     {
         m_selectedScenePath = EditorSingleton::Instance().GetSelectedScenePath();
-        m_sceneController.LoadSceneData(m_selectedScenePath, entityManager);
+        SceneController::LoadSceneData(m_selectedScenePath, entityManager);
     }
 
     if (!m_selectedScenePath.empty())
     {
         if (ImGui::Button("  Create Entity  "))
-        {
-            LoggerSingleton::Instance().LogInfo("Add new Entity");
-            entityManager->AddEntity("entity");
-        }
+            EntityController::AddEntity();
 
         const int sceneTreeNodeFlag = EditorSingleton::Instance().IsViewSceneData()
             ? ImGuiTreeNodeFlags_Selected | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_DefaultOpen
@@ -58,7 +55,7 @@ void HierarchyWindow::DrawContent()
 
 void HierarchyWindow::AddEntityTreeNode(Entity* entity)
 {
-    string id = entity->GetName() + "##" + std::to_string(entity->GetId());
+    std::string id = entity->GetName() + "##" + std::to_string(entity->GetId());
     const bool isSelectedEntity = entity == EditorSingleton::Instance().GetSelectedEntity() && !EditorSingleton::Instance().IsViewSceneData();
     ChildrenComponent& childrenComponent = entity->GetComponent<ChildrenComponent>();
     const int treeNodeDefault = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_SpanFullWidth;

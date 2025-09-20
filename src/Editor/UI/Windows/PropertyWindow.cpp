@@ -34,7 +34,7 @@ void PropertyWindow::DrawContent()
     const auto selectedEntity = EditorSingleton::Instance().GetSelectedEntity();
 
     if (EditorSingleton::Instance().IsViewSceneData())
-        DrawSceneData(EditorSingleton::Instance().sceneData);
+        DrawSceneData();
     else if (selectedEntity != nullptr)
     {
         ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 105);
@@ -44,10 +44,10 @@ void PropertyWindow::DrawContent()
         ImGui::EndGroup();
 
         ImGui::SameLine();
-        bool isActive = selectedEntity->IsActive();
+        bool isActive = selectedEntity->GetIsActive();
 
         if (ImGui::Checkbox("##selected.entity.active", &isActive))
-            selectedEntity->SetActive(!selectedEntity->IsActive());
+            selectedEntity->SetActive(!selectedEntity->GetIsActive());
 
         ImGui::SameLine();
         ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 30);
@@ -78,16 +78,16 @@ void PropertyWindow::DrawContent()
     }
 }
 
-void PropertyWindow::DrawSceneData(SceneData* sceneData)
+void PropertyWindow::DrawSceneData()
 {
+    Scene* scene = Core::Application::Instance().GetGame()->GetActiveScene();
+
     ImGui::Text("Scene Data");
     ImGui::Indent(20.0f);
 
-    ColorView::Draw("Background", sceneData->config.backgroundColor);
+    ColorView::Draw("Background", *scene->GetBackgroundColor());
 
     ImGui::Indent(-20.0f);
-
-    Scene* scene = Core::Application::Instance().GetGame()->GetActiveScene();
 
     if (ImGui::CollapsingHeader("Camera##scene.camera", ImGuiTreeNodeFlags_DefaultOpen))
     {

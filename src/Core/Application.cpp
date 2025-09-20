@@ -75,11 +75,14 @@ void Application::Run(int width, int height, const std::string& name, const Rend
             m_game->GetActiveScene()->Update(m_deltaTime);
 
             // render
-            m_renderAPI->Render(m_game);
+            if (const int isMinimized = glfwGetWindowAttrib(m_window, GLFW_ICONIFIED); !isMinimized)
+            {
+                m_renderAPI->Render(m_game);
 
-            int displayW, displayH;
-            glfwGetFramebufferSize(m_window, &displayW, &displayH);
-            m_renderAPI->AfterRender(m_game->width, m_game->height);
+                int displayW, displayH;
+                glfwGetFramebufferSize(m_window, &displayW, &displayH);
+                m_renderAPI->AfterRender(m_game->width, m_game->height);
+            }
 
             glfwSwapBuffers(m_window);
             glfwPollEvents();
@@ -431,7 +434,8 @@ Key Application::GetKeyByGLFWKey(const int key)
         case GLFW_KEY_WORLD_2:
             return WORLD_2;
         default:
-            throw std::exception("Key not mapped");
+            LoggerSingleton::Instance().LogWarning("Key '" + std::to_string(key) + "' not mapped!");
+            //throw std::exception("Key not mapped");
     }
 }
 
@@ -445,6 +449,7 @@ KeyState Application::GetMouseKeyEventByGLFW(const int action)
         case GLFW_RELEASE:
             return KeyState::Release;
         default:
-            throw std::exception("KeyEvent not implemented!");
+            LoggerSingleton::Instance().LogWarning("KeyEvent '" + std::to_string(action) + "' not mapped!");
+            //throw std::exception("KeyEvent not implemented!");
     }
 }

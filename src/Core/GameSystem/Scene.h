@@ -34,6 +34,7 @@ class CORE_API Scene
     bool GetMustRunScriptComponents() const;
     void SetMustRunScriptComponents(bool val);
     void SetShowCursor(bool showCursor);
+    std::string GetName() const { return m_name; }
 
     virtual void Update(const float deltaTime);
 

@@ -36,6 +36,7 @@ class CORE_API ResourceManager
     Material* GetMaterial(const std::string& resourceId);
     Texture* GetTexture(const std::string& resourceId);
     Mesh* GetMesh(const std::string& resourceId);
+    Script* GetScript(const std::string& resourceId);
     std::map<std::string, Shader*>& GetShaders();
     std::map<std::string, Material*>& GetMaterials();
     std::map<std::string, Texture*>& GetTextures();

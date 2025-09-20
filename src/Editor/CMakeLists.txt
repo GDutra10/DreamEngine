@@ -44,11 +44,21 @@ add_executable(Editor
     Models/EditorConfiguration.cpp
     Models/ProjectConfiguration.h
     Models/Result.h
-    Models/SceneData.h
-    Models/SceneConfig.h
     Models/Model.h
     Models/FileIcon.h
     Models/FileDialogConfig.h
+    Models/Datas/ColorData.h
+    Models/Datas/ComponentsData.h
+    Models/Datas/DirectionalLightData.h
+    Models/Datas/GlobalLightData.h
+    Models/Datas/SceneData.h
+    Models/Datas/TransformData.h
+    Models/Datas/Vector3Data.h
+    Models/Datas/Components/MeshComponentData.h
+    Models/Datas/Components/ScriptComponentData.h
+    Models/Datas/Components/ParentComponentData.h
+    Models/Datas/Components/ChildrenComponentData.h
+    Models/Datas/Components/MaterialComponentData.h
 
     Serializers/MaterialSerializer.h
     Serializers/MaterialSerializer.cpp
@@ -62,6 +72,7 @@ add_executable(Editor
     Serializers/ProjectConfigurationSerializer.cpp
     Serializers/SceneDataSerializer.h
     Serializers/SceneDataSerializer.cpp
+    Serializers/ShaderSerializer.h
 
     Singletons/EditorSingleton.h
     Singletons/EditorSingleton.cpp
@@ -133,13 +144,13 @@ add_executable(Editor
     Vendors/imgui/imgui_impl_opengl3_loader.h
     Vendors/imgui/imgui_impl_glfw.cpp
     Vendors/imgui/imgui_impl_glfw.h
-)
+    )
 
 # Link dependencies
 target_link_libraries(Editor PRIVATE
     Profiling
     Core
-    glm
+    glm::glm
     glfw
     glad
     assimp
@@ -147,12 +158,12 @@ target_link_libraries(Editor PRIVATE
 )
 
 # Include directories
-target_include_directories(Editor PRIVATE
-    ${CMAKE_SOURCE_DIR}/src/Core
-    ${CMAKE_SOURCE_DIR}/src/Vendors/glfw/include
-    ${ASSIMP_DIR}
-    ${JSON_DIR}
-)
+#target_include_directories(Editor PRIVATE
+#    ${CMAKE_SOURCE_DIR}/src/Core
+#    ${CMAKE_SOURCE_DIR}/src/Vendors/glfw/include
+#    ${ASSIMP_DIR}
+#    ${JSON_DIR}
+#)
 
 # Copy Assets folder
 add_custom_command(TARGET Editor POST_BUILD
