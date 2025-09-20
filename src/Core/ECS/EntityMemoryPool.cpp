@@ -1,5 +1,7 @@
 #include "EntityMemoryPool.h"
 
+#include "Loggers/LoggerSingleton.h"
+
 #ifndef MAX_ENTITIES
 #define MAX_ENTITIES 1000
 #endif
@@ -88,6 +90,7 @@ void EntityMemoryPool::RemoveEntity(const size_t entityId)
 
 EntityMemoryPool::EntityMemoryPool(size_t maxEntities) : m_numEntities(maxEntities)
 {
+    Loggers::LoggerSingleton::Instance().LogTrace("EntityMemoryPool::EntityMemoryPool -> Creating!");
     m_tags = std::vector<std::string>(m_numEntities);
     m_names = std::vector<std::string>(m_numEntities);
     m_active = std::vector<bool>(m_numEntities);

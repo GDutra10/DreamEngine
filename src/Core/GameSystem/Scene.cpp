@@ -36,6 +36,9 @@ void Scene::Update(const float deltaTime)
 
     for (Entity* entity : m_entityManager->GetEntities())
     {
+        if (!entity->GetIsActive())
+            continue;
+
         // native script
         NativeScriptComponent& nativeScriptComponent = entity->GetComponent<NativeScriptComponent>();
 

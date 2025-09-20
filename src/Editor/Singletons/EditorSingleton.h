@@ -8,7 +8,7 @@
 #include "../Controllers/ScriptController.h"
 #include "../Models/ProjectConfiguration.h"
 #include "../Models/EditorConfiguration.h"
-#include "../Models/SceneData.h"
+#include "../Models/Datas/SceneData.h"
 #include "../Loggers/EditorLogger.h"
 #include "../../Core/GameSystem/Scene.h"
 #include "../../Core/Render/FrameBuffer.h"
@@ -17,6 +17,7 @@ namespace DreamEngine::Editor::Singletons
 {
     using namespace DreamEngine::Editor::Controllers;
     using namespace DreamEngine::Editor::Models;
+using namespace DreamEngine::Editor::Models::Datas;
     using namespace DreamEngine::Editor::Loggers;
     using namespace DreamEngine::Core::ECS;
     using namespace DreamEngine::Core::Render;

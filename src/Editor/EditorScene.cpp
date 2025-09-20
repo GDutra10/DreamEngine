@@ -127,14 +127,13 @@ void EditorScene::DrawMenuBar()
     {
         if (ImGui::BeginMenu("File"))
         {
-            if (ImGui::MenuItem("Open", "Ctrl+O"))
+            if (ImGui::MenuItem("Open Project", "Ctrl+O"))
             {
-                // Handle Open action
                 mustOpenProjectModal = true;
             }
-            if (ImGui::MenuItem("Save", "Ctrl+S", false, projectConfiguration.isLoaded))
+            if (ImGui::MenuItem("Save Scene", "Ctrl+S", false, projectConfiguration.isLoaded))
             {
-                // Handle Save action
+                SceneController::SaveSceneData(m_entityManager);
             }
             if (ImGui::MenuItem("Exit", "Alt+F4"))
             {
@@ -252,10 +251,10 @@ void EditorScene::UpdateBackgroundColor() const
     if (const auto sceneData = EditorSingleton::Instance().sceneData; sceneData != nullptr)
     {
         const auto backgroundColor = this->GetBackgroundColor();
-        backgroundColor->red = sceneData->config.backgroundColor.x;
-        backgroundColor->green = sceneData->config.backgroundColor.y;
-        backgroundColor->blue = sceneData->config.backgroundColor.z;
-        backgroundColor->alpha = 1;
+        backgroundColor->red = backgroundColor->red;
+        backgroundColor->green = backgroundColor->green;
+        backgroundColor->blue = backgroundColor->blue;
+        backgroundColor->alpha = backgroundColor->alpha;
     }
 }
 

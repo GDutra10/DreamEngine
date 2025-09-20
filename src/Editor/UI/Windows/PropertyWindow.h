@@ -21,7 +21,7 @@ class PropertyWindow : public BaseWindow
 
     private:
     MaterialView m_materialView;
-    static void DrawSceneData(SceneData* sceneData);
+    static void DrawSceneData();
     // Draw components
     static void DrawDirectionalLightComponent(Entity* selectedEntity);
     static void DrawDirectionalLightComponent(DirectionalLightComponent& directionLight);

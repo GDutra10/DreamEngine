@@ -13,6 +13,27 @@ EntityManager::EntityManager(): m_totalEntities(0)
 
 void EntityManager::Update()
 {
+    for (auto entity : m_entitiesToRemove)
+    {
+        const auto entityTag = EntityMemoryPool::Instance().GetTag(entity->GetId());
+        m_entities.erase(std::remove(m_entities.begin(), m_entities.end(), entity), m_entities.end());
+
+        std::vector<Entity*> entityVecMap = m_entityMap[entityTag];
+
+        // if have more than one tag, remove the entity from the vector
+        if (entityVecMap.size() > 1)
+        {
+            entityVecMap.erase(std::remove(entityVecMap.begin(), entityVecMap.end(), entity), entityVecMap.end());
+            m_entityMap[entityTag] = entityVecMap;
+        }
+        else  // remove the tag in entity_map
+            m_entityMap.erase(entityTag);
+
+        EntityMemoryPool::Instance().RemoveEntity(entity->GetId());
+
+        delete entity;
+    }
+
     for (auto entity : m_entitiesToAdd)
 	{
 		const auto entityTag = EntityMemoryPool::Instance().GetTag(entity->GetId());
@@ -25,27 +46,6 @@ void EntityManager::Update()
 		entityVecMap.push_back(entity);
 		m_entityMap[entityTag] = entityVecMap;
 	}
-
-	for (auto entity : m_entitiesToRemove)
-    {
-        const auto entityTag = EntityMemoryPool::Instance().GetTag(entity->GetId());
-        m_entities.erase(std::remove(m_entities.begin(), m_entities.end(), entity), m_entities.end());
-
-        std::vector<Entity*> entityVecMap = m_entityMap[entityTag];
-
-		// if have more than one tag, remove the entity from the vector
-		if (entityVecMap.size() > 1)
-		{
-            entityVecMap.erase(std::remove(entityVecMap.begin(), entityVecMap.end(), entity), entityVecMap.end());
-            m_entityMap[entityTag] = entityVecMap;
-		}
-        else // remove the tag in entity_map
-            m_entityMap.erase(entityTag);
-
-        EntityMemoryPool::Instance().RemoveEntity(entity->GetId());
-
-        delete entity;
-    }
 
 	m_entitiesToAdd.clear();
     m_entitiesToRemove.clear();
@@ -82,9 +82,18 @@ Entity* EntityManager::AddEntity(const std::string& tag, Entity* parent)
 void EntityManager::RemoveEntity(Entity* entity)
 {
     Loggers::LoggerSingleton::Instance().LogTrace("EntityManager::RemoveEntity -> Removing entity with id: " + std::to_string(entity->GetId()));
-    std::vector<Entity*> entitiesToRemove = { entity };
 
-	AddChildToRemove(entity, entitiesToRemove);
+    std::vector<Entity*> entitiesToRemove;
+
+    const bool hasEntity = std::ranges::any_of(m_entitiesToRemove, [entity](Entity* e)
+    {
+        return e->GetIdentifier() == entity->GetIdentifier();
+    });
+
+    if (!hasEntity)
+        entitiesToRemove.push_back(entity);
+
+    AddChildToRemove(entity, entitiesToRemove);
 
 	// remove entities
 	for (Entity* entityToRemove : entitiesToRemove)

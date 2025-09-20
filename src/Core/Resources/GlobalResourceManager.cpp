@@ -100,6 +100,13 @@ Mesh* GlobalResourceManager::GetMesh(const std::string& resourceId)
     return mesh;
 }
 
+Script* GlobalResourceManager::GetScript(const std::string& resourceId)
+{
+    Script* script = m_resourceManager.GetScript(resourceId);
+
+    return script;
+}
+
 std::map<std::string, Material*>& GlobalResourceManager::GetMaterials()
 {
     return m_resourceManager.GetMaterials();

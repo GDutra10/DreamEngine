@@ -3,7 +3,7 @@
 
 #include <filesystem>
 #include "../../Core/GameSystem/Camera.h"
-#include "../Models/SceneData.h"
+#include "../Models/Datas/SceneData.h"
 #include "../../Core/ECS/EntityManager.h"
 
 namespace DreamEngine::Editor::Controllers
@@ -11,15 +11,16 @@ namespace DreamEngine::Editor::Controllers
 using namespace std::filesystem;
 using namespace DreamEngine::Core::ECS;
 using namespace DreamEngine::Core::GameSystem;
-using namespace DreamEngine::Editor::Models;
+using namespace DreamEngine::Editor::Models::Datas;
 
 class SceneController
 {
    public:
-    bool ShouldLoadSceneData(path& path);
-    void LoadSceneData(path& path, EntityManager* entityManager);
+    static bool ShouldLoadSceneData(path& path);
+    static void LoadSceneData(path& path, EntityManager* entityManager);
+    static void SaveSceneData(EntityManager* entityManager);
    private:
-    SceneData* ReadSceneFile(const std::string& filePath);
+    /*static SceneData* ReadSceneFile(const std::string& filePath);*/
 };
 
 }  // namespace DreamEngine::Editor::Controllers

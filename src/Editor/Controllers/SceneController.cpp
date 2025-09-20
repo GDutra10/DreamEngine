@@ -2,11 +2,17 @@
 
 #include <fstream>
 #include <regex>
+#include <ranges>
 
 #include "../Singletons/EditorSingleton.h"
 #include "../../Core/Application.h"
 #include "../../Core/Loggers/LoggerSingleton.h"
 #include "../Serializers/SceneDataSerializer.h"
+#include "ECS/Components/ChildrenComponent.h"
+#include "ECS/Components/MaterialComponent.h"
+#include "ECS/Components/ParentComponent.h"
+#include "ECS/Components/ScriptComponent.h"
+#include "Resources/GlobalResourceManager.h"
 
 using namespace DreamEngine::Core;
 using namespace DreamEngine::Core::ECS::Components;
@@ -26,178 +32,275 @@ void SceneController::LoadSceneData(path& path, EntityManager* entityManager)
     std::ifstream file(path.string());
 
     SceneData* sceneData = &Serializers::SceneDataSerializer::Deserialize(file);
+    sceneData->path = path;
+
+    EditorSingleton::Instance().SetSelectedEntity(nullptr);
+    EditorSingleton::Instance().SetIsViewSceneData(false);
     EditorSingleton::Instance().sceneData = sceneData;
-    Scene* s = Application::Instance().GetGame()->GetActiveScene();
-    Camera& c = s->GetCamera();
+    Scene* scene = Application::Instance().GetGame()->GetActiveScene();
+    Camera& camera = scene->GetCamera();
 
      // set camera props
-    c.fovDegree = sceneData->config.camera.fovDegree;
-    c.far = sceneData->config.camera.far;
-    c.front = sceneData->config.camera.front;
-    c.front.z = -1;
-    c.near = sceneData->config.camera.near;
-    c.position = sceneData->config.camera.position;
-    c.up.x = sceneData->config.camera.up.x;
-    c.up.y = sceneData->config.camera.up.y;
-    c.up.z = sceneData->config.camera.up.z;
+    camera.fovDegree = sceneData->camera.fovDegree;
+    camera.far = sceneData->camera.far;
+    camera.front = sceneData->camera.front;
+    camera.front.z = -1;
+    camera.near = sceneData->camera.near;
+    camera.position = sceneData->camera.position;
+    camera.up.x = sceneData->camera.up.x;
+    camera.up.y = sceneData->camera.up.y;
+    camera.up.z = sceneData->camera.up.z;
 
-    // TODO: remove
-    //delete EditorSingleton::Instance().sceneData;  // ?Delete previous scene data?
-    //SceneData* sceneData = ReadSceneFile(path.string());
-    //EditorSingleton::Instance().sceneData = sceneData;
-    //Scene* scene = Application::Instance().GetGame()->GetActiveScene();
-    //Camera& camera = scene->GetCamera();
+    Color* backgroundColor = scene->GetBackgroundColor();
+    backgroundColor->blue = sceneData->backgroundColor.blue;
+    backgroundColor->red = sceneData->backgroundColor.red;
+    backgroundColor->green = sceneData->backgroundColor.green;
+    backgroundColor->alpha = sceneData->backgroundColor.alpha;
 
-    //// set camera props
-    //camera.fovDegree = sceneData->config.camera.fovDegree;
-    //camera.far = sceneData->config.camera.far;
-    //camera.front = sceneData->config.camera.front;
-    //camera.near = sceneData->config.camera.near;
-    //camera.position = sceneData->config.camera.position;
-    //camera.up = sceneData->config.camera.up;
+    GlobalLight* globalLight = scene->GetGlobalLight();
 
-    //for (EntityConfig& entityConfig : EditorSingleton::Instance().sceneData->entities)
-    //{
-    //    LoggerSingleton::Instance().LogInfo("Loading Entity: " + entityConfig.name);
+    globalLight->transform.SetPosition({
+        sceneData->globalLight.transform.position.x,
+        sceneData->globalLight.transform.position.y,
+        sceneData->globalLight.transform.position.z,
+    });
 
-    //    Entity* entity = entityManager->AddEntity(entityConfig.tag);
-    //    entity->GetName().assign(entityConfig.name);
+    globalLight->transform.SetScale({
+        sceneData->globalLight.transform.scale.x,
+        sceneData->globalLight.transform.scale.y,
+        sceneData->globalLight.transform.scale.z,
+    });
 
-    //    for (const string& component : entityConfig.components)
-    //    {
-    //        // TODO: set components
-    //        if (component == "Transform")
-    //        {
-    //            TransformComponent& transformComponent = entity->GetComponent<TransformComponent>();
-    //            transformComponent.has = true;
-    //            transformComponent.SetPosition(entityConfig.transform.GetPosition());
-    //            transformComponent.SetScale(entityConfig.transform.GetScale());
-    //            transformComponent.SetRotation(entityConfig.transform.GetRotation());
-    //        }
-    //    }
-    //}
-}
+    globalLight->transform.SetRotation({
+        sceneData->globalLight.transform.rotation.x,
+        sceneData->globalLight.transform.rotation.y,
+        sceneData->globalLight.transform.rotation.z,
+    });
 
-SceneData* SceneController::ReadSceneFile(const std::string& filePath)
-{
-    SceneData* sceneData = new SceneData();
-    std::ifstream file(filePath);
-    std::string line;
-    std::regex sceneRegex(R"(\s*Scene\s*\{\s*)");
-    std::regex backgroundColorRegex(R"(\s*BackgroundColor:\s*\(([^,]+),\s*([^,]+),\s*([^\)]+)\)\s*)");
-    std::regex cameraRegex(R"(\s*Camera\s*\{\s*)");
-    std::regex entityRegex(R"(\s*Entity\s*\{\s*)");
-    std::regex idRegex(R"(\s*id:\s*(\d+)\s*)");
-    std::regex tagRegex(R"(\s*tag:\s*\"([^\"]+)\"\s*)");
-    std::regex nameRegex(R"(\s*name:\s*\"([^\"]+)\"\s*)");
-    std::regex componentRegex(R"(\s*(Transform|Mesh|AI)\s*\{\s*)");
-    std::regex positionRegex(R"(\s*position:\s*\(([^,]+),\s*([^,]+),\s*([^\)]+)\)\s*)");
-    std::regex scaleRegex(R"(\s*scale:\s*\(([^,]+),\s*([^,]+),\s*([^\)]+)\)\s*)");
-    std::regex rotationRegex(R"(\s*rotation:\s*\(([^,]+),\s*([^,]+),\s*([^\)]+)\)\s*)");
-    std::regex frontRegex(R"(\s*front:\s*\(([^,]+),\s*([^,]+),\s*([^\)]+)\)\s*)");
-    std::regex upRegex(R"(\s*up:\s*\(([^,]+),\s*([^,]+),\s*([^\)]+)\)\s*)");
-    std::regex fovRegex(R"(\s*fov:\s*\"([^\"]+)\"\s*)");
-    std::regex nearRegex(R"(\s*near:\s*\"([^\"]+)\"\s*)");
-    std::regex farRegex(R"(\s*far:\s*\"([^\"]+)\"\s*)");
+    globalLight->directionalLight.color.red = sceneData->globalLight.directionalLight.color.red;
+    globalLight->directionalLight.color.green = sceneData->globalLight.directionalLight.color.green;
+    globalLight->directionalLight.color.blue = sceneData->globalLight.directionalLight.color.blue;
+    globalLight->directionalLight.color.alpha = sceneData->globalLight.directionalLight.color.alpha;
+    globalLight->directionalLight.specular.x = sceneData->globalLight.directionalLight.specular.x;
+    globalLight->directionalLight.specular.y = sceneData->globalLight.directionalLight.specular.y;
+    globalLight->directionalLight.specular.z = sceneData->globalLight.directionalLight.specular.z;
+    globalLight->directionalLight.influence = sceneData->globalLight.directionalLight.influence;
 
-    EntityConfig currentEntity;
-    bool inEntity = false;
-    bool inCamera = false;
+    // create entities
+    vector<Entity*> entities;
 
-    while (std::getline(file, line))
+    for (auto& entityConfig : sceneData->entities)
     {
-        std::smatch match;
-        if (std::regex_match(line, sceneRegex))
-        {
-            // Scene configuration block
-            while (std::getline(file, line) && line.find('}') == std::string::npos)
-            {
-                if (std::regex_match(line, match, backgroundColorRegex))
-                {
-                    sceneData->config.backgroundColor = glm::vec3(std::stof(match[1].str()), std::stof(match[2].str()), std::stof(match[3].str()));
-                }
-                else if (std::regex_match(line, cameraRegex))
-                {
-                    inCamera = true;
-                    sceneData->config.camera = Camera();
-                }
-                else if (inCamera)
-                {
-                    if (std::regex_match(line, match, positionRegex))
-                    {
-                        sceneData->config.camera.position = glm::vec3(std::stof(match[1].str()), std::stof(match[2].str()), std::stof(match[3].str()));
-                    }
-                    else if (std::regex_match(line, match, frontRegex))
-                    {
-                        sceneData->config.camera.front = glm::vec3(std::stof(match[1].str()), std::stof(match[2].str()), std::stof(match[3].str()));
-                    }
-                    else if (std::regex_match(line, match, upRegex))
-                    {
-                        sceneData->config.camera.up = glm::vec3(std::stof(match[1].str()), std::stof(match[2].str()), std::stof(match[3].str()));
-                    }
-                    else if (std::regex_match(line, match, fovRegex))
-                        sceneData->config.camera.fovDegree = std::stof(match[1].str());
-                    else if (std::regex_match(line, match, nearRegex))
-                        sceneData->config.camera.near = std::stof(match[1].str());
-                    else if (std::regex_match(line, match, farRegex))
-                        sceneData->config.camera.far = std::stof(match[1].str());
-                    else if (line.find('}') != std::string::npos)
-                        inCamera = false;
-                }
-            }
-        }
-        else if (std::regex_match(line, entityRegex))
-        {
-            inEntity = true;
-            currentEntity = EntityConfig();  // Reset for new entity
-        }
-        else if (inEntity)
-        {
-            if (std::regex_match(line, match, idRegex))
-            {
-                currentEntity.id = std::stoul(match[1].str());
-            }
-            else if (std::regex_match(line, match, tagRegex))
-            {
-                currentEntity.tag = match[1].str();
-            }
-            else if (std::regex_match(line, match, nameRegex))
-            {
-                currentEntity.name = match[1].str();
-            }
-            else if (std::regex_match(line, match, componentRegex))
-            {
-                std::string componentType = match[1].str();
+        Entity* entity = entityManager->AddEntity(entityConfig.tag);
+        entity->SetActive(entityConfig.isActive);
+        entity->GetName() = entityConfig.name;
+        entity->SetIdentifier(entityConfig.identifier);
 
-                if (componentType == "Transform")
-                {
-                    currentEntity.components.push_back(componentType);
+        TransformComponent& transform = entity->GetComponent<TransformComponent>();
+        transform.SetPosition({
+            entityConfig.transform.position.x,
+            entityConfig.transform.position.y,
+            entityConfig.transform.position.z
+        });
 
-                    while (std::getline(file, line) && line.find('}') == std::string::npos)
-                    {
-                        if (std::regex_match(line, match, positionRegex))
-                        {
-                            currentEntity.transform.SetPosition(glm::vec3(std::stof(match[1].str()), std::stof(match[2].str()), std::stof(match[3].str())));
-                        }
-                        else if (std::regex_match(line, match, scaleRegex))
-                        {
-                            currentEntity.transform.SetScale(glm::vec3(std::stof(match[1].str()), std::stof(match[2].str()), std::stof(match[3].str())));
-                        }
-                        else if (std::regex_match(line, match, rotationRegex))
-                        {
-                            currentEntity.transform.SetRotation(glm::vec3(std::stof(match[1].str()), std::stof(match[2].str()), std::stof(match[3].str())));
-                        }
-                    }
-                }
-            }
-            else if (line.find('}') != std::string::npos)
-            {
-                sceneData->entities.push_back(currentEntity);
-                inEntity = false;
-            }
+        transform.SetScale({
+            entityConfig.transform.scale.x,
+            entityConfig.transform.scale.y,
+            entityConfig.transform.scale.z
+        });
+
+        transform.SetRotation({
+            entityConfig.transform.rotation.x,
+            entityConfig.transform.rotation.y,
+            entityConfig.transform.rotation.z
+        });
+
+        if (!entityConfig.components.mesh.resourceId.empty())
+        {
+            MeshComponent& meshComponent = entity->GetComponent<MeshComponent>();
+            meshComponent.mesh = GlobalResourceManager::Instance().GetMesh(entityConfig.components.mesh.resourceId);
+            meshComponent.has = true;
         }
+
+        if (!entityConfig.components.material.resourceId.empty())
+        {
+            MaterialComponent& materialComponent = entity->GetComponent<MaterialComponent>();
+            materialComponent.material = GlobalResourceManager::Instance().GetMaterial(entityConfig.components.material.resourceId);
+            materialComponent.has = true;
+        }
+
+        if (!entityConfig.components.script.resourceId.empty())
+        {
+            ScriptComponent& scriptComponent = entity->GetComponent<ScriptComponent>();
+            scriptComponent.script = GlobalResourceManager::Instance().GetScript(entityConfig.components.script.resourceId);
+            scriptComponent.has = true;
+        }
+
+        entities.push_back(entity);
     }
 
-    file.close();
-    return sceneData;
+    // set parents and childrens
+    for (auto& entityConfig : sceneData->entities)
+    {
+        const vector<std::string>& childIds = entityConfig.components.children.childIdentifiers;
+        const std::string& parentId = entityConfig.components.parent.parentIdentifier;
+
+        auto itEnt = std::ranges::find_if(entities, [&](Entity* e)
+        {
+            return e->GetIdentifier() == entityConfig.identifier;
+        });
+
+        if (itEnt == entities.end())
+            continue;
+
+        Entity* entity = *itEnt;
+
+        // children
+        if (!childIds.empty())
+        {
+            auto& childrenComponent = entity->GetComponent<ChildrenComponent>();
+            childrenComponent.has = true;
+
+            // filter all entities whose id is in childIds
+            auto children_view = entities | std::views::filter([&](Entity* e)
+            {
+                return std::ranges::find(childIds, e->GetIdentifier()) != childIds.end();
+            });
+
+            for (Entity* child : children_view)
+            {
+                // skip self / duplicates
+                    //&& std::ranges::find(childrenComponent.children, child) != childrenComponent.children.end())
+                if (child->GetIdentifier() != entity->GetIdentifier())
+                    childrenComponent.children.push_back(child);
+            }
+        }
+
+        // parent
+        if (!parentId.empty())
+        {
+            auto itParent = std::ranges::find_if(entities, [&](Entity* e)
+            {
+                return e->GetIdentifier() == parentId;
+            });
+
+            auto& parentComponent = entity->GetComponent<ParentComponent>();
+            parentComponent.parent = (itParent != entities.end()) ? *itParent : nullptr;
+            parentComponent.has = true;
+        }
+    }
+}
+
+void SceneController::SaveSceneData(EntityManager* entityManager)
+{
+    SceneData* sceneData = EditorSingleton::Instance().sceneData;
+
+    if (sceneData == nullptr)
+    {
+        LoggerSingleton::Instance().LogWarning("There is no scene opened!");
+        return;
+    }
+
+    Scene* scene = Application::Instance().GetGame()->GetActiveScene();
+    Camera& camera = scene->GetCamera();
+    sceneData->camera.fovDegree = camera.fovDegree;
+    sceneData->camera.far = camera.far;
+    sceneData->camera.front = camera.front;
+    sceneData->camera.near = camera.near;
+    sceneData->camera.position = camera.position;
+    sceneData->camera.up.x = camera.up.x;
+    sceneData->camera.up.y = camera.up.y;
+    sceneData->camera.up.z = camera.up.z;
+
+
+    Color* backgroundColor = scene->GetBackgroundColor();
+    sceneData->backgroundColor.alpha = backgroundColor->alpha;
+    sceneData->backgroundColor.blue = backgroundColor->blue;
+    sceneData->backgroundColor.green = backgroundColor->green;
+    sceneData->backgroundColor.red = backgroundColor->red;
+
+    GlobalLight* globalLight = scene->GetGlobalLight();
+    glm::vec3 globalLightPosition = globalLight->transform.GetPosition();
+    glm::vec3 globalLightRotation = globalLight->transform.GetRotation();
+    glm::vec3 globalLightScale = globalLight->transform.GetScale();
+
+    sceneData->globalLight.transform.position.x = globalLightPosition.x;
+    sceneData->globalLight.transform.position.y = globalLightPosition.y;
+    sceneData->globalLight.transform.position.z = globalLightPosition.z;
+
+    sceneData->globalLight.transform.rotation.x = globalLightRotation.x;
+    sceneData->globalLight.transform.rotation.y = globalLightRotation.y;
+    sceneData->globalLight.transform.rotation.z = globalLightRotation.z;
+
+    sceneData->globalLight.transform.scale.x = globalLightScale.x;
+    sceneData->globalLight.transform.scale.y = globalLightScale.y;
+    sceneData->globalLight.transform.scale.z = globalLightScale.z;
+
+    sceneData->globalLight.directionalLight.color.blue = globalLight->directionalLight.color.blue;
+    sceneData->globalLight.directionalLight.color.green = globalLight->directionalLight.color.green;
+    sceneData->globalLight.directionalLight.color.red = globalLight->directionalLight.color.red;
+    sceneData->globalLight.directionalLight.color.alpha = globalLight->directionalLight.color.alpha;
+
+    sceneData->globalLight.directionalLight.influence = globalLight->directionalLight.influence;
+    sceneData->globalLight.directionalLight.specular.x = globalLight->directionalLight.specular.x;
+    sceneData->globalLight.directionalLight.specular.y = globalLight->directionalLight.specular.y;
+    sceneData->globalLight.directionalLight.specular.z = globalLight->directionalLight.specular.z;
+
+    sceneData->entities.clear();
+
+    for (Entity* entity : entityManager->GetEntities())
+    {
+        EntityConfigData entityConfig;
+        TransformComponent& transform = entity->GetComponent<TransformComponent>();
+        glm::vec3 position = transform.GetPosition();
+        glm::vec3 scale = transform.GetScale();
+        glm::vec3 rotation = transform.GetRotation();
+
+        entityConfig.identifier = entity->GetIdentifier();
+        entityConfig.name = entity->GetName();
+        entityConfig.tag = entity->GetTag();
+        entityConfig.isActive = entity->GetIsActive();
+
+        entityConfig.transform.position.x = position.x;
+        entityConfig.transform.position.y = position.y;
+        entityConfig.transform.position.z = position.z;
+
+        entityConfig.transform.scale.x = scale.x;
+        entityConfig.transform.scale.y = scale.y;
+        entityConfig.transform.scale.z = scale.z;
+
+        entityConfig.transform.rotation.x = rotation.x;
+        entityConfig.transform.rotation.y = rotation.y;
+        entityConfig.transform.rotation.z = rotation.z;
+
+        if (const MeshComponent& mesh = entity->GetComponent<MeshComponent>(); mesh.has && mesh.mesh != nullptr)
+            entityConfig.components.mesh.resourceId = mesh.mesh->resourceId;
+
+        if (const MaterialComponent& material = entity->GetComponent<MaterialComponent>(); material.has && material.material != nullptr)
+            entityConfig.components.material.resourceId = material.material->resourceId;
+
+        if (const ScriptComponent& script = entity->GetComponent<ScriptComponent>(); script.has && script.script != nullptr)
+            entityConfig.components.script.resourceId = script.script->resourceId;
+
+        if (const ChildrenComponent& children = entity->GetComponent<ChildrenComponent>(); children.has && !children.children.empty())
+        {
+            for (Entity* child : children.children)
+                entityConfig.components.children.childIdentifiers.push_back(child->GetIdentifier());
+        }
+
+        if (const ParentComponent& parent = entity->GetComponent<ParentComponent>(); parent.has && parent.parent != nullptr)
+            entityConfig.components.parent.parentIdentifier = parent.parent->GetIdentifier();
+
+        sceneData->entities.push_back(entityConfig);
+    }
+
+    if (std::ofstream file(sceneData->path); file.is_open())
+    {
+        file << Serializers::SceneDataSerializer::Serialize(*sceneData);
+        file.close();
+
+        LoggerSingleton::Instance().LogInfo("Scene '" + sceneData->path.string() + "' saved successfully");
+    }
+    else
+        LoggerSingleton::Instance().LogError("Failed to open the scene file");
 }

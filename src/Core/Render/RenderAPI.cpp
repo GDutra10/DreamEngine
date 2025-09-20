@@ -42,8 +42,8 @@ void RenderAPI::Render(Game* game)
     // render all entities
     for (Entity* entity : entities)
     {
-        if (!entity->IsActive())
-            return;
+        if (!entity->GetIsActive())
+            continue;
 
         if (entity->GetComponent<MeshComponent>().has && entity->GetComponent<MaterialComponent>().has)
         {

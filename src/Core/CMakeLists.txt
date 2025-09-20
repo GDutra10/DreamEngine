@@ -125,16 +125,18 @@ add_library (Core SHARED
 
 	
 set_target_properties(Core PROPERTIES
-    WINDOWS_EXPORT_ALL_SYMBOLS ON
+    #WINDOWS_EXPORT_ALL_SYMBOLS ON
     POSITION_INDEPENDENT_CODE ON
 )
 
 # add link libraries
-target_link_libraries(Core PRIVATE glm glfw glad)
+target_link_libraries(Core 
+	PUBLIC glm::glm
+	PRIVATE glfw glad)
 
 # Include GLFW headers
 target_include_directories(Core PUBLIC ${CMAKE_SOURCE_DIR}/src/Vendors/glfw/include)
-target_include_directories(Core PRIVATE ${GLM_DIR})
+#target_include_directories(Core PUBLIC ${GLM_DIR})
 target_include_directories(Core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Define the export macro

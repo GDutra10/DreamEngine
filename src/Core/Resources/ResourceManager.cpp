@@ -145,6 +145,18 @@ Mesh* ResourceManager::GetMesh(const std::string& resourceId)
     return nullptr;
 }
 
+Script* ResourceManager::GetScript(const std::string& resourceId)
+{
+    auto it = m_scripts.find(resourceId);
+
+    if (it != m_scripts.end())
+    {
+        return it->second;
+    }
+
+    return nullptr;
+}
+
 std::map<std::string, Shader*>& ResourceManager::GetShaders()
 {
     return m_shaders;

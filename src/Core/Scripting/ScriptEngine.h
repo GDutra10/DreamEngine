@@ -6,6 +6,7 @@
 //#include <windows.h>
 #include "coreclrhost.h"
 #include "ScriptInfo.h"
+#include "CoreExport.h"
 
 namespace DreamEngine::Core::Scripting
 {
@@ -37,7 +38,7 @@ typedef void (*updateGameDelegate)(void*);
 typedef void (*assemblyInitializeDelegate)(const char*);
 typedef void (*assembliesUnloadDelegate)();
 
-class ScriptEngine
+class CORE_API ScriptEngine
 {
    public:
     ScriptEngine();

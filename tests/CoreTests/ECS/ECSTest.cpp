@@ -16,7 +16,7 @@ namespace DreamEngine::CoreTests::ECS
 		EXPECT_EQ(playerEntity->GetId(), 0);
 		EXPECT_EQ(playerEntity->GetName(), "New Entity");
 		EXPECT_EQ(playerEntity->GetTag(), "Player");
-		EXPECT_EQ(playerEntity->IsActive(), true);
+		EXPECT_EQ(playerEntity->GetIsActive(), true);
 	}
 
 	TEST(EntityManagerTest, ShouldRemoveEntity)
@@ -29,6 +29,6 @@ namespace DreamEngine::CoreTests::ECS
 		playerEntity->Destroy();
 
 		// asserts
-		EXPECT_EQ(playerEntity->IsActive(), false);
+		EXPECT_EQ(playerEntity->GetIsActive(), false);
 	}
 }

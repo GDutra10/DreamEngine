@@ -6,7 +6,7 @@
 using json = nlohmann::json;
 using namespace DreamEngine::Editor::Serializers;
 
-std::string ModelSerializer::Serialize(Model& model)
+std::string ModelSerializer::Serialize(const Model& model)
 {
     json j;
 

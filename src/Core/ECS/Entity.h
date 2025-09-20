@@ -6,6 +6,7 @@
 #include "Sync/EntityData.h"
 #include "glm/fwd.hpp"
 #include "CoreExport.h"
+#include "Helpers/GUIDHelper.h"
 
 namespace DreamEngine::Core::ECS
 {
@@ -18,13 +19,15 @@ class CORE_API Entity
     friend class EntityManager;
 
    public:
-    EntityData entityData;
+    EntityData entityData = {};
     void Destroy() const;
-    bool IsActive() const;
+    bool GetIsActive() const;
     size_t GetId() const;
     std::string& GetTag();
     std::string& GetName();
-    void SetActive(const bool value) const;
+    std::string& GetIdentifier();
+    void SetIdentifier(const std::string& identifier);
+    void SetActive(const bool value);
     // get the transform by propagation when need it
     glm::mat4 GetTransform();
 
@@ -36,7 +39,12 @@ class CORE_API Entity
 
    private:
     size_t m_id;
-    Entity(const size_t& id) : m_id(id) {}
+    bool m_shouldIgnore = false;
+    std::string m_identifier;
+    Entity(const size_t& id) :
+        m_id(id),
+        m_identifier(Helpers::GUIDHelper::GenerateGUID())
+    {}
 };
 }
 #endif
