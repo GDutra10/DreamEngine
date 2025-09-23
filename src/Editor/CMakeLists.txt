@@ -97,6 +97,8 @@ add_executable(Editor
 
     UI/Windows/BaseWindow.h
     UI/Windows/BaseWindow.cpp
+    UI/Windows/GameWindow.h
+    UI/Windows/GameWindow.cpp
     UI/Windows/HierarchyWindow.h
     UI/Windows/HierarchyWindow.cpp
     UI/Windows/LoggerWindow.h
@@ -144,7 +146,7 @@ add_executable(Editor
     Vendors/imgui/imgui_impl_opengl3_loader.h
     Vendors/imgui/imgui_impl_glfw.cpp
     Vendors/imgui/imgui_impl_glfw.h
-    )
+)
 
 # Link dependencies
 target_link_libraries(Editor PRIVATE

@@ -10,9 +10,12 @@ class CORE_API FrameBuffer
    public:
     unsigned int id = 0;
     unsigned int textureColorBuffer = 0;
-    FrameBuffer(const int width, const int height, unsigned int rbo) : m_renderBufferId(rbo) {};
+    FrameBuffer(const int width, const int height, unsigned int rbo) : m_renderBufferId(rbo) {}
     ~FrameBuffer() = default;
     virtual void Rescale(const int width, const int height) = 0;
+    virtual void Attach() = 0;
+    virtual void Detach() = 0;
+    virtual bool GetIsActive() = 0;
    protected:
     unsigned int m_renderBufferId = 0;
 };

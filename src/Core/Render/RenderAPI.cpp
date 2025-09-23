@@ -14,7 +14,6 @@ void RenderAPI::Render(Game* game)
     Color* color = currentScene->GetBackgroundColor();
     const std::vector<Entity*>& entities = currentScene->GetEntityManager()->GetEntities();
 
-    BeforeRender();
     SetSceneBackgroundColor(color);
     
     if (entities.empty())
@@ -127,6 +126,11 @@ void RenderAPI::RescaleFrameBuffers(int width, int height) const
         if (frameBuffer != nullptr)
             frameBuffer->Rescale(width, height);
     }
+}
+
+std::vector<FrameBuffer*> RenderAPI::GetFrameBuffers() const
+{
+    return m_frameBuffers;
 }
 
 void RenderAPI::BeforeRender()

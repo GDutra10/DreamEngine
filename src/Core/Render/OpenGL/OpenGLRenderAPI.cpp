@@ -123,8 +123,6 @@ FrameBuffer* OpenGLRenderAPI::CreateFrameBuffer(int width, int height)
 
 void OpenGLRenderAPI::AfterRender(int width, int height)
 {
-    // Bind back to default framebuffer
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, width, height);
 
     GLenum err;
@@ -142,8 +140,9 @@ void OpenGLRenderAPI::BeforeRender()
         if (frameBuffer == nullptr)
             continue;
 
-        glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer->id);
+        frameBuffer->Attach();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        frameBuffer->Detach();
     }
 
     RenderAPI::BeforeRender();

@@ -18,8 +18,11 @@ class SceneController
    public:
     static bool ShouldLoadSceneData(path& path);
     static void LoadSceneData(path& path, EntityManager* entityManager);
-    static void SaveSceneData(EntityManager* entityManager);
+    static bool SaveSceneData(EntityManager* entityManager);
+    static void Play(EntityManager* entityManager);
+    static void Stop(EntityManager* entityManager);
    private:
+    static void LoadScene(EntityManager* entityManager, bool mustLoadEditorSceneCamera);
     /*static SceneData* ReadSceneFile(const std::string& filePath);*/
 };
 

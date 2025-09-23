@@ -77,7 +77,22 @@ void Application::Run(int width, int height, const std::string& name, const Rend
             // render
             if (const int isMinimized = glfwGetWindowAttrib(m_window, GLFW_ICONIFIED); !isMinimized)
             {
+                // render default
+                m_renderAPI->BeforeRender();
                 m_renderAPI->Render(m_game);
+
+                // render in each fbo
+                std::vector<FrameBuffer*> frameBuffers = m_renderAPI->GetFrameBuffers();
+
+                for (FrameBuffer* frameBuffer : frameBuffers)
+                {
+                    if (frameBuffer == nullptr)
+                        continue;
+
+                    frameBuffer->Attach();
+                    m_renderAPI->Render(m_game);
+                    frameBuffer->Detach();
+                }
 
                 int displayW, displayH;
                 glfwGetFramebufferSize(m_window, &displayW, &displayH);
@@ -174,6 +189,11 @@ void Application::InitializeWindow(const int width, const int height, const std:
     glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glfwPollEvents();
+}
+
+bool Application::GetIsFocused() const
+{
+    return glfwGetWindowAttrib(m_window, GLFW_FOCUSED);
 }
 
 void Application::MousePositionCallback(GLFWwindow* window, double xPosIn, double yPosIn)

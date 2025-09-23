@@ -9,6 +9,7 @@
 #include "Models/ProjectConfiguration.h"
 #include "Models/EditorConfiguration.h"
 #include "UI/Modals/OpenProjectModal.h"
+#include "UI/Windows/GameWindow.h"
 #include "UI/Windows/HierarchyWindow.h"
 #include "UI/Windows/LoggerWindow.h"
 #include "UI/Windows/ProjectWindow.h"
@@ -37,10 +38,13 @@ public:
     void Initialize() override;
     void Unload() override;
     void Update(float deltaTime) override;
+    bool GetIsFocused() const override;
+    Camera& GetCamera() override;
 
    private:
     bool m_imGuiInitialized = false;
     ImGuiIO* m_io = nullptr;
+    GameWindow m_gameWindow;
     HierarchyWindow m_hierarchyWindow;
     LoggerWindow m_loggerWindow;
     PropertyWindow m_propertyWindow;
@@ -50,10 +54,10 @@ public:
     ResourceManagerWindow m_resourceManagerWindow;
     MaterialWindow m_materialWindow;
     OpenProjectModal m_openProjectModal;
-    CameraEditorController* m_pCameraEditorController;
     ProjectConfiguration& GetProjectConfiguration() const;
     void InitializeImGui();
     void DrawMenuBar();
+    void DrawTopBar();
     void StartImGuiFrame();
     void FinishImGuiFrame();
     void UpdateBackgroundColor() const;

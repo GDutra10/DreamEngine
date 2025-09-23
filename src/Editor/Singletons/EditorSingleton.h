@@ -6,6 +6,7 @@
 #include "../Controllers/ProjectController.h"
 #include "../Controllers/ResourceController.h"
 #include "../Controllers/ScriptController.h"
+#include "../Controllers/CameraEditorController.h"
 #include "../Models/ProjectConfiguration.h"
 #include "../Models/EditorConfiguration.h"
 #include "../Models/Datas/SceneData.h"
@@ -42,7 +43,9 @@ class EditorSingleton final
     [[nodiscard]] ProjectController& GetProjectController();
     [[nodiscard]] ResourceController& GetResourceController();
     [[nodiscard]] ScriptController& GetScriptController();
+    [[nodiscard]] CameraEditorController& GetCameraEditorController();
     [[nodiscard]] FrameBuffer* GetViewPortFbo() const;
+    [[nodiscard]] FrameBuffer* GetGameFbo() const;
     void SetSelectedPath(const path& path);
     void SetSelectedScenePath(const path& scene) { m_selectedScenePath = scene; }
     void SetSelectedMaterialPath(const path& material) { m_selectedMaterialPath = material; }
@@ -51,6 +54,7 @@ class EditorSingleton final
     void SetIsViewSceneData(bool value) { m_isViewSceneData = value; }
     void SetProjectConfiguration(const ProjectConfiguration& projectConfig) const;
     void SetViewPortFbo(FrameBuffer* fbo) { m_viewPortFbo = fbo; }
+    void SetGameFbo(FrameBuffer* fbo) { m_gameFbo = fbo; }
    private:
     EditorSingleton(ProjectConfiguration& projectConfig, EditorConfiguration& editorConfig, Scene* pEditorScene);
     static EditorSingleton* m_sEditorSingleton;
@@ -68,7 +72,9 @@ class EditorSingleton final
     ProjectController m_projectController;
     ResourceController m_resourceController;
     ScriptController m_scriptController;
+    CameraEditorController m_cameraEditorController;
     FrameBuffer* m_viewPortFbo;
+    FrameBuffer* m_gameFbo;
 };
 
 }  // namespace DreamEngine::Editor

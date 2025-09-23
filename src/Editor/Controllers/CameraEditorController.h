@@ -15,12 +15,14 @@ class CameraEditorController
     float cameraSpeed = 2.0f;
     float mouseSensitivity = 0.05f;
 
-    CameraEditorController(Camera& camera);
+    CameraEditorController();
+    ~CameraEditorController();
 
     void Update(bool isSceneWindowFocused);
+    Camera* GetCamera() const;
 
     private:
-     Camera& m_camera;
+     Camera* m_pCamera;
      static glm::vec2 m_sLastMousePositionWhenRightClick;
      void Move(float deltaTime) const;
      void Rotate();

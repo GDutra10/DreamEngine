@@ -11,7 +11,9 @@ class OpenGLFrameBuffer : public FrameBuffer
    public:
     OpenGLFrameBuffer(const int width, const int height, unsigned int rbo);
     void Rescale(const int width, const int height) override;
-    
+    void Attach() override;
+    void Detach() override;
+    bool GetIsActive() override;
 };
 
 }  // namespace DreamEngine::Core::Render::OpenGL
