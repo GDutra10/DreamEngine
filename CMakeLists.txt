@@ -67,6 +67,12 @@ add_subdirectory(${ASSIMP_DIR})
 set(JSON_DIR "src/Vendors/json")
 add_subdirectory(${JSON_DIR})
 
+#set(RMLUI_DIR "src/Vendors/RmlUi")
+##add_subdirectory(${RMLUI_DIR})
+#add_library(rmlui INTERFACE)
+#target_include_directories(rmlui INTERFACE "${RMLUI_DIR}")
+#add_library(rmlui ALIAS rmlui)
+
 # ---- GoogleTest via FetchContent ----
 include(FetchContent)
 FetchContent_Declare(

@@ -28,177 +28,28 @@ bool SceneController::ShouldLoadSceneData(path& path)
 
 void SceneController::LoadSceneData(path& path, EntityManager* entityManager)
 {
-    entityManager->Reset();
+    LoggerSingleton::Instance().LogTrace("SceneController::LoadSceneData -> Start");
+
     std::ifstream file(path.string());
 
     SceneData* sceneData = &Serializers::SceneDataSerializer::Deserialize(file);
     sceneData->path = path;
 
-    EditorSingleton::Instance().SetSelectedEntity(nullptr);
-    EditorSingleton::Instance().SetIsViewSceneData(false);
     EditorSingleton::Instance().sceneData = sceneData;
-    Scene* scene = Application::Instance().GetGame()->GetActiveScene();
-    Camera& camera = scene->GetCamera();
 
-     // set camera props
-    camera.fovDegree = sceneData->camera.fovDegree;
-    camera.far = sceneData->camera.far;
-    camera.front = sceneData->camera.front;
-    camera.front.z = -1;
-    camera.near = sceneData->camera.near;
-    camera.position = sceneData->camera.position;
-    camera.up.x = sceneData->camera.up.x;
-    camera.up.y = sceneData->camera.up.y;
-    camera.up.z = sceneData->camera.up.z;
-
-    Color* backgroundColor = scene->GetBackgroundColor();
-    backgroundColor->blue = sceneData->backgroundColor.blue;
-    backgroundColor->red = sceneData->backgroundColor.red;
-    backgroundColor->green = sceneData->backgroundColor.green;
-    backgroundColor->alpha = sceneData->backgroundColor.alpha;
-
-    GlobalLight* globalLight = scene->GetGlobalLight();
-
-    globalLight->transform.SetPosition({
-        sceneData->globalLight.transform.position.x,
-        sceneData->globalLight.transform.position.y,
-        sceneData->globalLight.transform.position.z,
-    });
-
-    globalLight->transform.SetScale({
-        sceneData->globalLight.transform.scale.x,
-        sceneData->globalLight.transform.scale.y,
-        sceneData->globalLight.transform.scale.z,
-    });
-
-    globalLight->transform.SetRotation({
-        sceneData->globalLight.transform.rotation.x,
-        sceneData->globalLight.transform.rotation.y,
-        sceneData->globalLight.transform.rotation.z,
-    });
-
-    globalLight->directionalLight.color.red = sceneData->globalLight.directionalLight.color.red;
-    globalLight->directionalLight.color.green = sceneData->globalLight.directionalLight.color.green;
-    globalLight->directionalLight.color.blue = sceneData->globalLight.directionalLight.color.blue;
-    globalLight->directionalLight.color.alpha = sceneData->globalLight.directionalLight.color.alpha;
-    globalLight->directionalLight.specular.x = sceneData->globalLight.directionalLight.specular.x;
-    globalLight->directionalLight.specular.y = sceneData->globalLight.directionalLight.specular.y;
-    globalLight->directionalLight.specular.z = sceneData->globalLight.directionalLight.specular.z;
-    globalLight->directionalLight.influence = sceneData->globalLight.directionalLight.influence;
-
-    // create entities
-    vector<Entity*> entities;
-
-    for (auto& entityConfig : sceneData->entities)
-    {
-        Entity* entity = entityManager->AddEntity(entityConfig.tag);
-        entity->SetActive(entityConfig.isActive);
-        entity->GetName() = entityConfig.name;
-        entity->SetIdentifier(entityConfig.identifier);
-
-        TransformComponent& transform = entity->GetComponent<TransformComponent>();
-        transform.SetPosition({
-            entityConfig.transform.position.x,
-            entityConfig.transform.position.y,
-            entityConfig.transform.position.z
-        });
-
-        transform.SetScale({
-            entityConfig.transform.scale.x,
-            entityConfig.transform.scale.y,
-            entityConfig.transform.scale.z
-        });
-
-        transform.SetRotation({
-            entityConfig.transform.rotation.x,
-            entityConfig.transform.rotation.y,
-            entityConfig.transform.rotation.z
-        });
-
-        if (!entityConfig.components.mesh.resourceId.empty())
-        {
-            MeshComponent& meshComponent = entity->GetComponent<MeshComponent>();
-            meshComponent.mesh = GlobalResourceManager::Instance().GetMesh(entityConfig.components.mesh.resourceId);
-            meshComponent.has = true;
-        }
-
-        if (!entityConfig.components.material.resourceId.empty())
-        {
-            MaterialComponent& materialComponent = entity->GetComponent<MaterialComponent>();
-            materialComponent.material = GlobalResourceManager::Instance().GetMaterial(entityConfig.components.material.resourceId);
-            materialComponent.has = true;
-        }
-
-        if (!entityConfig.components.script.resourceId.empty())
-        {
-            ScriptComponent& scriptComponent = entity->GetComponent<ScriptComponent>();
-            scriptComponent.script = GlobalResourceManager::Instance().GetScript(entityConfig.components.script.resourceId);
-            scriptComponent.has = true;
-        }
-
-        entities.push_back(entity);
-    }
-
-    // set parents and childrens
-    for (auto& entityConfig : sceneData->entities)
-    {
-        const vector<std::string>& childIds = entityConfig.components.children.childIdentifiers;
-        const std::string& parentId = entityConfig.components.parent.parentIdentifier;
-
-        auto itEnt = std::ranges::find_if(entities, [&](Entity* e)
-        {
-            return e->GetIdentifier() == entityConfig.identifier;
-        });
-
-        if (itEnt == entities.end())
-            continue;
-
-        Entity* entity = *itEnt;
-
-        // children
-        if (!childIds.empty())
-        {
-            auto& childrenComponent = entity->GetComponent<ChildrenComponent>();
-            childrenComponent.has = true;
-
-            // filter all entities whose id is in childIds
-            auto children_view = entities | std::views::filter([&](Entity* e)
-            {
-                return std::ranges::find(childIds, e->GetIdentifier()) != childIds.end();
-            });
-
-            for (Entity* child : children_view)
-            {
-                // skip self / duplicates
-                    //&& std::ranges::find(childrenComponent.children, child) != childrenComponent.children.end())
-                if (child->GetIdentifier() != entity->GetIdentifier())
-                    childrenComponent.children.push_back(child);
-            }
-        }
-
-        // parent
-        if (!parentId.empty())
-        {
-            auto itParent = std::ranges::find_if(entities, [&](Entity* e)
-            {
-                return e->GetIdentifier() == parentId;
-            });
-
-            auto& parentComponent = entity->GetComponent<ParentComponent>();
-            parentComponent.parent = (itParent != entities.end()) ? *itParent : nullptr;
-            parentComponent.has = true;
-        }
-    }
+    LoadScene(entityManager, true);
 }
 
-void SceneController::SaveSceneData(EntityManager* entityManager)
+bool SceneController::SaveSceneData(EntityManager* entityManager)
 {
+    LoggerSingleton::Instance().LogTrace("SceneController::SaveSceneData -> Start");
+
     SceneData* sceneData = EditorSingleton::Instance().sceneData;
 
     if (sceneData == nullptr)
     {
         LoggerSingleton::Instance().LogWarning("There is no scene opened!");
-        return;
+        return false;
     }
 
     Scene* scene = Application::Instance().GetGame()->GetActiveScene();
@@ -302,5 +153,177 @@ void SceneController::SaveSceneData(EntityManager* entityManager)
         LoggerSingleton::Instance().LogInfo("Scene '" + sceneData->path.string() + "' saved successfully");
     }
     else
+    {
         LoggerSingleton::Instance().LogError("Failed to open the scene file");
+        return false;
+    }
+
+    return true;
+}
+
+void SceneController::Play(EntityManager* entityManager)
+{
+    LoggerSingleton::Instance().LogTrace("SceneController::Play -> Start");
+
+    if (SaveSceneData(entityManager))
+        EditorSingleton::Instance().GetEditorScene()->SetMustRunScriptComponents(true);
+}
+
+void SceneController::Stop(EntityManager* entityManager)
+{
+    LoggerSingleton::Instance().LogTrace("SceneController::Stop -> Start");
+
+    EditorSingleton::Instance().GetEditorScene()->SetMustRunScriptComponents(false);
+    LoadScene(entityManager, false);
+}
+
+void SceneController::LoadScene(EntityManager* entityManager, const bool mustLoadEditorSceneCamera)
+{
+    LoggerSingleton::Instance().LogTrace("SceneController::LoadScene -> Start");
+
+    Scene* scene = Application::Instance().GetGame()->GetActiveScene();
+    SceneData* sceneData = EditorSingleton::Instance().sceneData;
+
+    if (scene == nullptr)
+    {
+        LoggerSingleton::Instance().LogWarning("There is no SceneData loaded!");
+        return;
+    }
+
+    EditorSingleton::Instance().SetSelectedEntity(nullptr);
+    EditorSingleton::Instance().SetIsViewSceneData(false);
+
+    entityManager->Reset();
+
+    if (mustLoadEditorSceneCamera)
+    {
+        Camera& camera = scene->GetCamera();
+
+        // set camera props
+        camera.fovDegree = sceneData->camera.fovDegree;
+        camera.far = sceneData->camera.far;
+        camera.front = sceneData->camera.front;
+        camera.front.z = -1;
+        camera.near = sceneData->camera.near;
+        camera.position = sceneData->camera.position;
+        camera.up.x = sceneData->camera.up.x;
+        camera.up.y = sceneData->camera.up.y;
+        camera.up.z = sceneData->camera.up.z;
+    }
+
+    Color* backgroundColor = scene->GetBackgroundColor();
+    backgroundColor->blue = sceneData->backgroundColor.blue;
+    backgroundColor->red = sceneData->backgroundColor.red;
+    backgroundColor->green = sceneData->backgroundColor.green;
+    backgroundColor->alpha = sceneData->backgroundColor.alpha;
+
+    GlobalLight* globalLight = scene->GetGlobalLight();
+
+    globalLight->transform.SetPosition({
+        sceneData->globalLight.transform.position.x,
+        sceneData->globalLight.transform.position.y,
+        sceneData->globalLight.transform.position.z,
+    });
+
+    globalLight->transform.SetScale({
+        sceneData->globalLight.transform.scale.x,
+        sceneData->globalLight.transform.scale.y,
+        sceneData->globalLight.transform.scale.z,
+    });
+
+    globalLight->transform.SetRotation({
+        sceneData->globalLight.transform.rotation.x,
+        sceneData->globalLight.transform.rotation.y,
+        sceneData->globalLight.transform.rotation.z,
+    });
+
+    globalLight->directionalLight.color.red = sceneData->globalLight.directionalLight.color.red;
+    globalLight->directionalLight.color.green = sceneData->globalLight.directionalLight.color.green;
+    globalLight->directionalLight.color.blue = sceneData->globalLight.directionalLight.color.blue;
+    globalLight->directionalLight.color.alpha = sceneData->globalLight.directionalLight.color.alpha;
+    globalLight->directionalLight.specular.x = sceneData->globalLight.directionalLight.specular.x;
+    globalLight->directionalLight.specular.y = sceneData->globalLight.directionalLight.specular.y;
+    globalLight->directionalLight.specular.z = sceneData->globalLight.directionalLight.specular.z;
+    globalLight->directionalLight.influence = sceneData->globalLight.directionalLight.influence;
+
+    // create entities
+    vector<Entity*> entities;
+
+    for (auto& entityConfig : sceneData->entities)
+    {
+        Entity* entity = entityManager->AddEntity(entityConfig.tag);
+        entity->SetActive(entityConfig.isActive);
+        entity->GetName() = entityConfig.name;
+        entity->SetIdentifier(entityConfig.identifier);
+
+        TransformComponent& transform = entity->GetComponent<TransformComponent>();
+        transform.SetPosition({entityConfig.transform.position.x, entityConfig.transform.position.y, entityConfig.transform.position.z});
+        transform.SetScale({entityConfig.transform.scale.x, entityConfig.transform.scale.y, entityConfig.transform.scale.z});
+        transform.SetRotation({entityConfig.transform.rotation.x, entityConfig.transform.rotation.y, entityConfig.transform.rotation.z});
+
+        if (!entityConfig.components.mesh.resourceId.empty())
+        {
+            MeshComponent& meshComponent = entity->GetComponent<MeshComponent>();
+            meshComponent.mesh = GlobalResourceManager::Instance().GetMesh(entityConfig.components.mesh.resourceId);
+            meshComponent.has = true;
+        }
+
+        if (!entityConfig.components.material.resourceId.empty())
+        {
+            MaterialComponent& materialComponent = entity->GetComponent<MaterialComponent>();
+            materialComponent.material = GlobalResourceManager::Instance().GetMaterial(entityConfig.components.material.resourceId);
+            materialComponent.has = true;
+        }
+
+        if (!entityConfig.components.script.resourceId.empty())
+        {
+            ScriptComponent& scriptComponent = entity->GetComponent<ScriptComponent>();
+            scriptComponent.script = GlobalResourceManager::Instance().GetScript(entityConfig.components.script.resourceId);
+            scriptComponent.has = true;
+        }
+
+        entities.push_back(entity);
+    }
+
+    // set parents and childrens
+    for (auto& entityConfig : sceneData->entities)
+    {
+        const vector<std::string>& childIds = entityConfig.components.children.childIdentifiers;
+        const std::string& parentId = entityConfig.components.parent.parentIdentifier;
+
+        auto itEnt = std::ranges::find_if(entities, [&](Entity* e) { return e->GetIdentifier() == entityConfig.identifier; });
+
+        if (itEnt == entities.end())
+            continue;
+
+        Entity* entity = *itEnt;
+
+        // children
+        if (!childIds.empty())
+        {
+            auto& childrenComponent = entity->GetComponent<ChildrenComponent>();
+            childrenComponent.has = true;
+
+            // filter all entities whose id is in childIds
+            auto children_view = entities | std::views::filter([&](Entity* e) { return std::ranges::find(childIds, e->GetIdentifier()) != childIds.end(); });
+
+            for (Entity* child : children_view)
+            {
+                // skip self / duplicates
+                //&& std::ranges::find(childrenComponent.children, child) != childrenComponent.children.end())
+                if (child->GetIdentifier() != entity->GetIdentifier())
+                    childrenComponent.children.push_back(child);
+            }
+        }
+
+        // parent
+        if (!parentId.empty())
+        {
+            auto itParent = std::ranges::find_if(entities, [&](Entity* e) { return e->GetIdentifier() == parentId; });
+
+            auto& parentComponent = entity->GetComponent<ParentComponent>();
+            parentComponent.parent = (itParent != entities.end()) ? *itParent : nullptr;
+            parentComponent.has = true;
+        }
+    }
 }

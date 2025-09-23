@@ -18,6 +18,7 @@
 #include "../../Vendors/imgui/imgui_internal.h"
 
 #define NEXT_ROW_VECTOR_3_INPUT_WIDTH 70.0f
+#define FLOAT_FORMAT "%g"
 
 using namespace DreamEngine::Core::Resources;
 using namespace DreamEngine::Core::Render::Factories;
@@ -100,38 +101,38 @@ void PropertyWindow::DrawSceneData()
             ImGui::TextColored(ImGuiHelper::GetImVec4Red(), "X");
             ImGui::SameLine();
             ImGui::SetNextItemWidth(NEXT_ROW_VECTOR_3_INPUT_WIDTH);
-            ImGui::InputFloat("##scene.camera.position.x", &camera.position.x, 0, 0, "%.2f");
+            ImGui::InputFloat("##scene.camera.position.x", &camera.position.x, 0, 0, FLOAT_FORMAT);
 
             ImGui::SameLine();
             ImGui::TextColored(ImGuiHelper::GetImVec4Green(), "Y");
             ImGui::SameLine();
             ImGui::SetNextItemWidth(NEXT_ROW_VECTOR_3_INPUT_WIDTH);
-            ImGui::InputFloat("##scene.camera.position.y", &camera.position.y, 0, 0, "%.2f");
+            ImGui::InputFloat("##scene.camera.position.y", &camera.position.y, 0, 0, FLOAT_FORMAT);
 
             ImGui::SameLine();
             ImGui::TextColored(ImGuiHelper::GetImVec4Blue(), "Z");
             ImGui::SameLine();
             ImGui::SetNextItemWidth(NEXT_ROW_VECTOR_3_INPUT_WIDTH);
-            ImGui::InputFloat("##scene.camera.position.z", &camera.position.z, 0, 0, "%.2f");
+            ImGui::InputFloat("##scene.camera.position.z", &camera.position.z, 0, 0, FLOAT_FORMAT);
 
             // front
             ImGuiHelper::PrepareRow("Front");
             ImGui::TextColored(ImGuiHelper::GetImVec4Red(), "X");
             ImGui::SameLine();
             ImGui::SetNextItemWidth(NEXT_ROW_VECTOR_3_INPUT_WIDTH);
-            ImGui::InputFloat("##scene.camera.front.x", &camera.front.x, 0, 0, "%.2f");
+            ImGui::InputFloat("##scene.camera.front.x", &camera.front.x, 0, 0, FLOAT_FORMAT);
 
             ImGui::SameLine();
             ImGui::TextColored(ImGuiHelper::GetImVec4Green(), "Y");
             ImGui::SameLine();
             ImGui::SetNextItemWidth(NEXT_ROW_VECTOR_3_INPUT_WIDTH);
-            ImGui::InputFloat("##scene.camera.front.y", &camera.front.y, 0, 0, "%.2f");
+            ImGui::InputFloat("##scene.camera.front.y", &camera.front.y, 0, 0, FLOAT_FORMAT);
 
             ImGui::SameLine();
             ImGui::TextColored(ImGuiHelper::GetImVec4Blue(), "Z");
             ImGui::SameLine();
             ImGui::SetNextItemWidth(NEXT_ROW_VECTOR_3_INPUT_WIDTH);
-            ImGui::InputFloat("##scene.camera.front.z", &camera.front.z, 0, 0, "%.2f");
+            ImGui::InputFloat("##scene.camera.front.z", &camera.front.z, 0, 0, FLOAT_FORMAT);
 
             // up
             ImGuiHelper::PrepareRow("Up");
@@ -139,7 +140,7 @@ void PropertyWindow::DrawSceneData()
             ImGui::SameLine();
             ImGui::SetNextItemWidth(NEXT_ROW_VECTOR_3_INPUT_WIDTH);
             float upX = std::isnan(camera.up.x) ? 0.0f : camera.up.x;
-            ImGui::InputFloat("##scene.camera.up.x", &upX, 0, 0, "%.2f");
+            ImGui::InputFloat("##scene.camera.up.x", &upX, 0, 0, FLOAT_FORMAT);
             camera.up.x = upX;
 
             ImGui::SameLine();
@@ -147,7 +148,7 @@ void PropertyWindow::DrawSceneData()
             ImGui::SameLine();
             ImGui::SetNextItemWidth(NEXT_ROW_VECTOR_3_INPUT_WIDTH);
             float upY = std::isnan(camera.up.y) ? 0.0f : camera.up.y;
-            ImGui::InputFloat("##scene.camera.up.y", &upY, 0, 0, "%.2f");
+            ImGui::InputFloat("##scene.camera.up.y", &upY, 0, 0, FLOAT_FORMAT);
             camera.up.y = upY;
 
             ImGui::SameLine();
@@ -155,17 +156,17 @@ void PropertyWindow::DrawSceneData()
             ImGui::SameLine();
             ImGui::SetNextItemWidth(NEXT_ROW_VECTOR_3_INPUT_WIDTH);
             float upZ = std::isnan(camera.up.z) ? 0.0f : camera.up.z;
-            ImGui::InputFloat("##scene.camera.up.z", &upZ, 0, 0, "%.2f");
+            ImGui::InputFloat("##scene.camera.up.z", &upZ, 0, 0, FLOAT_FORMAT);
             camera.up.z = upZ;
 
             ImGuiHelper::PrepareRow("Fov");
-            ImGui::InputFloat("##scene.camera.fov", &camera.fovDegree, 0, 0, "%.2f");
+            ImGui::InputFloat("##scene.camera.fov", &camera.fovDegree, 0, 0, FLOAT_FORMAT);
 
             ImGuiHelper::PrepareRow("Near");
-            ImGui::InputFloat("##scene.camera.near", &camera.near, 0, 0, "%.2f");
+            ImGui::InputFloat("##scene.camera.near", &camera.near, 0, 0, FLOAT_FORMAT);
 
             ImGuiHelper::PrepareRow("Far");
-            ImGui::InputFloat("##scene.camera.far", &camera.far, 0, 0, "%.2f");
+            ImGui::InputFloat("##scene.camera.far", &camera.far, 0, 0, FLOAT_FORMAT);
 
             ImGui::EndTable();
         }
@@ -212,21 +213,21 @@ void PropertyWindow::DrawTransformComponent(TransformComponent& transform)
             ImGui::TextColored(ImGuiHelper::GetImVec4Red(), "X");
             ImGui::SameLine();
             ImGui::SetNextItemWidth(NEXT_ROW_VECTOR_3_INPUT_WIDTH);
-            if (ImGui::InputFloat("##selected.entity.position.x", &position.x, 0, 0, "%.2f"))
+            if (ImGui::InputFloat("##selected.entity.position.x", &position.x, 0, 0, FLOAT_FORMAT))
                 transform.SetPosition(position);
 
             ImGui::SameLine();
             ImGui::TextColored(ImGuiHelper::GetImVec4Green(), "Y");
             ImGui::SameLine();
             ImGui::SetNextItemWidth(NEXT_ROW_VECTOR_3_INPUT_WIDTH);
-            if (ImGui::InputFloat("##selected.entity.position.y", &position.y, 0, 0, "%.2f"))
+            if (ImGui::InputFloat("##selected.entity.position.y", &position.y, 0, 0, FLOAT_FORMAT))
                 transform.SetPosition(position);
 
             ImGui::SameLine();
             ImGui::TextColored(ImGuiHelper::GetImVec4Blue(), "Z");
             ImGui::SameLine();
             ImGui::SetNextItemWidth(NEXT_ROW_VECTOR_3_INPUT_WIDTH);
-            if (ImGui::InputFloat("##selected.entity.position.z", &position.z, 0, 0, "%.2f"))
+            if (ImGui::InputFloat("##selected.entity.position.z", &position.z, 0, 0, FLOAT_FORMAT))
                 transform.SetPosition(position);
 
             // scale
@@ -235,21 +236,21 @@ void PropertyWindow::DrawTransformComponent(TransformComponent& transform)
             ImGui::TextColored(ImGuiHelper::GetImVec4Red(), "X");
             ImGui::SameLine();
             ImGui::SetNextItemWidth(NEXT_ROW_VECTOR_3_INPUT_WIDTH);
-            if (ImGui::InputFloat("##selected.entity.scale.x", &scale.x, 0, 0, "%.2f"))
+            if (ImGui::InputFloat("##selected.entity.scale.x", &scale.x, 0, 0, FLOAT_FORMAT))
                 transform.SetScale(scale);
 
             ImGui::SameLine();
             ImGui::TextColored(ImGuiHelper::GetImVec4Green(), "Y");
             ImGui::SameLine();
             ImGui::SetNextItemWidth(NEXT_ROW_VECTOR_3_INPUT_WIDTH);
-            if (ImGui::InputFloat("##selected.entity.scale.y", &scale.y, 0, 0, "%.2f"))
+            if (ImGui::InputFloat("##selected.entity.scale.y", &scale.y, 0, 0, FLOAT_FORMAT))
                 transform.SetScale(scale);
 
             ImGui::SameLine();
             ImGui::TextColored(ImGuiHelper::GetImVec4Blue(), "Z");
             ImGui::SameLine();
             ImGui::SetNextItemWidth(NEXT_ROW_VECTOR_3_INPUT_WIDTH);
-            if (ImGui::InputFloat("##selected.entity.scale.z", &scale.z, 0, 0, "%.2f"))
+            if (ImGui::InputFloat("##selected.entity.scale.z", &scale.z, 0, 0, FLOAT_FORMAT))
                 transform.SetScale(scale);
 
             // rotation
@@ -258,21 +259,21 @@ void PropertyWindow::DrawTransformComponent(TransformComponent& transform)
             ImGui::TextColored(ImGuiHelper::GetImVec4Red(), "X");
             ImGui::SameLine();
             ImGui::SetNextItemWidth(NEXT_ROW_VECTOR_3_INPUT_WIDTH);
-            if (ImGui::InputFloat("##selected.entity.rotation.x", &rotation.x, 0, 0, "%.2f"))
+            if (ImGui::InputFloat("##selected.entity.rotation.x", &rotation.x, 0, 0, FLOAT_FORMAT))
                 transform.SetRotation(rotation);
 
             ImGui::SameLine();
             ImGui::TextColored(ImGuiHelper::GetImVec4Green(), "Y");
             ImGui::SameLine();
             ImGui::SetNextItemWidth(NEXT_ROW_VECTOR_3_INPUT_WIDTH);
-            if (ImGui::InputFloat("##selected.entity.rotation.y", &rotation.y, 0, 0, "%.2f"))
+            if (ImGui::InputFloat("##selected.entity.rotation.y", &rotation.y, 0, 0, FLOAT_FORMAT))
                 transform.SetRotation(rotation);
 
             ImGui::SameLine();
             ImGui::TextColored(ImGuiHelper::GetImVec4Blue(), "Z");
             ImGui::SameLine();
             ImGui::SetNextItemWidth(NEXT_ROW_VECTOR_3_INPUT_WIDTH);
-            if (ImGui::InputFloat("##selected.entity.rotation.z", &rotation.z, 0, 0, "%.2f"))
+            if (ImGui::InputFloat("##selected.entity.rotation.z", &rotation.z, 0, 0, FLOAT_FORMAT))
                 transform.SetRotation(rotation);
 
             ImGui::EndTable();

@@ -1,5 +1,6 @@
 #include "Scene.h"
 
+#include "Application.h"
 #include "ECS/Components/DirectionalLightComponent.h"
 #include "ECS/Components/ScriptComponent.h"
 #include "ECS/Components/NativeScriptComponent.h"
@@ -27,12 +28,17 @@ void Scene::SetShowCursor(const bool showCursor)
     m_showCursor = showCursor;
 }
 
+void Scene::SetCameraComponent(CameraComponent* cameraComponent)
+{
+    m_pCameraComponent = cameraComponent;
+}
+
 void Scene::Update(const float deltaTime)
 {
     m_entityManager->Update();
 
     if (m_mustRunScriptComponents)
-        ScriptEngine::UpdateGame(GameSynchronizer::Synchronize());
+        ScriptEngine::UpdateGame(GameSynchronizer::Synchronize(this->GetIsFocused()));
 
     for (Entity* entity : m_entityManager->GetEntities())
     {
@@ -91,12 +97,29 @@ GlobalLight* Scene::GetGlobalLight()
 
 Camera& Scene::GetCamera()
 {
+    /*if (m_pCameraComponent != nullptr)
+    {
+        m_camera.worldUp = m_pCameraComponent->worldUp;
+        m_camera.fovDegree = m_pCameraComponent->fovDegree;
+        m_camera.far = m_pCameraComponent->far;
+        m_camera.front = m_pCameraComponent->front;
+        m_camera.near = m_pCameraComponent->near;
+        m_camera.position = m_pCameraComponent->position;
+        m_camera.right = m_pCameraComponent->right;
+        m_camera.up = m_pCameraComponent->up;
+    }*/
+
     return m_camera;
 }
 
 bool Scene::GetMustRunScriptComponents() const
 {
     return m_mustRunScriptComponents;
+}
+
+bool Scene::GetIsFocused() const
+{
+    return Application::Instance().GetIsFocused();
 }
 
 void Scene::SetMustRunScriptComponents(const bool val)

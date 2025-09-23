@@ -1,4 +1,4 @@
-#include "EditorScene.h"
+﻿#include "EditorScene.h"
 
 #include "Helpers/FileHelper.h"
 #include "Serializers/MaterialSerializer.h"
@@ -6,6 +6,7 @@
 #include "Vendors/imgui/imgui.h"
 #include "Vendors/imgui/imgui_impl_glfw.h"
 #include "Vendors/imgui/imgui_impl_opengl3.h"
+#include "Vendors/imgui/imgui_internal.h"
 #include "Vendors/imgui/ImGuizmo.h"
 #include "Vendors/stb_image.h"
 #include "../Core/Application.h"
@@ -28,6 +29,7 @@ EditorScene::EditorScene(
     ProjectConfiguration& projectConfig,
     EditorConfiguration& editorConfig)
     : Scene(std::move(name))
+      , m_gameWindow(GameWindow("Game"))
       , m_hierarchyWindow(HierarchyWindow("Hierarchy"))
       , m_loggerWindow(LoggerWindow("Output"))
       , m_propertyWindow(PropertyWindow("Property"))
@@ -53,11 +55,10 @@ void EditorScene::Initialize()
     EditorSingleton::Instance().SetEntityManager(m_entityManager);
     
     Game* game = Application::Instance().GetGame();
-    FrameBuffer* frameBuffer = Application::Instance().GetRenderAPI()->CreateFrameBuffer(game->width, game->height);
-    EditorSingleton::Instance().SetViewPortFbo(frameBuffer);
-
-    // initialize camera controller
-    m_pCameraEditorController = new CameraEditorController(this->GetCamera());
+    FrameBuffer* frameBufferViewport = Application::Instance().GetRenderAPI()->CreateFrameBuffer(game->width, game->height);
+    FrameBuffer* frameBufferGame = Application::Instance().GetRenderAPI()->CreateFrameBuffer(game->width, game->height);
+    EditorSingleton::Instance().SetViewPortFbo(frameBufferViewport);
+    EditorSingleton::Instance().SetGameFbo(frameBufferGame);
 
     // initialize scripts without running them
     m_mustRunScriptComponents = false;
@@ -78,7 +79,22 @@ void EditorScene::Unload()
 void EditorScene::Update(const float deltaTime)
 {
     Scene::Update(deltaTime);
-    m_pCameraEditorController->Update(m_sceneWindow.IsFocused());
+    EditorSingleton::Instance().GetCameraEditorController().Update(m_sceneWindow.IsFocused());
+}
+
+bool EditorScene::GetIsFocused() const
+{
+    return m_gameWindow.IsFocused();
+}
+
+Camera& EditorScene::GetCamera()
+{
+    FrameBuffer* viewportFbo = EditorSingleton::Instance().GetViewPortFbo();
+
+    if (viewportFbo->GetIsActive())
+        return *EditorSingleton::Instance().GetCameraEditorController().GetCamera();
+
+    return Scene::GetCamera();
 }
 
 ProjectConfiguration& EditorScene::GetProjectConfiguration() const
@@ -206,6 +222,57 @@ void EditorScene::DrawMenuBar()
     m_openProjectModal.Draw();
 }
 
+void EditorScene::DrawTopBar()
+{
+    const bool mustRunScriptComponents = EditorSingleton::Instance().GetEditorScene()->GetMustRunScriptComponents();
+    const char* label = mustRunScriptComponents ? " Stop " : " Play ";
+    const ImGuiStyle& style = ImGui::GetStyle();
+    const ImVec4 base = mustRunScriptComponents ? ImVec4(0.957f, 0.263f, 0.212f, 1.0f) : ImVec4(0.298f, 0.686f, 0.314f, 1.0f);    // normal
+    const ImVec4 hover = mustRunScriptComponents ? ImVec4(0.937f, 0.325f, 0.314f, 1.0f) : ImVec4(0.400f, 0.733f, 0.416f, 1.0f);   // hovered
+    const ImVec4 active = mustRunScriptComponents ? ImVec4(0.898f, 0.224f, 0.208f, 1.0f) : ImVec4(0.263f, 0.627f, 0.278f, 1.0f);  // active (pressed)
+
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, style.Colors[ImGuiCol_MenuBarBg]);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(style.FramePadding.x, style.FramePadding.y));
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, style.FrameBorderSize);
+    ImGui::PushStyleColor(ImGuiCol_Button, base);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, hover);
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, active);
+
+    if (ImGui::BeginViewportSideBar(
+            "##TopToolbar", 
+            ImGui::GetMainViewport(),
+            ImGuiDir_Up,
+            ImGui::GetFrameHeight() * 1.6f,  // example taller bar
+            ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking))
+    {
+        // --- compute button size (default button size uses frame height) ---
+        const float buttonWidth = ImGui::CalcTextSize(label).x + style.FramePadding.x * 2.0f;
+        const float buttonHeight = ImGui::GetFrameHeight();
+
+        // --- content region size (excludes padding/borders) ---
+        const float innterWidht = ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x;
+        const float innerHeight = ImGui::GetWindowContentRegionMax().y - ImGui::GetWindowContentRegionMin().y;
+
+        // --- starting cursor inside content region ---
+        const ImVec2 start = ImGui::GetCursorStartPos();
+
+        // --- center offsets ---
+        const float offX = std::max(0.0f, (innterWidht - buttonWidth) * 0.5f);
+        const float offY = std::max(0.0f, (innerHeight - buttonHeight) * 0.5f);
+
+        // place cursor at centered position
+        ImGui::SetCursorPos(ImVec2(start.x + offX, start.y + offY));
+
+        if (ImGui::Button(label))
+            mustRunScriptComponents ? SceneController::Stop(m_entityManager) : SceneController::Play(m_entityManager);
+    }
+    ImGui::End();
+
+    ImGui::PopStyleVar(3);
+    ImGui::PopStyleColor(4);
+}
+
 void EditorScene::StartImGuiFrame()
 {
     ImGui_ImplOpenGL3_NewFrame();
@@ -222,11 +289,13 @@ void EditorScene::FinishImGuiFrame()
 
     if (GetProjectConfiguration().isLoaded)
     {
+        DrawTopBar();
         m_hierarchyWindow.Draw();
         m_loggerWindow.Draw();
         m_propertyWindow.Draw();
         m_projectWindow.Draw();
         m_sceneWindow.Draw();
+        m_gameWindow.Draw();
         m_fileExplorerWindow.Draw();
         m_resourceManagerWindow.Draw();
         m_materialWindow.Draw();    

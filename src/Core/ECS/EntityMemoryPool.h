@@ -11,6 +11,7 @@
 #include "Components/ChildrenComponent.h"
 #include "Components/ParentComponent.h"
 #include "Components/NativeScriptComponent.h"
+#include "Components/CameraComponent.h"
 
 namespace DreamEngine::Core::ECS
 {
@@ -24,7 +25,8 @@ typedef std::tuple<std::vector<TransformComponent>,
                    std::vector<ScriptComponent>,
                    std::vector<ChildrenComponent>,
                    std::vector<ParentComponent>,
-                   std::vector<NativeScriptComponent> 
+                   std::vector<NativeScriptComponent>,
+                   std::vector<CameraComponent>
    > EntityComponentVectorTuple;
 
 class CORE_API EntityMemoryPool

@@ -18,19 +18,6 @@ SceneWindow::SceneWindow(const std::string& title) : BaseWindow(title){}
 
 void SceneWindow::DrawContent()
 {
-    const bool mustRunScriptComponents = EditorSingleton::Instance().GetEditorScene()->GetMustRunScriptComponents();
-
-    if (!mustRunScriptComponents)
-        if (ImGui::Button("Play"))
-        {
-            EditorSingleton::Instance().GetEditorScene()->SetMustRunScriptComponents(true);
-            SelectGizmoOperation(-1);
-        }
-
-    if (mustRunScriptComponents)
-        if (ImGui::Button("Stop"))
-            EditorSingleton::Instance().GetEditorScene()->SetMustRunScriptComponents(false);
-
     m_availableSize = ImGui::GetWindowViewport()->Size;
     m_windowPosition = ImGui::GetCursorScreenPos();
 
@@ -61,23 +48,20 @@ void SceneWindow::DrawContent()
         // Draw the gizmo operation buttons
         //ImGui::SetItemAllowOverlap();
 
-        if (!mustRunScriptComponents)
-        {
-            ImVec2 position = ImGui::GetWindowContentRegionMin();
-            position.x += 10;
-            position.y += 5;
-            ImGui::SetCursorPos(position);
-            ImGui::BeginGroup();
-            OperationButton(-1, []() { return ImGui::Button("    h    ##scene.window.gizmo.operation.hide"); });
-            ImGui::SameLine(0, 8);
-            OperationButton(ImGuizmo::TRANSLATE, []() { return ImGui::Button("    T    ##scene.window.gizmo.operation.translate"); });
-            ImGui::SameLine(0, 8);
-            OperationButton(ImGuizmo::ROTATE, []() { return ImGui::Button("    R    ##scene.window.gizmo.operation.rotate"); });
-            ImGui::SameLine(0, 8);
-            OperationButton(ImGuizmo::SCALE, []() { return ImGui::Button("    S    ##scene.window.gizmo.operation.scale"); });
-            ImGui::EndGroup();
-            //ImGui::SetItemAllowOverlap();
-        }
+        ImVec2 position = ImGui::GetWindowContentRegionMin();
+        position.x += 10;
+        position.y += 5;
+        ImGui::SetCursorPos(position);
+        ImGui::BeginGroup();
+        OperationButton(-1, []() { return ImGui::Button("    h    ##scene.window.gizmo.operation.hide"); });
+        ImGui::SameLine(0, 8);
+        OperationButton(ImGuizmo::TRANSLATE, []() { return ImGui::Button("    T    ##scene.window.gizmo.operation.translate"); });
+        ImGui::SameLine(0, 8);
+        OperationButton(ImGuizmo::ROTATE, []() { return ImGui::Button("    R    ##scene.window.gizmo.operation.rotate"); });
+        ImGui::SameLine(0, 8);
+        OperationButton(ImGuizmo::SCALE, []() { return ImGui::Button("    S    ##scene.window.gizmo.operation.scale"); });
+        ImGui::EndGroup();
+        //ImGui::SetItemAllowOverlap();
     }
 
     ImGui::EndChild();
@@ -91,7 +75,7 @@ void SceneWindow::ImGizmoRender()
         return;
 
     Game* game = Application::Instance().GetGame();
-    Camera& camera = game->GetActiveScene()->GetCamera();
+    Camera camera = *EditorSingleton::Instance().GetCameraEditorController().GetCamera();
     TransformComponent& transformComponent = selectedEntity->GetComponent<TransformComponent>();
     ParentComponent& parentComponent = selectedEntity->GetComponent<ParentComponent>();
 

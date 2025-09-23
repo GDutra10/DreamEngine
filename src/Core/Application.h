@@ -33,6 +33,7 @@ class CORE_API Application
     [[nodiscard]] ScriptEngine* GetScriptEngine() const { return m_scriptEngine; }
     [[nodiscard]] GameData* GetGameData() { return m_gameData; }
     float GetDeltaTime() const { return m_deltaTime; }
+    bool GetIsFocused() const;
     void Close() const;
   private:
     // the completion time in seconds since the last frame

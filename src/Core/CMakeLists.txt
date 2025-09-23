@@ -36,6 +36,7 @@ add_library (Core SHARED
 	"ECS/Components/ScriptComponent.h"
 	"ECS/Components/ChildrenComponent.h"
 	"ECS/Components/ParentComponent.h"
+	"ECS/Components/CameraComponent.h"
 	
 	"GameSystem/Camera.h" 
 	"GameSystem/Game.h"
@@ -121,7 +122,7 @@ add_library (Core SHARED
 
 	"Vendors/glad.h"
 	"Vendors/glfw3.h"
- )
+  )
 
 	
 set_target_properties(Core PROPERTIES

@@ -90,9 +90,19 @@ ScriptController& EditorSingleton::GetScriptController()
     return m_scriptController;
 }
 
+CameraEditorController& EditorSingleton::GetCameraEditorController()
+{
+    return m_cameraEditorController;
+}
+
 FrameBuffer* EditorSingleton::GetViewPortFbo() const
 {
     return m_viewPortFbo;
+}
+
+FrameBuffer* EditorSingleton::GetGameFbo() const
+{
+    return m_gameFbo;
 }
 
 void EditorSingleton::SetSelectedPath(const path& path)

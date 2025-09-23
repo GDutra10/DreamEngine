@@ -60,3 +60,23 @@ void OpenGLFrameBuffer::Rescale(const int width, const int height)
     if (err != GL_NO_ERROR)
         Loggers::LoggerSingleton::Instance().LogError("OpenGLFrameBuffer::Rescale -> OpenGL error: " + std::to_string(err));
 }
+
+void OpenGLFrameBuffer::Attach()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, id);
+}
+
+void OpenGLFrameBuffer::Detach()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+bool OpenGLFrameBuffer::GetIsActive()
+{
+    GLuint drawFbo = 0, readFbo = 0;
+
+    glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, reinterpret_cast<GLint*>(&drawFbo));
+    glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, reinterpret_cast<GLint*>(&readFbo));
+
+    return drawFbo == id && readFbo == id;
+}

@@ -31,10 +31,11 @@ class CORE_API RenderAPI
     void AddAfterRenderEntitiesCallbacks(const std::function<void(int width, int height)>& callback);
     void AddAfterRenderEntityCallbacks(const std::function<void(Entity* entity)>& callback);
     void RescaleFrameBuffers(int width, int height) const;
+    std::vector<FrameBuffer*> GetFrameBuffers() const;
+    virtual void BeforeRender();
 
    protected:
     std::vector<FrameBuffer*> m_frameBuffers;
-    virtual void BeforeRender();
     virtual void SetSceneBackgroundColor(Color* color) = 0;
     virtual void SetTransform(const Shader* shader, const std::string name, glm::mat4& transform) = 0;
    private:
