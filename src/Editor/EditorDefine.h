@@ -21,4 +21,8 @@
 #define EDITOR_DOTNET_CLI_COMMAND_RESULT_SUCCESS 0
 #endif
 
+#ifndef EDITOR_OUTLINE_SHADER_NAME
+#define EDITOR_OUTLINE_SHADER_NAME "OutlineShader"
+#endif
+
 #endif

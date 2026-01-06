@@ -147,6 +147,13 @@ void ProjectController::LoadDefaultResources()
     shader->name = DEFAULT_SHADER_NAME;
     GlobalResourceManager::Instance().AddShader(shader->name, shader);
 
+    // add outline shader
+    const std::string outlineVertexShader = Core::IO::File::ReadAllText("Assets/Shaders/outline.vert.glsl");
+    const std::string outlineFragmentShader = Core::IO::File::ReadAllText("Assets/Shaders/outline.frag.glsl");
+    Shader* outlineShader = Core::Application::Instance().GetRenderAPI()->CreateShader(EDITOR_OUTLINE_SHADER_NAME, outlineVertexShader, outlineFragmentShader);
+    outlineShader->name = EDITOR_OUTLINE_SHADER_NAME;
+    GlobalResourceManager::Instance().AddShader(outlineShader->name, outlineShader);
+
     // add default material
     Material* material = new Material();
     material->name = DEFAULT_MATERIAL_NAME;

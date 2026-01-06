@@ -6,6 +6,7 @@
 #include "FrameBuffer.h"
 #include "Mesh.h"
 #include "Texture.h"
+#include "OutlineOptions.h"
 #include "../ECS/Entity.h"
 #include "../GameSystem/Game.h"
 
@@ -33,11 +34,16 @@ class CORE_API RenderAPI
     void RescaleFrameBuffers(int width, int height) const;
     std::vector<FrameBuffer*> GetFrameBuffers() const;
     virtual void BeforeRender();
+    virtual void OutlineBeginPass(const OutlineOptions& options) = 0;
+    virtual void OutlineEndPass() = 0;
 
    protected:
     std::vector<FrameBuffer*> m_frameBuffers;
     virtual void SetSceneBackgroundColor(Color* color) = 0;
     virtual void SetTransform(const Shader* shader, const std::string name, glm::mat4& transform) = 0;
+    virtual void StencilDefaultNoWrite() = 0;
+    virtual void StencilWriteObject() = 0;
+    virtual void StencilDrawOutlineRegion() = 0;
    private:
     std::vector<std::function<void()>> m_beforeRenderEntitiesCallbacks;
     std::vector<std::function<void(int width, int height)>> m_afterRenderEntitiesCallbacks;

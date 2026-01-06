@@ -37,6 +37,7 @@ add_library (Core SHARED
 	"ECS/Components/ChildrenComponent.h"
 	"ECS/Components/ParentComponent.h"
 	"ECS/Components/CameraComponent.h"
+	"ECS/Components/OutlineComponent.h"
 	
 	"GameSystem/Camera.h" 
 	"GameSystem/Game.h"
@@ -84,6 +85,8 @@ add_library (Core SHARED
 	"Render/TextureType.h" 
 	"Render/Shape.h"
 	"Render/FrameBuffer.h"
+	"Render/OutlineOptions.h"
+	"Render/OutlineScope.h"
 	"Render/OpenGL/OpenGLFrameBuffer.h"
 	"Render/OpenGL/OpenGLFrameBuffer.cpp"
 	"Render/OpenGL/OpenGLMesh.h" 
@@ -122,7 +125,7 @@ add_library (Core SHARED
 
 	"Vendors/glad.h"
 	"Vendors/glfw3.h"
-  )
+    )
 
 	
 set_target_properties(Core PROPERTIES

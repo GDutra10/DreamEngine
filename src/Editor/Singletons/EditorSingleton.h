@@ -75,6 +75,7 @@ class EditorSingleton final
     CameraEditorController m_cameraEditorController;
     FrameBuffer* m_viewPortFbo;
     FrameBuffer* m_gameFbo;
+    void SetOutlineComponent(Entity* entity, bool hasComponent);
 };
 
 }  // namespace DreamEngine::Editor
