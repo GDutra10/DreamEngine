@@ -73,6 +73,7 @@ void PropertyWindow::DrawContent()
         DrawMeshComponent(selectedEntity);
         DrawDirectionalLightComponent(selectedEntity);
         DrawScriptComponent(selectedEntity);
+        DrawCameraComponent(selectedEntity);
         
         ImGui::Separator();
         DrawAddComponent(selectedEntity);
@@ -385,6 +386,49 @@ void PropertyWindow::DrawScriptComponent(Entity* selectedEntity)
     }
 }
 
+void PropertyWindow::DrawCameraComponent(Entity* selectedEntity)
+{
+    if (selectedEntity == nullptr)
+        return;
+
+    CameraComponent& cameraComponent = selectedEntity->GetComponent<CameraComponent>();
+
+    if (!cameraComponent.has)
+        return;
+
+    if (ImGui::CollapsingHeader("Camera##selected.entity.camera.component", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+       
+
+        if (ImGuiHelper::BeginTable("selected.entity.camera.component.table", 2))
+        {
+            ImGuiHelper::PrepareRow("Fov");
+            ImGui::InputFloat("##selected.entity.camera.component.fov", &cameraComponent.fovDegree);
+
+            ImGuiHelper::PrepareRow("Near");
+            ImGui::InputFloat("##selected.entity.camera.component.near", &cameraComponent.near);
+
+            ImGuiHelper::PrepareRow("Far");
+            ImGui::InputFloat("##selected.entity.camera.component.far", &cameraComponent.far);
+
+            ImGuiHelper::PrepareRow("Main Camera");
+
+            if (EditorSingleton::Instance().GetEditorScene()->GetMainCameraEntity() != nullptr &&
+                EditorSingleton::Instance().GetEditorScene()->GetMainCameraEntity()->GetIdentifier() == selectedEntity->GetIdentifier())
+            {
+                ImGui::TextColored(ImGuiHelper::GetImVec4Green(), "Yes");
+            }
+            else
+            {
+                if (ImGui::Button("   Set Scene Camera   ", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
+                    EditorSingleton::Instance().GetEditorScene()->SetMainCameraEntity(selectedEntity);
+            }
+
+            ImGui::EndTable();
+        }
+    }
+}
+
 void PropertyWindow::DrawAddComponent(Entity* selectedEntity)
 {
     if (selectedEntity == nullptr)
@@ -398,6 +442,7 @@ void PropertyWindow::DrawAddComponent(Entity* selectedEntity)
         MeshComponent& meshComponent = selectedEntity->GetComponent<MeshComponent>();
         MaterialComponent& materialComponent = selectedEntity->GetComponent<MaterialComponent>();
         ScriptComponent& scriptComponent = selectedEntity->GetComponent<ScriptComponent>();
+        CameraComponent& cameraComponent = selectedEntity->GetComponent<CameraComponent>();
 
         // mesh
         if (!meshComponent.has)
@@ -509,6 +554,15 @@ void PropertyWindow::DrawAddComponent(Entity* selectedEntity)
             if (ImGui::MenuItem("Script Component##selected.entity.add.script.component.button"))
             {
                 scriptComponent.has = true;
+                ImGui::CloseCurrentPopup();
+            }
+        }
+
+        if (!cameraComponent.has)
+        {
+            if (ImGui::MenuItem("Camera Component##selected.entity.add.camera.component.button"))
+            {
+                cameraComponent.has = true;
                 ImGui::CloseCurrentPopup();
             }
         }

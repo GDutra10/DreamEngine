@@ -21,8 +21,11 @@ class SceneController
     static bool SaveSceneData(EntityManager* entityManager);
     static void Play(EntityManager* entityManager);
     static void Stop(EntityManager* entityManager);
-   private:
-    static void LoadScene(EntityManager* entityManager, bool mustLoadEditorSceneCamera);
+
+private:
+    static void LoadScene(EntityManager* entityManager);
+    static vector<Entity*> CreateEntities(EntityManager* entityManager, SceneData* sceneData);
+    static void SetParentAndChildren(const SceneData* sceneData, Entity*& mainCameraEntity, vector<Entity*> entities);
     /*static SceneData* ReadSceneFile(const std::string& filePath);*/
 };
 

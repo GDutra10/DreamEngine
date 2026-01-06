@@ -16,8 +16,8 @@ struct SceneData
 {
     filesystem::path path;
     ColorData backgroundColor;
-    Camera camera;  // TODO: change this
     GlobalLightData globalLight;
+    std::string mainCameraEntityIdentifier;
     std::vector<EntityConfigData> entities;
 };
 

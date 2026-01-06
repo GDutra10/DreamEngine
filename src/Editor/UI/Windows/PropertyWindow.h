@@ -30,6 +30,7 @@ class PropertyWindow : public BaseWindow
     void DrawMeshComponent(Entity* selectedEntity);
     void DrawMaterialComponent(Entity* selectedEntity);
     void DrawScriptComponent(Entity* selectedEntity);
+    void DrawCameraComponent(Entity* selectedEntity);
     static void DrawAddComponent(Entity* selectedEntity);
 };
 
