@@ -1,8 +1,14 @@
 #include "EditorSingleton.h"
+#include "../EditorDefine.h"
 #include "../../Core/Application.h"
+#include "../../Core/ECS/Components/ChildrenComponent.h"
+#include "../../Core/ECS/Components/OutlineComponent.h"
 #include "../../Core/Loggers/LoggerSingleton.h"
+#include "../../Core/Resources/GlobalResourceManager.h"
 
 using namespace DreamEngine::Core;
+using namespace DreamEngine::Core::ECS::Components;
+using namespace DreamEngine::Core::Resources;
 using namespace DreamEngine::Core::Loggers;
 using namespace DreamEngine::Editor;
 using namespace DreamEngine::Editor::Singletons;
@@ -118,9 +124,45 @@ void EditorSingleton::SetEntityManager(EntityManager* entityManager)
 }
 
 void EditorSingleton::SetSelectedEntity(Entity* entity)
-{
-    m_pSelectedEntity = entity;
+{   
     m_isViewSceneData = false;
+
+    // just skipping if the entity is the same
+    if (entity == m_pSelectedEntity)
+        return;
+    
+    if (m_pSelectedEntity != nullptr)
+        SetOutlineComponent(m_pSelectedEntity, false);
+
+    if (entity != nullptr)
+        SetOutlineComponent(entity, true);
+
+    m_pSelectedEntity = entity;
+}
+
+void EditorSingleton::SetOutlineComponent(Entity* entity, const bool hasComponent)
+{
+    OutlineComponent& outlineComponent = entity->GetComponent<OutlineComponent>();
+    outlineComponent.has = hasComponent;
+
+    if (hasComponent)
+    {
+        outlineComponent.color.red = 1.f;
+        outlineComponent.color.green = 1.f;
+        outlineComponent.color.blue = 0;
+        outlineComponent.thickness = 0.02f;
+    }
+
+    if (hasComponent && !outlineComponent.shader)
+        outlineComponent.shader = GlobalResourceManager::Instance().GetShader(EDITOR_OUTLINE_SHADER_NAME);
+
+    ChildrenComponent& childrenComponent = entity->GetComponent<ChildrenComponent>();
+
+    if (childrenComponent.has)
+    {
+        for (Entity* child : childrenComponent.children)
+            SetOutlineComponent(child, hasComponent);
+    }
 }
 
 void EditorSingleton::SetProjectConfiguration(const ProjectConfiguration& projectConfig) const

@@ -28,9 +28,17 @@ void OpenGLRenderAPI::Initialize(int width, int height)
 {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
+    glEnable(GL_CULL_FACE);
 
     // Disable face culling for debugging
     //glDisable(GL_CULL_FACE);
+
+    // add stencil for object outlining
+    glEnable(GL_STENCIL_TEST);
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    glFrontFace(GL_CCW); 
+    glCullFace(GL_BACK);
 }
 
 Shader* OpenGLRenderAPI::CreateShader(const std::string name, const std::string& vertexCode, const std::string& fragmentCode)
@@ -133,15 +141,49 @@ void OpenGLRenderAPI::AfterRender(int width, int height)
     RenderAPI::AfterRender(width, height);
 }
 
+void OpenGLRenderAPI::OutlineBeginPass(const OutlineOptions& options) 
+{
+    // Save current
+    GLState glState{};
+    glState.depthEnabled = glIsEnabled(GL_DEPTH_TEST);
+    glState.cullEnabled = glIsEnabled(GL_CULL_FACE);
+    glGetIntegerv(GL_CULL_FACE_MODE, &glState.cullMode);
+    m_stateStack.push_back(glState);
+
+    if (options.disableDepthTest)
+        glDisable(GL_DEPTH_TEST);
+
+    glEnable(GL_CULL_FACE);
+    glCullFace(options.cullFace == OutlineOptions::CullFace::Front ? GL_FRONT : GL_BACK);
+}
+
+void OpenGLRenderAPI::OutlineEndPass() 
+{
+    if (m_stateStack.empty())
+        return;
+    const GLState glState = m_stateStack.back();
+    m_stateStack.pop_back();
+
+    glCullFace(glState.cullMode);
+    glState.cullEnabled ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE);
+    glState.depthEnabled ? glEnable(GL_DEPTH_TEST) : glDisable(GL_DEPTH_TEST);
+}
+
 void OpenGLRenderAPI::BeforeRender()
 {
+    // Clear default framebuffer
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glStencilMask(0xFF);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
     for (FrameBuffer* frameBuffer : m_frameBuffers)
     {
         if (frameBuffer == nullptr)
             continue;
 
         frameBuffer->Attach();
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glStencilMask(0xFF);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         frameBuffer->Detach();
     }
 
@@ -158,6 +200,34 @@ void OpenGLRenderAPI::SetTransform(const Shader* shader, const std::string name,
 {
     const unsigned int transformLoc = glGetUniformLocation(shader->id, name.c_str());
     glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
+}
+
+void OpenGLRenderAPI::StencilDefaultNoWrite()
+{
+    /*glDisable(GL_POLYGON_OFFSET_FILL);
+    glDepthMask(GL_TRUE);*/
+
+    glStencilFunc(GL_ALWAYS, 0, 0xFF);
+    glStencilMask(0x00);
+}
+
+void OpenGLRenderAPI::StencilWriteObject()
+{
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glStencilMask(0xFF);
+}
+
+void OpenGLRenderAPI::StencilDrawOutlineRegion()
+{
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glStencilMask(0x00);
+
+    /*glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_FALSE);
+    glDepthFunc(GL_LEQUAL);
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    glPolygonOffset(1.f, 1.f);*/
 }
 
 std::string& checkCompileErrorsByShader(const std::string& name, const unsigned int shaderId, const compileType type)

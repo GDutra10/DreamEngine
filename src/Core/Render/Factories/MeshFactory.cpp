@@ -69,18 +69,18 @@ Mesh* MeshFactory::GetMesh()
 void MeshFactory::SetCubeMesh(Mesh* mesh)
 {
     mesh->indices = {
-        // Back face
-        0, 1, 2, 2, 3, 0,
-        // Front face
-        4, 5, 6, 6, 7, 4,
-        // Left face
-        8, 9, 10, 10, 11, 8,
-        // Right face
-        12, 13, 14, 14, 15, 12,
-        // Bottom face
-        16, 17, 18, 18, 19, 16,
-        // Top face
-        20, 21, 22, 22, 23, 20
+        // Back (-Z)
+        0, 2, 1,  0, 3, 2,
+        // Front (+Z)
+        4, 5, 6,  4, 6, 7,
+        // Left (-X)
+        8,10, 9,  8,11,10,
+        // Right (+X)
+        12,13,14, 12,14,15,
+        // Bottom (-Y)
+        16,17,18, 16,18,19,
+        // Top (+Y)
+        20,22,21, 20,23,22
     };
 
     mesh->vertices = {
