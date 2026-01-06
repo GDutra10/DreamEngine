@@ -31,12 +31,13 @@ class CORE_API Scene
     [[nodiscard]] Color* GetBackgroundColor() const;
     [[nodiscard]] EntityManager* GetEntityManager() const;
     [[nodiscard]] GlobalLight* GetGlobalLight();
+    [[nodiscard]] Entity* GetMainCameraEntity() const;
     virtual Camera& GetCamera();
     virtual bool GetIsFocused() const;
     bool GetMustRunScriptComponents() const;
     void SetMustRunScriptComponents(bool val);
     void SetShowCursor(bool showCursor);
-    void SetCameraComponent(CameraComponent* cameraComponent);
+    void SetMainCameraEntity(Entity* entity);
     
     std::string GetName() const { return m_name; }
 
@@ -56,7 +57,7 @@ class CORE_API Scene
     EntityManager* m_entityManager;
     ResourceManager* m_resourceManager;
     GlobalLight* m_globalLight;
-    CameraComponent* m_pCameraComponent;
+    Entity* m_pMainCameraEntity = nullptr;
     bool m_showCursor;
     bool m_mustRunScriptComponents = true;
    private:

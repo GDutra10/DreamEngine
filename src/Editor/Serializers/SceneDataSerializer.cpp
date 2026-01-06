@@ -26,39 +26,6 @@ std::string SceneDataSerializer::Serialize(SceneData& sceneData)
         sceneData.backgroundColor.alpha
     };
 
-    json jsonConfigCamera;
-    j["camera"]["far"] = sceneData.camera.far;
-    j["camera"]["fovDegree"] = sceneData.camera.fovDegree;
-    j["camera"]["near"] = sceneData.camera.near;
-    j["camera"]["front"] = {
-        sceneData.camera.front.x,
-        sceneData.camera.front.y,
-        sceneData.camera.front.z,
-    };
-    j["camera"]["position"] = {
-        sceneData.camera.position.x,
-        sceneData.camera.position.y,
-        sceneData.camera.position.z,
-    };
-    ;
-    j["camera"]["right"] = {
-        sceneData.camera.right.x,
-        sceneData.camera.right.y,
-        sceneData.camera.right.z,
-    };
-    
-    j["camera"]["up"] = {
-        sceneData.camera.up.x,
-        sceneData.camera.up.y,
-        sceneData.camera.up.z,
-    };
-    ;
-    j["camera"]["worldUp"] = {
-        sceneData.camera.worldUp.x,
-        sceneData.camera.worldUp.y,
-        sceneData.camera.worldUp.z,
-    };
-
     j["globalLight"]["transform"]["position"] = {
         sceneData.globalLight.transform.position.x,
         sceneData.globalLight.transform.position.y,
@@ -91,6 +58,8 @@ std::string SceneDataSerializer::Serialize(SceneData& sceneData)
         sceneData.globalLight.directionalLight.specular.z,
     };
 
+    j["mainCameraEntityIdentifier"] = sceneData.mainCameraEntityIdentifier;
+
     for (auto entity : sceneData.entities)
         j["entities"].push_back(Serialize(entity));
 
@@ -109,24 +78,8 @@ SceneData& SceneDataSerializer::Deserialize(std::ifstream& stream)
     j["background"][2].get_to(sceneData->backgroundColor.blue);
     j["background"][3].get_to(sceneData->backgroundColor.alpha);
 
-    j["camera"].at("far").get_to(sceneData->camera.far);
-    j["camera"].at("fovDegree").get_to(sceneData->camera.fovDegree);
-    j["camera"].at("near").get_to(sceneData->camera.near);
-    j["camera"]["front"][0].get_to(sceneData->camera.front.x);
-    j["camera"]["front"][1].get_to(sceneData->camera.front.y);
-    j["camera"]["front"][2].get_to(sceneData->camera.front.z);
-    j["camera"]["position"][0].get_to(sceneData->camera.position.x);
-    j["camera"]["position"][1].get_to(sceneData->camera.position.y);
-    j["camera"]["position"][2].get_to(sceneData->camera.position.z);
-    j["camera"]["right"][0].get_to(sceneData->camera.right.x);
-    j["camera"]["right"][1].get_to(sceneData->camera.right.y);
-    j["camera"]["right"][2].get_to(sceneData->camera.right.z);
-    j["camera"]["up"][0].get_to(sceneData->camera.up.x);
-    j["camera"]["up"][1].get_to(sceneData->camera.up.y);
-    j["camera"]["up"][2].get_to(sceneData->camera.up.z);
-    j["camera"]["worldUp"][0].get_to(sceneData->camera.worldUp.x);
-    j["camera"]["worldUp"][1].get_to(sceneData->camera.worldUp.y);
-    j["camera"]["worldUp"][2].get_to(sceneData->camera.worldUp.z);
+    if (j.find("mainCameraEntityIdentifier") != j.end())
+        j["mainCameraEntityIdentifier"].get_to(sceneData->mainCameraEntityIdentifier);  
 
     j["globalLight"]["transform"]["position"][0].get_to(sceneData->globalLight.transform.position.x);
     j["globalLight"]["transform"]["position"][1].get_to(sceneData->globalLight.transform.position.y);
@@ -190,6 +143,14 @@ SceneData& SceneDataSerializer::Deserialize(std::ifstream& stream)
 
             if (jsonComponent.find("children") != jsonComponent.end() && jsonComponent["children"].is_array())
                 jsonComponent["children"].get_to(e.components.children.childIdentifiers);
+
+            if (jsonComponent.find("camera") != jsonComponent.end())
+            {
+                e.components.camera.has = true;
+                jsonComponent["camera"]["fovDegree"].get_to(e.components.camera.fovDegree);
+                jsonComponent["camera"]["near"].get_to(e.components.camera.near);
+                jsonComponent["camera"]["far"].get_to(e.components.camera.far);
+            }
         }
 
         sceneData->entities.push_back(std::move(e));
@@ -239,6 +200,14 @@ json SceneDataSerializer::Serialize(EntityConfigData& entityConfig)
     // script
     if (!entityConfig.components.script.resourceId.empty())
         jsonEntity["components"]["script"]["resourceId"] = entityConfig.components.script.resourceId;
+
+    // camera
+    if (entityConfig.components.camera.has)
+    {
+        jsonEntity["components"]["camera"]["fovDegree"] = entityConfig.components.camera.fovDegree;
+        jsonEntity["components"]["camera"]["near"] = entityConfig.components.camera.near;
+        jsonEntity["components"]["camera"]["far"] = entityConfig.components.camera.far;
+    }
 
     // children
     if (!entityConfig.components.children.childIdentifiers.empty())

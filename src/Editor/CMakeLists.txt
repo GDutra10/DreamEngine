@@ -49,6 +49,7 @@ add_executable(Editor
     Models/FileDialogConfig.h
     Models/Datas/ColorData.h
     Models/Datas/ComponentsData.h
+    Models/Datas/Components/CameraComponentData.h
     Models/Datas/DirectionalLightData.h
     Models/Datas/GlobalLightData.h
     Models/Datas/SceneData.h

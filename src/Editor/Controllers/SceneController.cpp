@@ -12,6 +12,7 @@
 #include "ECS/Components/MaterialComponent.h"
 #include "ECS/Components/ParentComponent.h"
 #include "ECS/Components/ScriptComponent.h"
+#include "ECS/Components/CameraComponent.h"
 #include "Resources/GlobalResourceManager.h"
 
 using namespace DreamEngine::Core;
@@ -37,7 +38,7 @@ void SceneController::LoadSceneData(path& path, EntityManager* entityManager)
 
     EditorSingleton::Instance().sceneData = sceneData;
 
-    LoadScene(entityManager, true);
+    LoadScene(entityManager);
 }
 
 bool SceneController::SaveSceneData(EntityManager* entityManager)
@@ -53,16 +54,8 @@ bool SceneController::SaveSceneData(EntityManager* entityManager)
     }
 
     Scene* scene = Application::Instance().GetGame()->GetActiveScene();
-    Camera& camera = scene->GetCamera();
-    sceneData->camera.fovDegree = camera.fovDegree;
-    sceneData->camera.far = camera.far;
-    sceneData->camera.front = camera.front;
-    sceneData->camera.near = camera.near;
-    sceneData->camera.position = camera.position;
-    sceneData->camera.up.x = camera.up.x;
-    sceneData->camera.up.y = camera.up.y;
-    sceneData->camera.up.z = camera.up.z;
-
+    Entity* cameraEntity = scene->GetMainCameraEntity();
+    sceneData->mainCameraEntityIdentifier = cameraEntity != nullptr ? cameraEntity->GetIdentifier() : "";
 
     Color* backgroundColor = scene->GetBackgroundColor();
     sceneData->backgroundColor.alpha = backgroundColor->alpha;
@@ -133,6 +126,14 @@ bool SceneController::SaveSceneData(EntityManager* entityManager)
         if (const ScriptComponent& script = entity->GetComponent<ScriptComponent>(); script.has && script.script != nullptr)
             entityConfig.components.script.resourceId = script.script->resourceId;
 
+        if (const CameraComponent& camera = entity->GetComponent<CameraComponent>(); camera.has)
+        {
+            entityConfig.components.camera.has = true;
+            entityConfig.components.camera.fovDegree = camera.fovDegree;
+            entityConfig.components.camera.near = camera.near;
+            entityConfig.components.camera.far = camera.far;
+        }
+
         if (const ChildrenComponent& children = entity->GetComponent<ChildrenComponent>(); children.has && !children.children.empty())
         {
             for (Entity* child : children.children)
@@ -174,10 +175,10 @@ void SceneController::Stop(EntityManager* entityManager)
     LoggerSingleton::Instance().LogTrace("SceneController::Stop -> Start");
 
     EditorSingleton::Instance().GetEditorScene()->SetMustRunScriptComponents(false);
-    LoadScene(entityManager, false);
+    LoadScene(entityManager);
 }
 
-void SceneController::LoadScene(EntityManager* entityManager, const bool mustLoadEditorSceneCamera)
+void SceneController::LoadScene(EntityManager* entityManager)
 {
     LoggerSingleton::Instance().LogTrace("SceneController::LoadScene -> Start");
 
@@ -190,26 +191,11 @@ void SceneController::LoadScene(EntityManager* entityManager, const bool mustLoa
         return;
     }
 
+    EditorSingleton::Instance().GetEditorScene()->SetMainCameraEntity(nullptr);
     EditorSingleton::Instance().SetSelectedEntity(nullptr);
     EditorSingleton::Instance().SetIsViewSceneData(false);
 
     entityManager->Reset();
-
-    if (mustLoadEditorSceneCamera)
-    {
-        Camera& camera = scene->GetCamera();
-
-        // set camera props
-        camera.fovDegree = sceneData->camera.fovDegree;
-        camera.far = sceneData->camera.far;
-        camera.front = sceneData->camera.front;
-        camera.front.z = -1;
-        camera.near = sceneData->camera.near;
-        camera.position = sceneData->camera.position;
-        camera.up.x = sceneData->camera.up.x;
-        camera.up.y = sceneData->camera.up.y;
-        camera.up.z = sceneData->camera.up.z;
-    }
 
     Color* backgroundColor = scene->GetBackgroundColor();
     backgroundColor->blue = sceneData->backgroundColor.blue;
@@ -246,7 +232,17 @@ void SceneController::LoadScene(EntityManager* entityManager, const bool mustLoa
     globalLight->directionalLight.specular.z = sceneData->globalLight.directionalLight.specular.z;
     globalLight->directionalLight.influence = sceneData->globalLight.directionalLight.influence;
 
-    // create entities
+    Entity* mainCameraEntity = nullptr;
+    vector<Entity*> entities = CreateEntities(entityManager, sceneData);
+
+    SetParentAndChildren(sceneData, mainCameraEntity, entities);
+
+    if (mainCameraEntity != nullptr)
+        scene->SetMainCameraEntity(mainCameraEntity);
+}
+
+vector<Entity*> SceneController::CreateEntities(EntityManager* entityManager, SceneData* sceneData)
+{
     vector<Entity*> entities;
 
     for (auto& entityConfig : sceneData->entities)
@@ -282,10 +278,23 @@ void SceneController::LoadScene(EntityManager* entityManager, const bool mustLoa
             scriptComponent.has = true;
         }
 
+        if (entityConfig.components.camera.has)
+        {
+            CameraComponent& cameraComponent = entity->GetComponent<CameraComponent>();
+            cameraComponent.has = true;
+            cameraComponent.fovDegree = entityConfig.components.camera.fovDegree;
+            cameraComponent.near = entityConfig.components.camera.near;
+            cameraComponent.far = entityConfig.components.camera.far;
+        }
+
         entities.push_back(entity);
     }
 
-    // set parents and childrens
+    return entities;
+}
+
+void SceneController::SetParentAndChildren(const SceneData* sceneData, Entity*& mainCameraEntity, vector<Entity*> entities)
+{
     for (auto& entityConfig : sceneData->entities)
     {
         const vector<std::string>& childIds = entityConfig.components.children.childIdentifiers;
@@ -297,6 +306,9 @@ void SceneController::LoadScene(EntityManager* entityManager, const bool mustLoa
             continue;
 
         Entity* entity = *itEnt;
+
+        if (entityConfig.identifier == sceneData->mainCameraEntityIdentifier)
+            mainCameraEntity = entity;
 
         // children
         if (!childIds.empty())

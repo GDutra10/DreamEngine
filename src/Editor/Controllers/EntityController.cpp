@@ -48,6 +48,9 @@ void EntityController::DeleteEntity(Entity* entity)
         return e.identifier == entity->GetIdentifier();
     });
 
+    if (entity->GetIdentifier() == EditorSingleton::Instance().GetEditorScene()->GetMainCameraEntity()->GetIdentifier())
+        EditorSingleton::Instance().GetEditorScene()->SetMainCameraEntity(nullptr);
+
     EditorSingleton::Instance().SetSelectedEntity(nullptr);
     EditorSingleton::Instance().GetEntityManager()->RemoveEntity(entity);
 }

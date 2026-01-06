@@ -28,9 +28,9 @@ void Scene::SetShowCursor(const bool showCursor)
     m_showCursor = showCursor;
 }
 
-void Scene::SetCameraComponent(CameraComponent* cameraComponent)
+void Scene::SetMainCameraEntity(Entity* entity)
 {
-    m_pCameraComponent = cameraComponent;
+    m_pMainCameraEntity = entity;
 }
 
 void Scene::Update(const float deltaTime)
@@ -95,19 +95,35 @@ GlobalLight* Scene::GetGlobalLight()
     return m_globalLight;
 }
 
+Entity* Scene::GetMainCameraEntity() const
+{
+    return m_pMainCameraEntity;
+}
+
 Camera& Scene::GetCamera()
 {
-    /*if (m_pCameraComponent != nullptr)
-    {
-        m_camera.worldUp = m_pCameraComponent->worldUp;
-        m_camera.fovDegree = m_pCameraComponent->fovDegree;
-        m_camera.far = m_pCameraComponent->far;
-        m_camera.front = m_pCameraComponent->front;
-        m_camera.near = m_pCameraComponent->near;
-        m_camera.position = m_pCameraComponent->position;
-        m_camera.right = m_pCameraComponent->right;
-        m_camera.up = m_pCameraComponent->up;
-    }*/
+    if (m_pMainCameraEntity == nullptr)
+        return m_camera;
+
+    const CameraComponent& cameraComponent = m_pMainCameraEntity->GetComponent<CameraComponent>();
+
+    if (!cameraComponent.has)
+        return m_camera;
+
+    const TransformComponent& transformComponent = m_pMainCameraEntity->GetComponent<TransformComponent>();
+    const glm::vec3 right = glm::normalize(glm::vec3(transformComponent.transform[0]));
+    const glm::vec3 up = glm::normalize(glm::vec3(transformComponent.transform[1]));
+    const glm::vec3 fwd = -glm::normalize(glm::vec3(transformComponent.transform[2]));  // -Z forward convention
+
+    m_camera.position = glm::vec3(transformComponent.transform[3]);
+    m_camera.right = right;
+    m_camera.up = up;
+    m_camera.front = fwd;
+    m_camera.fovDegree = cameraComponent.fovDegree;
+    m_camera.near = cameraComponent.near;
+    m_camera.far = cameraComponent.far;
+
+    m_camera.worldUp = glm::vec3(0, 1, 0);
 
     return m_camera;
 }
