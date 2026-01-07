@@ -3,7 +3,7 @@
 #include <sstream>
 
 #include "Vec3Serializer.h"
-#include "../../Core/Resources/GlobalResourceManager.h"
+#include "../../Core/Resources/ResourceManager.h"
 #include "../../Core/Loggers/LoggerSingleton.h"
 
 using namespace DreamEngine::Editor::Serializers;
@@ -48,7 +48,7 @@ Material* MaterialSerializer::Deserialize(std::ifstream& stream)
         }
         else if (line.find("Shader: ") != std::string::npos)
         {
-            material->shader = GlobalResourceManager::Instance().GetShader(line.substr(11));
+            material->shader = ResourceManager::Instance().GetShader(line.substr(11));
         }
         else if (line.find("Ambient: ") != std::string::npos)
         {

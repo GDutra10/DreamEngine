@@ -5,7 +5,7 @@
 #include "../Helpers/RenderTypeHelper.h"
 #include "../../Application.h"
 #include "../../Loggers/LoggerSingleton.h"
-#include "../../Resources/GlobalResourceManager.h"
+#include "../../Resources/ResourceManager.h"
 #include "../../EngineDefine.h"
 #include "Math/Math.h"
 
@@ -20,7 +20,7 @@ using namespace DreamEngine::Core::Resources;
 Mesh* MeshFactory::CreateMesh(const Shape shape)
 {
     Mesh* mesh = GetMesh();
-    mesh->textures.push_back(GlobalResourceManager::Instance().GetTexture(DEFAULT_TEXTURE_NAME));
+    mesh->textures.push_back(ResourceManager::Instance().GetTexture(DEFAULT_TEXTURE_NAME));
 
     switch (shape)
     {

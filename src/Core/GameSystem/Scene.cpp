@@ -1,9 +1,11 @@
 #include "Scene.h"
 
 #include "Application.h"
+#include "ECS/Components/CameraComponent.h"
 #include "ECS/Components/DirectionalLightComponent.h"
 #include "ECS/Components/ScriptComponent.h"
 #include "ECS/Components/NativeScriptComponent.h"
+#include "ECS/Components/UiComponent.h"
 #include "Scripting/ScriptEngine.h"
 #include "Sync/EntitySynchronizer.h"
 #include "Sync/GameSynchronizer.h"
@@ -45,6 +47,15 @@ void Scene::Update(const float deltaTime)
         if (!entity->GetIsActive())
             continue;
 
+        // UI update
+        UiComponent& uiComponent = entity->GetComponent<UiComponent>();
+
+        if (uiComponent.has && uiComponent.content != nullptr)
+        {
+            if (uiComponent.instance == nullptr)
+                uiComponent.instance = UiManager::Create(uiComponent.content);
+        }
+
         // native script
         NativeScriptComponent& nativeScriptComponent = entity->GetComponent<NativeScriptComponent>();
 
@@ -65,6 +76,8 @@ void Scene::Update(const float deltaTime)
             EntitySynchronizer::SynchronizeFromData(entity);
         }
     }
+
+    UiManager::Update();
 }
 
 void Scene::Initialize()
@@ -83,6 +96,8 @@ void Scene::Unload()
 {
     delete m_entityManager;
     delete m_resourceManager;
+
+    UiManager::RemoveContents();
 }
 
 EntityManager* Scene::GetEntityManager() const

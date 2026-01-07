@@ -2,7 +2,7 @@
 
 #include "Render/OpenGL/OpenGLRenderAPI.h"
 #include "../Core/Inputs/Input.h"
-#include "../Core/Resources/GlobalResourceManager.h"
+#include "../Core/Resources/ResourceManager.h"
 #include "../Core/Loggers/LoggerSingleton.h"
 
 using namespace DreamEngine::Core;
@@ -35,14 +35,18 @@ void Application::Run(int width, int height, const std::string& name, const Rend
         GLFWInit();
         InitializeWindow(width, height, name);
 
+        glfwMakeContextCurrent(m_window);
+
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
             throw std::exception("Failed to initialized GLAD");
 
         if (game->hasScriptEngine)
             m_scriptEngine = new ScriptEngine();
 
-        m_renderAPI->Initialize(width, height);
         m_game = game;
+
+        m_renderAPI->Initialize(width, height);
+        UiManager::Initialize(m_window, width, height);
 
         // TODO: Load the assets(ResourceManager) by the first scene file
         // TODO: Initialize entities from the first scene file
@@ -51,8 +55,6 @@ void Application::Run(int width, int height, const std::string& name, const Rend
         {
             if (m_game->GetActiveScene() == nullptr)
                 m_game->ChangeActiveScene();
-
-            // TODO: Updates logic
 
             if (glfwWindowShouldClose(m_window))
                 break;
@@ -81,6 +83,10 @@ void Application::Run(int width, int height, const std::string& name, const Rend
                 m_renderAPI->BeforeRender();
                 m_renderAPI->Render(m_game);
 
+                UiManager::BeginRender(m_game);
+                UiManager::Render(m_game);
+                UiManager::EndRender();
+
                 // render in each fbo
                 std::vector<FrameBuffer*> frameBuffers = m_renderAPI->GetFrameBuffers();
 
@@ -90,11 +96,18 @@ void Application::Run(int width, int height, const std::string& name, const Rend
                         continue;
 
                     frameBuffer->Attach();
+                    
                     m_renderAPI->Render(m_game);
+                    
+                    UiManager::BeginRender(m_game);
+                    UiManager::Render(m_game);
+                    UiManager::EndRender();
+                     
                     frameBuffer->Detach();
                 }
 
                 int displayW, displayH;
+                
                 glfwGetFramebufferSize(m_window, &displayW, &displayH);
                 m_renderAPI->AfterRender(m_game->width, m_game->height);
             }
@@ -103,6 +116,7 @@ void Application::Run(int width, int height, const std::string& name, const Rend
             glfwPollEvents();
         }
 
+        UiManager::Shutdown();
         glfwTerminate();
     }
     catch (const std::exception& e)
@@ -127,17 +141,6 @@ void Application::Run(const int width, const int height, const std::string& name
 {
     // TODO: get from embeded dll
     Game* game = nullptr;
-
-    // TODO: remove this block after create the scene system
-    /*{
-        auto scene = new Scene("firstScene");
-
-        std::map<std::string, Scene*> scenes;
-        scenes.emplace("firstScene", scene);
-
-        game = new Game(width, height, scenes);
-        game->ChangeActiveScene("firstScene");
-    }*/
 
     Run(width, height, name, renderType, game);
 }
@@ -214,16 +217,19 @@ void Application::MousePositionCallback(GLFWwindow* window, double xPosIn, doubl
     m_sMouseLastX = xPos;
     m_sMouseLastY = yPos;
 
+    UiManager::ProcessMouseMove(static_cast<int>(xPos), static_cast<int>(yPos));
     Input::SetMousePosition({xOffset, yOffset});
 }
 
 void Application::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
+    UiManager::ProcessMouseButton(button, action, mods);
     Input::SetMouseState(GetMouseButtonByGLFW(button), GetMouseKeyEventByGLFW(action));
 }
 
 void Application::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+    UiManager::ProcessKey(key, scancode, action, mods);
     Input::SetKeyState(GetKeyByGLFWKey(key), GetMouseKeyEventByGLFW(action));
 }
 

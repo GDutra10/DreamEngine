@@ -16,9 +16,9 @@ class ProjectController
     void LoadProjectConfiguration();
     void LoadProjectConfiguration(ProjectConfiguration& projectConfiguration);
    private:
-    void LoadDefaultResources();
-    void LoadResourcesFromProject(ProjectConfiguration& projectConfiguration);
-    bool TryAddDreamEngineReferenceInCsproj(const std::string& projectPath, const std::string& projectName);
+    static void LoadDefaultResources();
+    static void LoadResourcesFromProject(const ProjectConfiguration& projectConfiguration);
+    static bool TryAddDreamEngineReferenceInCsproj(const std::string& projectPath, const std::string& projectName);
 
 };
 

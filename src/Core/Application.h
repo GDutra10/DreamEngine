@@ -3,15 +3,16 @@
 
 #include <string>
 
+//#include <GLFW/glfw3.h>
 #include "Inputs/Key.h"
 #include "Inputs/KeyState.h"
 #include "Inputs/MouseButton.h"
-#include "Vendors/glfw3.h"
 #include "Render/RenderType.h"
 #include "Render/OpenGL/OpenGLRenderAPI.h"
 #include "Scripting/ScriptEngine.h"
 #include "Sync/InputData.h"
 #include "Sync/GameData.h"
+#include "UI/UiManager.h"
 
 namespace DreamEngine::Core
 {
@@ -19,6 +20,7 @@ namespace DreamEngine::Core
 using namespace DreamEngine::Core::Render;
 using namespace DreamEngine::Core::Inputs;
 using namespace DreamEngine::Core::Scripting;
+using namespace DreamEngine::Core::UI;
 
 class CORE_API Application
 {

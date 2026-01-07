@@ -1,5 +1,7 @@
 #include "PropertyWindow.h"
 
+#include <ranges>
+
 #include "../../Controllers/EntityController.h"
 #include "../../Vendors/imgui/imgui.h"
 #include "../../Helpers/ImGuiHelper.h"
@@ -11,11 +13,13 @@
 #include "../../../Core/ECS/Components/DirectionalLightComponent.h"
 #include "../../../Core/ECS/Components/MaterialComponent.h"
 #include "../../../Core/ECS/Components/ScriptComponent.h"
+#include "../../../Core/ECS/Components/UiComponent.h"
 #include "../../../Core/Render/Factories/MeshFactory.h"
 #include "../../../Core/Render/OpenGL/OpenGLMesh.h"
-#include "../../../Core/Resources/GlobalResourceManager.h"
+#include "../../../Core/Resources/ResourceManager.h"
 #include "../../../Core/EngineDefine.h"
 #include "../../Vendors/imgui/imgui_internal.h"
+#include "ECS/Components/CameraComponent.h"
 
 #define NEXT_ROW_VECTOR_3_INPUT_WIDTH 70.0f
 #define FLOAT_FORMAT "%g"
@@ -68,12 +72,13 @@ void PropertyWindow::DrawContent()
             ImGui::EndTable();    
         }
 
-        // TODO: render all components
+        // render all components
         DrawTransformComponent(selectedEntity);
         DrawMeshComponent(selectedEntity);
         DrawDirectionalLightComponent(selectedEntity);
         DrawScriptComponent(selectedEntity);
         DrawCameraComponent(selectedEntity);
+        DrawUiComponent(selectedEntity);
         
         ImGui::Separator();
         DrawAddComponent(selectedEntity);
@@ -302,7 +307,7 @@ void PropertyWindow::DrawMeshComponent(Entity* selectedEntity)
 
             if (ImGui::BeginCombo("##mesh.view.combo", meshName.c_str()))
             {
-                for (auto& [_, pMesh] : GlobalResourceManager::Instance().GetMeshes())
+                for (auto& [_, pMesh] : ResourceManager::Instance().GetMeshes())
                 {
                     const bool isSelected = meshName == pMesh->name;
 
@@ -369,7 +374,7 @@ void PropertyWindow::DrawScriptComponent(Entity* selectedEntity)
 
             if (ImGui::BeginPopup("script.component.set.script.popup"))
             {
-                for (auto pairScript : GlobalResourceManager::Instance().GetScripts())
+                for (auto pairScript : ResourceManager::Instance().GetScripts())
                 {
                     if (ImGui::Selectable(pairScript.second->name.c_str()))
                     {
@@ -398,8 +403,6 @@ void PropertyWindow::DrawCameraComponent(Entity* selectedEntity)
 
     if (ImGui::CollapsingHeader("Camera##selected.entity.camera.component", ImGuiTreeNodeFlags_DefaultOpen))
     {
-       
-
         if (ImGuiHelper::BeginTable("selected.entity.camera.component.table", 2))
         {
             ImGuiHelper::PrepareRow("Fov");
@@ -429,6 +432,49 @@ void PropertyWindow::DrawCameraComponent(Entity* selectedEntity)
     }
 }
 
+void PropertyWindow::DrawUiComponent(Entity* selectedEntity)
+{
+    if (selectedEntity == nullptr)
+        return;
+
+    UiComponent& uiComponent = selectedEntity->GetComponent<UiComponent>();
+
+    if (!uiComponent.has)
+        return;
+
+    if (ImGui::CollapsingHeader("UI##selected.entity.ui.component", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        if (ImGuiHelper::BeginTable("selected.entity.ui.component.table", 2))
+        {
+            string name = uiComponent.content != nullptr ? uiComponent.content->name : "";
+
+            ImGuiHelper::NextRow("##ui.component.name", "Name", name, false);
+
+            if (ImGui::Button("Set UI##ui.component.set.script", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
+            {
+                ImGui::OpenPopup("script.component.set.ui.popup");
+            }
+
+            if (ImGui::BeginPopup("script.component.set.ui.popup"))
+            {
+                for (auto uiContent : ResourceManager::Instance().GetUiContents() | views::values)
+                {
+                    if (ImGui::Selectable(uiContent->name.c_str()))
+                    {
+                        uiComponent.content = uiContent;
+                        ImGui::CloseCurrentPopup();
+                    }
+                }
+
+                ImGui::EndPopup();
+            }
+            
+
+            ImGui::EndTable();
+        }
+    }
+}
+
 void PropertyWindow::DrawAddComponent(Entity* selectedEntity)
 {
     if (selectedEntity == nullptr)
@@ -443,6 +489,7 @@ void PropertyWindow::DrawAddComponent(Entity* selectedEntity)
         MaterialComponent& materialComponent = selectedEntity->GetComponent<MaterialComponent>();
         ScriptComponent& scriptComponent = selectedEntity->GetComponent<ScriptComponent>();
         CameraComponent& cameraComponent = selectedEntity->GetComponent<CameraComponent>();
+        UiComponent& uiComponent = selectedEntity->GetComponent<UiComponent>();
 
         // mesh
         if (!meshComponent.has)
@@ -459,7 +506,7 @@ void PropertyWindow::DrawAddComponent(Entity* selectedEntity)
                     if (!materialComponent.has)
                     {
                         materialComponent.has = true;
-                        materialComponent.material = GlobalResourceManager::Instance().GetMaterial(DEFAULT_MATERIAL_NAME);
+                        materialComponent.material = ResourceManager::Instance().GetMaterial(DEFAULT_MATERIAL_NAME);
                     }
 
                     ImGui::ClosePopupsExceptModals();
@@ -470,12 +517,12 @@ void PropertyWindow::DrawAddComponent(Entity* selectedEntity)
                 if (ImGui::MenuItem("Cube##selected.entity.add.cube.mesh.component"))
                 {
                     meshComponent.has = true;
-                    meshComponent.mesh = GlobalResourceManager::Instance().GetMesh(DEFAULT_CUBE_MESH_NAME);
+                    meshComponent.mesh = ResourceManager::Instance().GetMesh(DEFAULT_CUBE_MESH_NAME);
 
                     if (!materialComponent.has)
                     {
                         materialComponent.has = true;
-                        materialComponent.material = GlobalResourceManager::Instance().GetMaterial(DEFAULT_MATERIAL_NAME);
+                        materialComponent.material = ResourceManager::Instance().GetMaterial(DEFAULT_MATERIAL_NAME);
                     }
 
                     ImGui::ClosePopupsExceptModals();
@@ -484,12 +531,12 @@ void PropertyWindow::DrawAddComponent(Entity* selectedEntity)
                 if (ImGui::MenuItem("Sphere##selected.entity.add.sphere.mesh.component"))
                 {
                     meshComponent.has = true;
-                    meshComponent.mesh = GlobalResourceManager::Instance().GetMesh(DEFAULT_SPHERE_MESH_NAME);
+                    meshComponent.mesh = ResourceManager::Instance().GetMesh(DEFAULT_SPHERE_MESH_NAME);
 
                     if (!materialComponent.has)
                     {
                         materialComponent.has = true;
-                        materialComponent.material = GlobalResourceManager::Instance().GetMaterial(DEFAULT_MATERIAL_NAME);
+                        materialComponent.material = ResourceManager::Instance().GetMaterial(DEFAULT_MATERIAL_NAME);
                     }
 
                     ImGui::ClosePopupsExceptModals();
@@ -498,12 +545,12 @@ void PropertyWindow::DrawAddComponent(Entity* selectedEntity)
                 if (ImGui::MenuItem("Capsule##selected.entity.add.capsule.mesh.component"))
                 {
                     meshComponent.has = true;
-                    meshComponent.mesh = GlobalResourceManager::Instance().GetMesh(DEFAULT_CAPSULE_MESH_NAME);
+                    meshComponent.mesh = ResourceManager::Instance().GetMesh(DEFAULT_CAPSULE_MESH_NAME);
 
                     if (!materialComponent.has)
                     {
                         materialComponent.has = true;
-                        materialComponent.material = GlobalResourceManager::Instance().GetMaterial(DEFAULT_MATERIAL_NAME);
+                        materialComponent.material = ResourceManager::Instance().GetMaterial(DEFAULT_MATERIAL_NAME);
                     }
 
                     ImGui::ClosePopupsExceptModals();
@@ -512,12 +559,12 @@ void PropertyWindow::DrawAddComponent(Entity* selectedEntity)
                 if (ImGui::MenuItem("Cylinder##selected.entity.add.cylinder.mesh.component"))
                 {
                     meshComponent.has = true;
-                    meshComponent.mesh = GlobalResourceManager::Instance().GetMesh(DEFAULT_CYLINDER_MESH_NAME);
+                    meshComponent.mesh = ResourceManager::Instance().GetMesh(DEFAULT_CYLINDER_MESH_NAME);
 
                     if (!materialComponent.has)
                     {
                         materialComponent.has = true;
-                        materialComponent.material = GlobalResourceManager::Instance().GetMaterial(DEFAULT_MATERIAL_NAME);
+                        materialComponent.material = ResourceManager::Instance().GetMaterial(DEFAULT_MATERIAL_NAME);
                     }
 
                     ImGui::ClosePopupsExceptModals();
@@ -526,12 +573,12 @@ void PropertyWindow::DrawAddComponent(Entity* selectedEntity)
                 if (ImGui::MenuItem("Plane##selected.entity.add.plane.mesh.component"))
                 {
                     meshComponent.has = true;
-                    meshComponent.mesh = GlobalResourceManager::Instance().GetMesh(DEFAULT_PLANE_MESH_NAME);
+                    meshComponent.mesh = ResourceManager::Instance().GetMesh(DEFAULT_PLANE_MESH_NAME);
 
                     if (!materialComponent.has)
                     {
                         materialComponent.has = true;
-                        materialComponent.material = GlobalResourceManager::Instance().GetMaterial(DEFAULT_MATERIAL_NAME);
+                        materialComponent.material = ResourceManager::Instance().GetMaterial(DEFAULT_MATERIAL_NAME);
                     }
 
                     ImGui::ClosePopupsExceptModals();
@@ -558,11 +605,22 @@ void PropertyWindow::DrawAddComponent(Entity* selectedEntity)
             }
         }
 
+        // camera
         if (!cameraComponent.has)
         {
             if (ImGui::MenuItem("Camera Component##selected.entity.add.camera.component.button"))
             {
                 cameraComponent.has = true;
+                ImGui::CloseCurrentPopup();
+            }
+        }
+
+        // ui
+        if (!uiComponent.has)
+        {
+            if (ImGui::MenuItem("UI Component##selected.entity.add.ui.component.button"))
+            {
+                uiComponent.has = true;
                 ImGui::CloseCurrentPopup();
             }
         }

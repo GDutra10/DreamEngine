@@ -78,6 +78,7 @@ template CORE_API ParentComponent& Entity::GetComponent<ParentComponent>();
 template CORE_API NativeScriptComponent& Entity::GetComponent<NativeScriptComponent>();
 template CORE_API CameraComponent& Entity::GetComponent<CameraComponent>();
 template CORE_API OutlineComponent& Entity::GetComponent<OutlineComponent>();
+template CORE_API UiComponent& Entity::GetComponent<UiComponent>();
 template CORE_API bool Entity::HasComponent<TransformComponent>() const;
 template CORE_API bool Entity::HasComponent<MeshComponent>() const;
 template CORE_API bool Entity::HasComponent<DirectionalLightComponent>() const;
@@ -88,4 +89,5 @@ template CORE_API bool Entity::HasComponent<ParentComponent>() const;
 template CORE_API bool Entity::HasComponent<NativeScriptComponent>() const;
 template CORE_API bool Entity::HasComponent<CameraComponent>() const;
 template CORE_API bool Entity::HasComponent<OutlineComponent>() const;
+template CORE_API bool Entity::HasComponent<UiComponent>() const;
 

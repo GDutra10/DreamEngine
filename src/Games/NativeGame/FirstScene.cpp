@@ -1,7 +1,7 @@
 #include "FirstScene.h"
 #include <Loggers/LoggerSingleton.h>
 #include <IO/File.h>
-#include <Resources/GlobalResourceManager.h>
+#include <Resources/ResourceManager.h>
 #include <Application.h>
 #include <Render/Factories/MeshFactory.h>
 #include <Render/Shape.h>
@@ -40,7 +40,7 @@ void FirstScene::Initialize()
     const std::string fragmentShader = File::ReadAllText("Assets/Shaders/default.frag.glsl");
     Shader* shader = Application::Instance().GetRenderAPI()->CreateShader("defaultshader", vertexShader, fragmentShader);
     shader->name = "defaultshader";
-    GlobalResourceManager::Instance().AddShader(shader->name, shader);
+    ResourceManager::Instance().AddShader(shader->name, shader);
 
     // default material
     Material* material = new Material();
@@ -50,7 +50,7 @@ void FirstScene::Initialize()
     material->ambient = {0.2f, 0.2f, 0.2f};
     material->diffuse = {0.8f, 0.8f, 0.8f};
     material->shininess = 32.0f;
-    GlobalResourceManager::Instance().AddMaterial("defaultmaterial", material);
+    ResourceManager::Instance().AddMaterial("defaultmaterial", material);
 
     // default texture
     int width, height, nrChannels;
@@ -62,12 +62,12 @@ void FirstScene::Initialize()
     if (texture != nullptr)
     {
         texture->type = Diffuse;
-        GlobalResourceManager::Instance().AddTexture("defaulttexture", texture);
+        ResourceManager::Instance().AddTexture("defaulttexture", texture);
     }
 
     Mesh* cubeMesh = DreamEngine::Core::Render::Factories::MeshFactory::CreateMesh(DreamEngine::Core::Render::Shape::Cube);
     cubeMesh->name = "cubemesh";
-    GlobalResourceManager::Instance().AddMesh("cubemesh", cubeMesh);
+    ResourceManager::Instance().AddMesh("cubemesh", cubeMesh);
 
     // add entities
     Entity* entity = this->m_entityManager->AddEntity("player");

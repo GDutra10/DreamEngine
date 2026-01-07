@@ -31,6 +31,7 @@ class PropertyWindow : public BaseWindow
     void DrawMaterialComponent(Entity* selectedEntity);
     void DrawScriptComponent(Entity* selectedEntity);
     void DrawCameraComponent(Entity* selectedEntity);
+    void DrawUiComponent(Entity* selectedEntity);
     static void DrawAddComponent(Entity* selectedEntity);
 };
 

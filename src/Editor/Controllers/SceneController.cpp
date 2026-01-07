@@ -13,7 +13,7 @@
 #include "ECS/Components/ParentComponent.h"
 #include "ECS/Components/ScriptComponent.h"
 #include "ECS/Components/CameraComponent.h"
-#include "Resources/GlobalResourceManager.h"
+#include "Resources/ResourceManager.h"
 
 using namespace DreamEngine::Core;
 using namespace DreamEngine::Core::ECS::Components;
@@ -260,21 +260,21 @@ vector<Entity*> SceneController::CreateEntities(EntityManager* entityManager, Sc
         if (!entityConfig.components.mesh.resourceId.empty())
         {
             MeshComponent& meshComponent = entity->GetComponent<MeshComponent>();
-            meshComponent.mesh = GlobalResourceManager::Instance().GetMesh(entityConfig.components.mesh.resourceId);
+            meshComponent.mesh = ResourceManager::Instance().GetMesh(entityConfig.components.mesh.resourceId);
             meshComponent.has = true;
         }
 
         if (!entityConfig.components.material.resourceId.empty())
         {
             MaterialComponent& materialComponent = entity->GetComponent<MaterialComponent>();
-            materialComponent.material = GlobalResourceManager::Instance().GetMaterial(entityConfig.components.material.resourceId);
+            materialComponent.material = ResourceManager::Instance().GetMaterial(entityConfig.components.material.resourceId);
             materialComponent.has = true;
         }
 
         if (!entityConfig.components.script.resourceId.empty())
         {
             ScriptComponent& scriptComponent = entity->GetComponent<ScriptComponent>();
-            scriptComponent.script = GlobalResourceManager::Instance().GetScript(entityConfig.components.script.resourceId);
+            scriptComponent.script = ResourceManager::Instance().GetScript(entityConfig.components.script.resourceId);
             scriptComponent.has = true;
         }
 

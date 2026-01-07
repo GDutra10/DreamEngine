@@ -5,7 +5,6 @@
 #include "OpenGLMesh.h"
 #include "OpenGLShader.h"
 #include "OpenGLFrameBuffer.h"
-#include "../../Vendors/glad.h"
 #include "../../ECS/Components/TransformComponent.h"
 #include "../../ECS/Components/MeshComponent.h"
 #include "../../Loggers/LoggerSingleton.h"

@@ -3,7 +3,7 @@
 
 #include "../Texture.h"
 #include "../RenderAPI.h"
-#include "../../Vendors/glad.h"
+#include "glad/glad.h"
 
 namespace DreamEngine::Core::Render::OpenGL
 {

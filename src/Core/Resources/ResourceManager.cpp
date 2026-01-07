@@ -6,6 +6,13 @@ using namespace DreamEngine::Core::Resources;
 using namespace DreamEngine::Core::Helpers;
 
 
+ResourceManager& ResourceManager::Instance()
+{
+    static ResourceManager globalResourceManager;
+
+    return globalResourceManager;
+}
+
 void ResourceManager::AddShader(Shader* shader)
 {
     AddShader(GUIDHelper::GenerateGUID(), shader);
@@ -61,6 +68,17 @@ void ResourceManager::AddScript(const std::string& resourceId, Script* script)
     script->resourceId = resourceId;
 }
 
+void ResourceManager::AddUiContent(UiContent* uiContent)
+{
+    AddUiContent(GUIDHelper::GenerateGUID(), uiContent);
+}
+
+void ResourceManager::AddUiContent(const std::string& resourceId, UiContent* uiContent)
+{
+    m_uiContents.try_emplace(resourceId, uiContent);
+    uiContent->resourceId = resourceId;
+}
+
 void ResourceManager::Clear()
 {
     for (auto& it : m_materials)
@@ -95,6 +113,12 @@ void ResourceManager::RemoveScript(const Script* script)
 {
     m_scripts.erase(script->resourceId);
     delete script;
+}
+
+void ResourceManager::RemoveUiContent(const Script* uiContent)
+{
+    m_uiContents.erase(uiContent->resourceId);
+    delete uiContent;
 }
 
 Shader* ResourceManager::GetShader(const std::string& resourceId)
@@ -157,6 +181,18 @@ Script* ResourceManager::GetScript(const std::string& resourceId)
     return nullptr;
 }
 
+UiContent* ResourceManager::GetUiContent(const std::string& resourceId)
+{
+    auto it = m_uiContents.find(resourceId);
+
+    if (it != m_uiContents.end())
+    {
+        return it->second;
+    }
+
+    return nullptr;
+}
+
 std::map<std::string, Shader*>& ResourceManager::GetShaders()
 {
     return m_shaders;
@@ -180,4 +216,9 @@ std::map<std::string, Mesh*>& ResourceManager::GetMeshes()
 std::map<std::string, Script*>& ResourceManager::GetScripts()
 {
     return m_scripts;
+}
+
+std::map<std::string, UiContent*>& ResourceManager::GetUiContents()
+{
+    return m_uiContents;
 }

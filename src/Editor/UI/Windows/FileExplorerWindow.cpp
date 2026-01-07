@@ -9,7 +9,7 @@
 #include "../../Singletons/EditorSingleton.h"
 #include "../../Vendors/imgui/imgui.h"
 #include "ECS/Components/MaterialComponent.h"
-#include "Resources/GlobalResourceManager.h"
+#include "Resources/ResourceManager.h"
 
 using namespace std;
 using namespace std::filesystem;
@@ -92,11 +92,11 @@ void FileExplorerWindow::DrawContent()
 
                     MeshComponent& meshComponent = meshEntity->GetComponent<MeshComponent>();
                     meshComponent.has = true;
-                    meshComponent.mesh = GlobalResourceManager::Instance().GetMesh(mesh->resourceId);
+                    meshComponent.mesh = ResourceManager::Instance().GetMesh(mesh->resourceId);
 
                     MaterialComponent& materialComponent = meshEntity->GetComponent<MaterialComponent>();
                     materialComponent.has = true;
-                    materialComponent.material = GlobalResourceManager::Instance().GetMaterial(DEFAULT_MATERIAL_NAME);    
+                    materialComponent.material = ResourceManager::Instance().GetMaterial(DEFAULT_MATERIAL_NAME);    
 
                     // delete this mesh because it will be used from the resource manager
                     //delete mesh;

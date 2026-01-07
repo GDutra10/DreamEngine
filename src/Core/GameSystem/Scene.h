@@ -7,7 +7,6 @@
 #include "../Color.h"
 #include "../ECS/EntityManager.h"
 #include "../Resources/ResourceManager.h"
-#include "ECS/Components/CameraComponent.h"
 
 namespace DreamEngine::Core::GameSystem
 {

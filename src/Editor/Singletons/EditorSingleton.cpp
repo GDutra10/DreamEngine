@@ -4,7 +4,7 @@
 #include "../../Core/ECS/Components/ChildrenComponent.h"
 #include "../../Core/ECS/Components/OutlineComponent.h"
 #include "../../Core/Loggers/LoggerSingleton.h"
-#include "../../Core/Resources/GlobalResourceManager.h"
+#include "../../Core/Resources/ResourceManager.h"
 
 using namespace DreamEngine::Core;
 using namespace DreamEngine::Core::ECS::Components;
@@ -154,7 +154,7 @@ void EditorSingleton::SetOutlineComponent(Entity* entity, const bool hasComponen
     }
 
     if (hasComponent && !outlineComponent.shader)
-        outlineComponent.shader = GlobalResourceManager::Instance().GetShader(EDITOR_OUTLINE_SHADER_NAME);
+        outlineComponent.shader = ResourceManager::Instance().GetShader(EDITOR_OUTLINE_SHADER_NAME);
 
     ChildrenComponent& childrenComponent = entity->GetComponent<ChildrenComponent>();
 

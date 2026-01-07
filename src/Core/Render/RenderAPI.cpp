@@ -7,6 +7,7 @@
 #include "../Math/Math.h"
 #include "ECS/Components/ParentComponent.h"
 #include "ECS/Components/OutlineComponent.h"
+#include "UI/UiManager.h"
 
 using namespace DreamEngine::Core::Render;
 
