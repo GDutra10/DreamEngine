@@ -21,6 +21,11 @@ void* UiManager::Create(const UiContent* content)
     return m_sUiManager.m_pUiHandler->Create(content);
 }
 
+void UiManager::Destroy(void* instance)
+{
+    m_sUiManager.m_pUiHandler->Destroy(instance);
+}
+
 void UiManager::Update()
 {
     m_sUiManager.m_pUiHandler->Update();

@@ -65,6 +65,11 @@ void* RmlHandler::Create(const UiContent* content)
     return document;
 }
 
+void RmlHandler::Destroy(void* instance)
+{
+    m_spContext->UnloadDocument(static_cast<Rml::ElementDocument*>(instance));
+}
+
 void RmlHandler::Update()
 {
     m_spContext->Update();

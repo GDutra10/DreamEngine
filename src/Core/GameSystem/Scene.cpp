@@ -94,10 +94,10 @@ void Scene::Initialize()
 
 void Scene::Unload()
 {
+    UiManager::RemoveContents();
+
     delete m_entityManager;
     delete m_resourceManager;
-
-    UiManager::RemoveContents();
 }
 
 EntityManager* Scene::GetEntityManager() const

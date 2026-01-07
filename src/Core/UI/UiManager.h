@@ -17,6 +17,7 @@ class CORE_API UiManager
    public:
     static void Initialize(GLFWwindow* window, int width, int height);
     static void* Create(const UiContent* content);
+    static void Destroy(void* instance);
     static void Update();
     static void RemoveContents();
     static void BeginRender(Game* game);

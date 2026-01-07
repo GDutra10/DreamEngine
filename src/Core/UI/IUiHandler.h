@@ -15,6 +15,7 @@ class IUiHandler
    public:
     virtual void Initialize(GLFWwindow* window, int width, int height) = 0;
     virtual void* Create(const UiContent* content) = 0;
+    virtual void Destroy(void* instance) = 0;
     virtual void Update() = 0;
     virtual void RemoveContents() = 0;
     virtual void BeginRender(Game* game) = 0;
