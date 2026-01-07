@@ -14,6 +14,7 @@
 #include "../Core/Render/Factories/MeshFactory.h"
 #include "../Core/Inputs/Input.h"
 #include "../Core/IO/File.h"
+#include "Render/RenderViewProvider.h"
 
 
 using namespace DreamEngine::Editor;
@@ -55,10 +56,24 @@ void EditorScene::Initialize()
     EditorSingleton::Instance().SetEntityManager(m_entityManager);
     
     Game* game = Application::Instance().GetGame();
-    FrameBuffer* frameBufferViewport = Application::Instance().GetRenderAPI()->CreateFrameBuffer(game->width, game->height);
-    FrameBuffer* frameBufferGame = Application::Instance().GetRenderAPI()->CreateFrameBuffer(game->width, game->height);
-    EditorSingleton::Instance().SetViewPortFbo(frameBufferViewport);
-    EditorSingleton::Instance().SetGameFbo(frameBufferGame);
+    
+    // add viewport
+    FrameBuffer* viewportFbo = Application::Instance().GetRenderAPI()->CreateFrameBuffer(game->width, game->height);
+    auto viewportRenderView = new RenderView();
+    viewportRenderView->mask = RenderMask::World | RenderMask::Debug;
+    viewportRenderView->frameBuffer = viewportFbo;
+
+    RenderViewProvider::Add(viewportRenderView);
+    EditorSingleton::Instance().SetViewPortFbo(viewportFbo);
+
+    // add game viewport
+    FrameBuffer* gameViewportFbo = Application::Instance().GetRenderAPI()->CreateFrameBuffer(game->width, game->height);
+    auto gameViewportRenderView = new RenderView();
+    gameViewportRenderView->mask = RenderMask::World | RenderMask::UI;
+    gameViewportRenderView->frameBuffer = gameViewportFbo;
+
+    RenderViewProvider::Add(gameViewportRenderView);
+    EditorSingleton::Instance().SetGameFbo(gameViewportFbo);
 
     // initialize scripts without running them
     m_mustRunScriptComponents = false;

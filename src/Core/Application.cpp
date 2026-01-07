@@ -1,5 +1,6 @@
 #include "Application.h"
 
+#include "Render/RenderViewProvider.h"
 #include "Render/OpenGL/OpenGLRenderAPI.h"
 #include "../Core/Inputs/Input.h"
 #include "../Core/Resources/ResourceManager.h"
@@ -24,7 +25,6 @@ Application& Application::Instance()
 
 void Application::Run(int width, int height, const std::string& name, const RenderType renderType, Game* game)
 {
-
     try
     {
         SetRenderAPI(renderType);
@@ -44,9 +44,7 @@ void Application::Run(int width, int height, const std::string& name, const Rend
             m_scriptEngine = new ScriptEngine();
 
         m_game = game;
-
-        m_renderAPI->Initialize(width, height);
-        UiManager::Initialize(m_window, width, height);
+        m_renderPipeline->Initialize(m_renderAPI, m_window, width, height);
 
         // TODO: Load the assets(ResourceManager) by the first scene file
         // TODO: Initialize entities from the first scene file
@@ -79,37 +77,14 @@ void Application::Run(int width, int height, const std::string& name, const Rend
             // render
             if (const int isMinimized = glfwGetWindowAttrib(m_window, GLFW_ICONIFIED); !isMinimized)
             {
-                // render default
                 m_renderAPI->BeforeRender();
-                m_renderAPI->Render(m_game);
 
-                UiManager::BeginRender(m_game);
-                UiManager::Render(m_game);
-                UiManager::EndRender();
-
-                // render in each fbo
-                std::vector<FrameBuffer*> frameBuffers = m_renderAPI->GetFrameBuffers();
-
-                for (FrameBuffer* frameBuffer : frameBuffers)
-                {
-                    if (frameBuffer == nullptr)
-                        continue;
-
-                    frameBuffer->Attach();
-                    
-                    m_renderAPI->Render(m_game);
-                    
-                    UiManager::BeginRender(m_game);
-                    UiManager::Render(m_game);
-                    UiManager::EndRender();
-                     
-                    frameBuffer->Detach();
-                }
+                for (const RenderView* renderView : RenderViewProvider::GetAll())
+                    m_renderPipeline->Render(m_game, *renderView);
 
                 int displayW, displayH;
-                
                 glfwGetFramebufferSize(m_window, &displayW, &displayH);
-                m_renderAPI->AfterRender(m_game->width, m_game->height);
+                m_renderAPI->AfterRender(game->width, game->height);
             }
 
             glfwSwapBuffers(m_window);
@@ -147,6 +122,7 @@ void Application::Run(const int width, const int height, const std::string& name
 
 void Application::SetRenderAPI(const RenderType renderType)
 {
+    m_renderPipeline = new RenderPipeline();
     m_renderType = renderType;
 
     switch (renderType)

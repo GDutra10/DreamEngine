@@ -97,7 +97,12 @@ add_library (Core SHARED
 	"Render/OpenGL/OpenGLRenderAPI.cpp"
 	"Render/Factories/MeshFactory.h" 
 	"Render/Factories/MeshFactory.cpp" 
-	"Render/Helpers/RenderTypeHelper.h"  
+	"Render/Helpers/RenderTypeHelper.h"
+	"Render/RenderView.h" 
+	"Render/RenderPipeline.h"
+	"Render/RenderPipeline.cpp"
+	"Render/RenderViewProvider.h"
+	"Render/RenderViewProvider.cpp"
 
 	"Resources/Resource.h"
 	"Resources/ResourceManager.h"
@@ -129,7 +134,8 @@ add_library (Core SHARED
 	 "UI/RmlUI/RmlHandler.h" 
 	 "UI/RmlUI/RmlHandler.cpp"   
 	 "UI/RmlUI/CustomRenderInterface_GL3.h" 
-	 "UI/RmlUI/CustomRenderInterface_GL3.cpp")
+	 "UI/RmlUI/CustomRenderInterface_GL3.cpp" 
+)
 
 	
 set_target_properties(Core PROPERTIES

@@ -1,42 +1,69 @@
-#include "RenderAPI.h"
+#include "RenderPipeline.h"
+
 #include "OutlineScope.h"
-#include "../ECS/Components/MeshComponent.h"
-#include "../ECS/Components/TransformComponent.h"
-#include "../ECS/Components/DirectionalLightComponent.h"
-#include "../ECS/Components/MaterialComponent.h"
-#include "../Math/Math.h"
-#include "ECS/Components/ParentComponent.h"
+#include "RenderViewProvider.h"
+#include "ECS/Components/MaterialComponent.h"
+#include "ECS/Components/MeshComponent.h"
 #include "ECS/Components/OutlineComponent.h"
 #include "UI/UiManager.h"
 
 using namespace DreamEngine::Core::Render;
+using namespace DreamEngine::Core::GameSystem;
 
-void RenderAPI::Render(Game* game)
+void RenderPipeline::Initialize(RenderAPI* renderer, GLFWwindow* window, const int width, const int height)
 {
+    m_pWindow = window;
+    m_pRenderer = renderer;
+    m_pRenderer->Initialize(width, height);
+    UiManager::Initialize(window, width, height);
+    RenderViewProvider::Initialize();
+}
+
+void RenderPipeline::Render(GameSystem::Game* game, const RenderView& renderView)
+{
+    if (m_pRenderer == nullptr)
+        throw std::runtime_error("render pipeline not initialized!");
+
+    if (renderView.frameBuffer != nullptr)
+        renderView.frameBuffer->Attach();
+
     Scene* currentScene = game->GetActiveScene();
     Color* color = currentScene->GetBackgroundColor();
-    const std::vector<Entity*>& entities = currentScene->GetEntityManager()->GetEntities();
 
-    SetSceneBackgroundColor(color);
+    m_pRenderer->SetSceneBackgroundColor(color);
+
+    if (renderView.mask & RenderMask::World)
+        RenderSceneEntities(currentScene, game->width, game->height);
     
+    if (renderView.mask & RenderMask::UI)
+    {
+        UiManager::BeginRender(game);
+        UiManager::Render(game);
+        UiManager::EndRender();
+    }
+
+    if (renderView.frameBuffer != nullptr)
+        renderView.frameBuffer->Detach();
+}
+
+void RenderPipeline::RenderSceneEntities(Scene* scene, const int width, const int height) const
+{
+    const std::vector<Entity*>& entities = scene->GetEntityManager()->GetEntities();
+
     if (entities.empty())
         return;
 
     // view and projection from camera
-    Camera& camera = currentScene->GetCamera();
-    camera.SetPerspectiveProjectionMatrix(
-        glm::radians(camera.fovDegree),
-        static_cast<float>(game->width), 
-        static_cast<float>(game->height),
-        camera.near, 
-        camera.far);
+    Camera& camera = scene->GetCamera();
+    camera.SetPerspectiveProjectionMatrix(glm::radians(camera.fovDegree), static_cast<float>(width), static_cast<float>(height), camera.near, camera.far);
     glm::mat4 view = camera.GetView();
     glm::mat4 projection = camera.GetProjection();
 
     // global light position
-    GlobalLight* globalLight = currentScene->GetGlobalLight();
+    GlobalLight* globalLight = scene->GetGlobalLight();
     const glm::vec3 globalLightPosition = globalLight->transform.GetPosition();
     DirectionalLightComponent& directionalLightComponent = globalLight->directionalLight;
+    
     // light properties
     const glm::vec3 diffuseColor = directionalLightComponent.color.ToVec3() * glm::vec3(directionalLightComponent.influence);  // decrease the influence
     const glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
@@ -44,9 +71,7 @@ void RenderAPI::Render(Game* game)
     // render all entities
     for (Entity* entity : entities)
     {
-        if (!entity->GetIsActive() || 
-            !entity->GetComponent<MeshComponent>().has ||
-            !entity->GetComponent<MaterialComponent>().has)
+        if (!entity->GetIsActive() || !entity->GetComponent<MeshComponent>().has || !entity->GetComponent<MaterialComponent>().has)
             continue;
 
         const MeshComponent& meshComponent = entity->GetComponent<MeshComponent>();
@@ -58,10 +83,10 @@ void RenderAPI::Render(Game* game)
         if (meshComponent.mesh == nullptr || materialComponent.material == nullptr)
             continue;
 
-        StencilDefaultNoWrite();
-        
+        m_pRenderer->StencilDefaultNoWrite();
+
         if (wantsOutline)
-            StencilWriteObject();
+            m_pRenderer->StencilWriteObject();
 
         const Material* material = materialComponent.material;
         Shader* shader = material->shader;
@@ -93,19 +118,19 @@ void RenderAPI::Render(Game* game)
 
         meshComponent.mesh->Draw(*shader);
 
-        for (const std::function<void(Entity* e)>& func : m_afterRenderEntityCallbacks)
-            func(entity);
+        /*for (const std::function<void(Entity* e)>& func : m_pRenderer->GetAfterRenderEntityCallbacks())
+            func(entity);*/
 
         if (wantsOutline)
         {
             // draw where stencil != 1
-            StencilDrawOutlineRegion();
+            m_pRenderer->StencilDrawOutlineRegion();
 
             OutlineOptions opts{};
             opts.disableDepthTest = false;
             opts.cullFace = OutlineOptions::CullFace::Front;
 
-            OutlineScope guard(*this, opts);
+            OutlineScope guard(*m_pRenderer, opts);
 
             outlineComponent.shader->Use();
             outlineComponent.shader->SetMat4("view", view);
@@ -118,48 +143,7 @@ void RenderAPI::Render(Game* game)
             meshComponent.mesh->Draw(*outlineComponent.shader);
 
             // reset stencil behavior
-            StencilDefaultNoWrite();
+            m_pRenderer->StencilDefaultNoWrite();
         }
     }
-}
-
-void RenderAPI::AfterRender(int width, int height)
-{
-    for (std::function<void(int w, int h)>&afterRenderEntitiesCallback : m_afterRenderEntitiesCallbacks)
-        afterRenderEntitiesCallback(width, height);
-}
-
-void RenderAPI::AddBeforeRenderEntitiesCallbacks(const std::function<void()>& callback)
-{
-    m_beforeRenderEntitiesCallbacks.push_back(callback);
-}
-
-void RenderAPI::AddAfterRenderEntitiesCallbacks(const std::function<void(const int width, const int height)>& callback)
-{
-    m_afterRenderEntitiesCallbacks.push_back(callback);
-}
-
-void RenderAPI::AddAfterRenderEntityCallbacks(const std::function<void(Entity* entity)>& callback)
-{
-    m_afterRenderEntityCallbacks.push_back(callback);
-}
-
-void RenderAPI::RescaleFrameBuffers(int width, int height) const
-{
-    for (FrameBuffer* frameBuffer : m_frameBuffers)
-    {
-        if (frameBuffer != nullptr)
-            frameBuffer->Rescale(width, height);
-    }
-}
-
-std::vector<FrameBuffer*> RenderAPI::GetFrameBuffers() const
-{
-    return m_frameBuffers;
-}
-
-void RenderAPI::BeforeRender()
-{
-    for (std::function<void()>& beforeRenderEntitiesCallback : m_beforeRenderEntitiesCallbacks)
-        beforeRenderEntitiesCallback();
 }

@@ -7,6 +7,7 @@
 #include "Inputs/Key.h"
 #include "Inputs/KeyState.h"
 #include "Inputs/MouseButton.h"
+#include "Render/RenderPipeline.h"
 #include "Render/RenderType.h"
 #include "Render/OpenGL/OpenGLRenderAPI.h"
 #include "Scripting/ScriptEngine.h"
@@ -44,6 +45,7 @@ class CORE_API Application
     Game* m_game = nullptr;
     GLFWwindow* m_window = nullptr;
     RenderAPI* m_renderAPI = nullptr;
+    RenderPipeline* m_renderPipeline = nullptr;
     RenderType m_renderType = none;
     ScriptEngine* m_scriptEngine = nullptr;
     GameData* m_gameData = new GameData();

@@ -36,14 +36,15 @@ class CORE_API RenderAPI
     virtual void BeforeRender();
     virtual void OutlineBeginPass(const OutlineOptions& options) = 0;
     virtual void OutlineEndPass() = 0;
-
-   protected:
-    std::vector<FrameBuffer*> m_frameBuffers;
     virtual void SetSceneBackgroundColor(Color* color) = 0;
     virtual void SetTransform(const Shader* shader, const std::string name, glm::mat4& transform) = 0;
     virtual void StencilDefaultNoWrite() = 0;
     virtual void StencilWriteObject() = 0;
     virtual void StencilDrawOutlineRegion() = 0;
+
+   protected:
+    std::vector<FrameBuffer*> m_frameBuffers;
+    
    private:
     std::vector<std::function<void()>> m_beforeRenderEntitiesCallbacks;
     std::vector<std::function<void(int width, int height)>> m_afterRenderEntitiesCallbacks;
