@@ -24,6 +24,7 @@ class CORE_API UiManager
     static void Render(Game* game);
     static void EndRender();
     static void Shutdown();
+    static void AddFont(Font* font);
 
     // hook data
     static void Set(UiInstance* instance, const std::string& prop, std::string& value);

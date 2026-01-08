@@ -56,6 +56,11 @@ void UiManager::Shutdown()
     return m_sUiManager.m_pUiHandler->Shutdown();
 }
 
+void UiManager::AddFont(Font* font)
+{
+    m_sUiManager.m_pUiHandler->AddFont(font);
+}
+
 void UiManager::Set(UiInstance* instance, const std::string& prop, std::string& value)
 {
     m_sUiManager.m_pUiHandler->Set(instance, prop, value);

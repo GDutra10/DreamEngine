@@ -9,6 +9,7 @@
 #include "../Scripting/Script.h"
 #include "../UI/UiContent.h"
 #include "CoreExport.h"
+#include "Font.h"
 
 namespace DreamEngine::Core::Resources
 {
@@ -34,6 +35,8 @@ class CORE_API ResourceManager
     void AddScript(const std::string& resourceId, Script* script);
     void AddUiContent(UiContent* UiContent);
     void AddUiContent(const std::string& resourceId, UiContent* UiContent);
+    void AddFont(Font* font);
+    void AddFont(const std::string& resourceId, Font* font);
     void Clear();
     void RemoveMaterial(const Material* material);
     void RemoveScript(const Script* script);
@@ -44,12 +47,14 @@ class CORE_API ResourceManager
     Mesh* GetMesh(const std::string& resourceId);
     Script* GetScript(const std::string& resourceId);
     UiContent* GetUiContent(const std::string& resourceId);
+    Font* GetFont(const std::string& resourceId);
     std::map<std::string, Shader*>& GetShaders();
     std::map<std::string, Material*>& GetMaterials();
     std::map<std::string, Texture*>& GetTextures();
     std::map<std::string, Mesh*>& GetMeshes();
     std::map<std::string, Script*>& GetScripts();
     std::map<std::string, UiContent*>& GetUiContents();
+    std::map<std::string, Font*>& GetFonts();
    protected:
     std::map<std::string, Shader*> m_shaders;
     std::map<std::string, Material*> m_materials;
@@ -57,6 +62,7 @@ class CORE_API ResourceManager
     std::map<std::string, Mesh*> m_meshes;
     std::map<std::string, Script*> m_scripts;
     std::map<std::string, UiContent*> m_uiContents;
+    std::map<std::string, Font*> m_fonts;
 };
 }  // namespace DreamEngine::Core::Resources
 #endif

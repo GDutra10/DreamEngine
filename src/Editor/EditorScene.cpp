@@ -25,6 +25,11 @@ using namespace DreamEngine::Core::IO;
 using namespace DreamEngine::Core::Resources;
 using namespace DreamEngine::Core::Render::Factories;
 
+
+#ifndef EDITOR_FONT_PATH
+#define EDITOR_FONT_PATH "Assets/Fonts/Roboto-Regular.ttf"
+#endif
+
 EditorScene::EditorScene(
     std::string name,
     ProjectConfiguration& projectConfig,
@@ -57,6 +62,12 @@ void EditorScene::Initialize()
     
     Game* game = Application::Instance().GetGame();
     
+    // create font
+    Font* defaultFont = new Font(Helpers::FileHelper::LoadFileIntoVector(EDITOR_FONT_PATH));
+    defaultFont->path = EDITOR_FONT_PATH;
+    ResourceManager::Instance().AddFont("default_font", defaultFont);
+    UiManager::AddFont(defaultFont);
+
     // add viewport
     FrameBuffer* viewportFbo = Application::Instance().GetRenderAPI()->CreateFrameBuffer(game->width, game->height);
     auto viewportRenderView = new RenderView();
@@ -130,7 +141,7 @@ void EditorScene::InitializeImGui()
     m_io->ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
     // configure fonts
-    m_io->Fonts->AddFontFromFileTTF("Assets/Fonts/Roboto-Regular.ttf", 16.0f);
+    m_io->Fonts->AddFontFromFileTTF(EDITOR_FONT_PATH, 16.0f);
 
     // styles
     ImGui::StyleColorsDark();

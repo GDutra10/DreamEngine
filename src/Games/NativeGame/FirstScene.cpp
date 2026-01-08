@@ -16,6 +16,11 @@
 #include "Scripts/CameraScript.h"
 #include "Scripts/HudScript.h"
 
+#include <fstream>
+#include <vector>
+#include <filesystem>
+#include <iostream>
+
 using namespace DreamEngine::Core;
 using namespace DreamEngine::Core::IO;
 using namespace DreamEngine::Core::Resources;
@@ -89,6 +94,18 @@ void FirstScene::LoadResources()
     hudUiContent->name = "hud";
     hudUiContent->text = File::ReadAllText("Assets/UI/hud.rml");
     ResourceManager::Instance().AddUiContent("hud_ui_content", hudUiContent);
+
+    // font
+    // load font
+    const std::string filePath = "Assets/Fonts/Roboto-Regular.ttf";
+    std::ifstream inputFile(filePath, std::ios_base::binary);
+    auto fileSize = std::filesystem::file_size(filePath);
+    std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(inputFile), {});
+
+    Font* defaultFont = new Font(buffer);
+    defaultFont->path = filePath;
+    ResourceManager::Instance().AddFont("default_font", defaultFont);
+    UiManager::AddFont(defaultFont);
 }
 
 void FirstScene::CreateEntities()

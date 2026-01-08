@@ -28,6 +28,7 @@ class RmlHandler final : public IUiHandler
     void Render(Game* game) override;
     void EndRender() override;
     void Shutdown() override;
+    void AddFont(Font* font) override;
 
     // hook data
     void Set(UiInstance* instance, std::string prop, std::string& value) override;

@@ -106,7 +106,8 @@ add_library (Core SHARED
 
 	"Resources/Resource.h"
 	"Resources/ResourceManager.h"
-	"Resources/ResourceManager.cpp" 
+	"Resources/ResourceManager.cpp"
+	"Resources/Font.h"
 	
 	"Scripting/coreclrhost.h"
 	"Scripting/NativeScript.h"

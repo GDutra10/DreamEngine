@@ -52,13 +52,8 @@ void RmlHandler::Initialize(GLFWwindow* window, int width, int height)
     }
 
     m_spRenderInterface->SetViewport(width, height);
-
-    // TODO: must change to pass via scene!
-    const bool isFontOk = ::Rml::LoadFontFace("Assets/Fonts/Roboto-Regular.ttf");
-
-    if (!isFontOk)
-        Loggers::LoggerSingleton::Instance().LogWarning("Rml font load failed: Assets/Fonts/Roboto-Regular.ttf");
 }
+
 UiInstance* RmlHandler::Create(const UiContent* content)
 {
     RmlUiInstance* ui = new RmlUiInstance();
@@ -127,6 +122,14 @@ void RmlHandler::Shutdown()
 
     Rml::Shutdown();
     ShutdownInterfaces();
+}
+
+void RmlHandler::AddFont(Font* font)
+{
+    const bool isFontOk = Rml::LoadFontFace(font->data, "", Rml::Style::FontStyle::Normal);
+
+    if (!isFontOk)
+        Loggers::LoggerSingleton::Instance().LogWarning("Rml font load failed -> " + font->path);
 }
 
 void RmlHandler::Set(UiInstance* instance, const std::string prop, std::string& value)

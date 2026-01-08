@@ -79,6 +79,17 @@ void ResourceManager::AddUiContent(const std::string& resourceId, UiContent* uiC
     uiContent->resourceId = resourceId;
 }
 
+void ResourceManager::AddFont(Font* font)
+{
+    AddFont(GUIDHelper::GenerateGUID(), font);
+}
+
+void ResourceManager::AddFont(const std::string& resourceId, Font* font)
+{
+    m_fonts.try_emplace(resourceId, font);
+    font->resourceId = resourceId;
+}
+
 void ResourceManager::Clear()
 {
     for (auto& it : m_materials)
@@ -193,6 +204,18 @@ UiContent* ResourceManager::GetUiContent(const std::string& resourceId)
     return nullptr;
 }
 
+Font* ResourceManager::GetFont(const std::string& resourceId)
+{
+    auto it = m_fonts.find(resourceId);
+
+    if (it != m_fonts.end())
+    {
+        return it->second;
+    }
+
+    return nullptr;
+}
+
 std::map<std::string, Shader*>& ResourceManager::GetShaders()
 {
     return m_shaders;
@@ -221,4 +244,9 @@ std::map<std::string, Script*>& ResourceManager::GetScripts()
 std::map<std::string, UiContent*>& ResourceManager::GetUiContents()
 {
     return m_uiContents;
+}
+
+std::map<std::string, Font*>& ResourceManager::GetFonts()
+{
+    return m_fonts;
 }

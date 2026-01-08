@@ -27,6 +27,7 @@ class FileHelper
     static vector<path> GetAllFilesInCurrentDirectory(const path& directoryPath);
     static path GetExecutablePath();
     static path GetRelativePathByProject(const path& filePath);
+    static std::vector<unsigned char> LoadFileIntoVector(const std::string& filename);
 
    private:
    

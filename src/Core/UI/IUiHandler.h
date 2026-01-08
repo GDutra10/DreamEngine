@@ -24,6 +24,7 @@ class IUiHandler
     virtual void Render(Game* game) = 0;
     virtual void EndRender() = 0;
     virtual void Shutdown() = 0;
+    virtual void AddFont(Font* font) = 0;
 
     // hook data
     virtual void Set(UiInstance* instance, std::string prop, std::string& value) = 0;
