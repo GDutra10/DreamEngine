@@ -1,5 +1,6 @@
 #include "EntitySynchronizer.h"
 #include "../ECS/Components/TransformComponent.h"
+#include "ECS/Components/UiComponent.h"
 #include "glm/gtx/quaternion.hpp"
 
 using namespace DreamEngine::Core::Sync;
@@ -12,6 +13,7 @@ void EntitySynchronizer::SynchronizeToData(Entity* entity)
     const glm::vec3 rotation = transformComponent.GetRotation();
     const glm::vec3 scale = transformComponent.GetScale();
 
+    entity->entityData.id = entity->GetId();
     entity->entityData.transformPositionX = position.x;
     entity->entityData.transformPositionY = position.y;
     entity->entityData.transformPositionZ = position.z;
@@ -21,6 +23,9 @@ void EntitySynchronizer::SynchronizeToData(Entity* entity)
     entity->entityData.transformScaleX = scale.x;
     entity->entityData.transformScaleY = scale.y;
     entity->entityData.transformScaleZ = scale.z;
+
+    UiComponent& uiComponent = entity->GetComponent<UiComponent>();
+    entity->entityData.uiComponentHas = uiComponent.has;
 }
 
 void EntitySynchronizer::SynchronizeFromData(Entity* entity)

@@ -58,6 +58,7 @@ UiInstance* RmlHandler::Create(const UiContent* content)
 {
     RmlUiInstance* ui = new RmlUiInstance();
     ui->rmlText = content->text;
+    ui->name = content->name;
     ui->dataModelConstructor = m_spContext->CreateDataModel(content->name);
     ui->dataModelHandle = ui->dataModelConstructor.GetModelHandle();
     ui->document = m_spContext->LoadDocumentFromMemory(Rml::String(ui->rmlText));
@@ -77,6 +78,7 @@ void RmlHandler::Destroy(UiInstance* instance)
     RmlUiInstance* uiInstance = static_cast<RmlUiInstance*>(instance);
     std::erase(m_sUiInstances, uiInstance);
     m_spContext->UnloadDocument(uiInstance->document);
+    m_spContext->RemoveDataModel(uiInstance->name);
     delete uiInstance;
 }
 

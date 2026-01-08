@@ -17,6 +17,7 @@ class RmlUiInstance : public UiInstance
 public:
     Rml::ElementDocument* document = nullptr;
 
+    std::string name;
     std::string rmlText;
 
     Rml::DataModelConstructor dataModelConstructor;

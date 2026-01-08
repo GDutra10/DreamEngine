@@ -30,7 +30,7 @@ class CORE_API UiManager
     static void Set(UiInstance* instance, const std::string& prop, std::string& value);
     static void Set(UiInstance* instance, const std::string& prop, int value);
     static void Set(UiInstance* instance, const std::string& prop, float value);
-    static void BindOnClickCallback(UiInstance* instance, const std::string& prop, const std::function<void()> callback);
+    static void BindOnClickCallback(UiInstance* instance, const std::string& event, const std::function<void()> callback);
 
     // Input event processing - returns true if UI consumed the event
     static bool ProcessMouseMove(int x, int y);

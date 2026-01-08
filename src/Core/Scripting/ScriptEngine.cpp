@@ -31,6 +31,7 @@ releaseInstanceDelegate ScriptEngine::m_spReleaseInstanceDelegate = nullptr;
 getScriptInfoDelegate ScriptEngine::m_spGetScriptInfoDelegate = nullptr;
 releaseScriptInfoDelegate ScriptEngine::m_spReleaseScriptInfoDelegate = nullptr;
 updateGameDelegate ScriptEngine::m_spUpdateGameDelegate = nullptr;
+processEventDelegate ScriptEngine::m_spProcessEventDelegate = nullptr;
 // assembly delegate
 assemblyInitializeDelegate ScriptEngine::m_spAssemblyInitializeDelegate = nullptr;
 assembliesUnloadDelegate ScriptEngine::m_spAssembliesUnloadDelegate = nullptr;
@@ -167,6 +168,11 @@ void ScriptEngine::Update(void* instance, void* entityData)
 void ScriptEngine::UpdateGame(void* gameData)
 {
     m_spUpdateGameDelegate(gameData);
+}
+
+void ScriptEngine::ProcessEvent(const int eventId)
+{
+    m_spProcessEventDelegate(eventId);
 }
 
 std::vector<ScriptInfo> ScriptEngine::GetClassInfoList()

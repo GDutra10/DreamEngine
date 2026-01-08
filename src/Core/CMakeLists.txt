@@ -117,6 +117,9 @@ add_library (Core SHARED
 	"Scripting/Script.h" 
 	"Scripting/Script.cpp" 
 	"Scripting/ScriptInfo.h"
+	"Scripting/ScriptEventHandler.h"
+	"Scripting/ScriptEventHandler.cpp"
+	
 	
 	"Sync/EntitySynchronizer.h" 
 	"Sync/EntityData.h" 
@@ -139,7 +142,8 @@ add_library (Core SHARED
 	"UI/RmlUI/RmlClickBind.h"
 	"UI/RmlUI/RmlUiInstance.h"
 	"UI/UiInstance.h"
-	"UI/RmlUI/RmlClickListener.h")
+	"UI/RmlUI/RmlClickListener.h"
+)
 
 	
 set_target_properties(Core PROPERTIES

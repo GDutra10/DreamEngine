@@ -19,8 +19,4 @@
 		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 	</PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="ECS\Components\" />
-  </ItemGroup>
-
 </Project>

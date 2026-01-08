@@ -1,5 +1,6 @@
 using DreamEngine.Core;
 using DreamEngine.ECS;
+using DreamEngine.ECS.Components;
 
 namespace DreamEngine.Sync;
 
@@ -21,16 +22,37 @@ internal static class EntitySynchronizer
     }
 
     // using the ref keyword is the same case as above
-    public static void SynchronizeFromTo(ref EntityData EntityData, Entity entity)
+    public static void SynchronizeFromTo(ref EntityData entityData, Entity entity)
     {
-        entity.Transform.Position.X = EntityData.transformPositionX;
-        entity.Transform.Position.Y = EntityData.transformPositionY;
-        entity.Transform.Position.Z = EntityData.transformPositionZ;
-        entity.Transform.Rotation.X = EntityData.transformRotationX;
-        entity.Transform.Rotation.Y = EntityData.transformRotationY;
-        entity.Transform.Rotation.Z = EntityData.transformRotationZ;
-        entity.Transform.Scale.X = EntityData.transformScaleX;
-        entity.Transform.Scale.Y = EntityData.transformScaleY;
-        entity.Transform.Scale.Z = EntityData.transformScaleZ;
+        entity.Id = entityData.id;
+        entity.Transform.Position.X = entityData.transformPositionX;
+        entity.Transform.Position.Y = entityData.transformPositionY;
+        entity.Transform.Position.Z = entityData.transformPositionZ;
+        entity.Transform.Rotation.X = entityData.transformRotationX;
+        entity.Transform.Rotation.Y = entityData.transformRotationY;
+        entity.Transform.Rotation.Z = entityData.transformRotationZ;
+        entity.Transform.Scale.X = entityData.transformScaleX;
+        entity.Transform.Scale.Y = entityData.transformScaleY;
+        entity.Transform.Scale.Z = entityData.transformScaleZ;
+
+        HandleUiComponent(ref entityData, entity);
+    }
+
+    private static void HandleUiComponent(ref EntityData entityData, Entity entity)
+    {
+        var uiComponent = entity.GetComponent<UiComponent>();
+
+        if (!entityData.uiComponentHas)
+        {
+            if (uiComponent is null)
+                return;
+
+            entity.RemoveComponent(uiComponent);
+            
+            return;
+        }
+
+        if (uiComponent is null)
+            entity.AddComponent<UiComponent>(new UiComponent(entity.Id));
     }
 }

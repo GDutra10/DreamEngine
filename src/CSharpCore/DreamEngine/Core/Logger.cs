@@ -6,22 +6,19 @@ public static class Logger
 {
     private static class NativeMethods
     {
-        private const string CoreDll = "Core"; // or "Core.dll" on Windows
-
-
-        [DllImport(CoreDll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "Core_LogTrace")]
+        [DllImport(CoreConstants.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "Core_LogTrace")]
         public static extern void LogTrace([MarshalAs(UnmanagedType.LPUTF8Str)] string message);
 
-        [DllImport(CoreDll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "Core_LogDebug")]
+        [DllImport(CoreConstants.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "Core_LogDebug")]
         public static extern void LogDebug([MarshalAs(UnmanagedType.LPUTF8Str)] string message);
 
-        [DllImport(CoreDll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "Core_LogInfo")]
+        [DllImport(CoreConstants.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "Core_LogInfo")]
         public static extern void LogInfo([MarshalAs(UnmanagedType.LPUTF8Str)] string message);
 
-        [DllImport(CoreDll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "Core_LogWarning")]
+        [DllImport(CoreConstants.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "Core_LogWarning")]
         public static extern void LogWarning([MarshalAs(UnmanagedType.LPUTF8Str)] string message);
 
-        [DllImport(CoreDll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "Core_LogError")]
+        [DllImport(CoreConstants.DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "Core_LogError")]
         public static extern void LogError([MarshalAs(UnmanagedType.LPUTF8Str)] string message);
     }
 

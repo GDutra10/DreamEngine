@@ -188,4 +188,16 @@ internal static class ScriptManager
             Logger.LogError(e.ToString());
         }
     }
+
+    public static void ProcessEvent(int eventId)
+    {
+        try
+        {
+            UiManager.HandleEvent(eventId);
+        }
+        catch (Exception e)
+        {
+            Logger.LogError(e.ToString());
+        }
+    }
 }

@@ -5,6 +5,7 @@ namespace DreamEngine.Sync;
 [StructLayout(LayoutKind.Sequential)]
 internal struct EntityData
 {
+    public UInt32 id;
     public float transformPositionX;
     public float transformPositionY;
     public float transformPositionZ;
@@ -14,4 +15,5 @@ internal struct EntityData
     public float transformScaleX;
     public float transformScaleY;
     public float transformScaleZ;
+    public bool uiComponentHas;
 }

@@ -7,6 +7,7 @@
 #include "ECS/Components/NativeScriptComponent.h"
 #include "ECS/Components/UiComponent.h"
 #include "Scripting/ScriptEngine.h"
+#include "Scripting/ScriptEventHandler.h"
 #include "Sync/EntitySynchronizer.h"
 #include "Sync/GameSynchronizer.h"
 
@@ -40,7 +41,10 @@ void Scene::Update(const float deltaTime)
     m_entityManager->Update();
 
     if (m_mustRunScriptComponents)
+    {
+        ScriptEventHandler::Process();
         ScriptEngine::UpdateGame(GameSynchronizer::Synchronize(this->GetIsFocused()));
+    }
 
     for (Entity* entity : m_entityManager->GetEntities())
     {
