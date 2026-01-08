@@ -7,6 +7,7 @@
 #include "Components/MeshComponentData.h"
 #include "Components/ParentComponentData.h"
 #include "Components/ScriptComponentData.h"
+#include "Components/UiComponentData.h"
 
 namespace DreamEngine::Editor::Models::Datas
 {
@@ -20,6 +21,7 @@ struct ComponentsData
     ParentComponentData parent;
     ScriptComponentData script;
     CameraComponentData camera;
+    UiComponentData ui;
 };
 
 }  // namespace DreamEngine::Editor::Models::Datas
