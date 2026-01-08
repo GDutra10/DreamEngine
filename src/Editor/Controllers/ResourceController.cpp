@@ -16,12 +16,14 @@
 #include "../EditorDefine.h"
 #include "../Importers/AssimpModelImporter.h"
 #include "../Serializers/SceneDataSerializer.h"
+#include "../Helpers/FileHelper.h"
 
 using namespace DreamEngine::Core::Loggers;
 using namespace DreamEngine::Core::ECS::Components;
 using namespace DreamEngine::Editor::Controllers;
 using namespace DreamEngine::Editor::Singletons;
 using namespace DreamEngine::Editor::Serializers;
+using namespace DreamEngine::Editor::Helpers;
 
 BaseModelImporter* ResourceController::m_modelImporter = new AssimpModelImporter();
 
@@ -408,10 +410,10 @@ void ResourceController::LoadUiContents(const std::vector<std::string>& uiFiles)
     for (const std::string& uiFile : uiFiles)
     {
         UiContent* uiContent = LoadUiContent(uiFile);
-
+        
         const path p = path(uiFile);
         uiContent->name = p.filename().string();
-        uiContent->resourceId = uiFile; // TODO: uiFile should remove the path before the root project!
+        uiContent->resourceId = FileHelper::GetRelativePathByProject(uiFile).string();  
 
         TryAddToResourceManager(uiContent, false);
     }

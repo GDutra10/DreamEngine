@@ -1,8 +1,11 @@
 #include "FileHelper.h"
 
-#include <iostream>
+#include <filesystem>
+
+#include "../Singletons/EditorSingleton.h"
 
 using namespace DreamEngine::Editor::Helpers;
+using namespace DreamEngine::Editor::Singletons;
 
 vector<string> FileHelper::GetFilesWithExtension(const path& directory, const string& extension)
 {
@@ -33,6 +36,11 @@ vector<path> FileHelper::GetAllFilesInCurrentDirectory(const path& directoryPath
     }
 
     return files;
+}
+
+path FileHelper::GetRelativePathByProject(const path& filePath)
+{
+    return relative(filePath, EditorSingleton::Instance().GetProjectConfiguration().projectPath);
 }
 
 #if defined(_WIN32) || defined(_WIN64)
