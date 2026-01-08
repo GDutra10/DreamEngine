@@ -16,12 +16,12 @@ void UiManager::Initialize(GLFWwindow* window, int width, int height)
     m_sUiManager.m_pUiHandler->Initialize(window, width, height);
 }
 
-void* UiManager::Create(const UiContent* content)
+UiInstance* UiManager::Create(const UiContent* content)
 {
     return m_sUiManager.m_pUiHandler->Create(content);
 }
 
-void UiManager::Destroy(void* instance)
+void UiManager::Destroy(UiInstance* instance)
 {
     m_sUiManager.m_pUiHandler->Destroy(instance);
 }
@@ -54,6 +54,26 @@ void UiManager::EndRender()
 void UiManager::Shutdown()
 {
     return m_sUiManager.m_pUiHandler->Shutdown();
+}
+
+void UiManager::Set(UiInstance* instance, const std::string& prop, std::string& value)
+{
+    m_sUiManager.m_pUiHandler->Set(instance, prop, value);
+}
+
+void UiManager::Set(UiInstance* instance, const std::string& prop, int value)
+{
+    m_sUiManager.m_pUiHandler->Set(instance, prop, value);
+}
+
+void UiManager::Set(UiInstance* instance, const std::string& prop, float value)
+{
+    m_sUiManager.m_pUiHandler->Set(instance, prop, value);
+}
+
+void UiManager::BindOnClickCallback(UiInstance* instance, const std::string& event, const std::function<void()> callback)
+{
+    m_sUiManager.m_pUiHandler->BindOnClickCallback(instance, event, callback);
 }
 
 bool UiManager::ProcessMouseMove(const int x, const int y)

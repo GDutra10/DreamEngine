@@ -15,7 +15,7 @@ add_executable (NativeGame
 
     "Vendors/stb_image.cpp"
     "Vendors/stb_image.h"
-)
+ "Scripts/HudScript.h" "Scripts/HudScript.cpp" "Scripts/CameraScript.h" "Scripts/CameraScript.cpp")
 
 # add link libraries
 target_link_libraries(NativeGame 

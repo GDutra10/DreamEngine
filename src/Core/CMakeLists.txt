@@ -127,15 +127,18 @@ add_library (Core SHARED
 	"Sync/GameSynchronizer.h"
 	"Sync/GameSynchronizer.cpp"
 
-	 "UI/UiContent.h"
-	 "UI/UiManager.h"
-	 "UI/UiManager.cpp"
-	 "UI/IUiHandler.h"
-	 "UI/RmlUI/RmlHandler.h" 
-	 "UI/RmlUI/RmlHandler.cpp"   
-	 "UI/RmlUI/CustomRenderInterface_GL3.h" 
-	 "UI/RmlUI/CustomRenderInterface_GL3.cpp" 
-)
+	"UI/UiContent.h"
+	"UI/UiManager.h"
+	"UI/UiManager.cpp"
+	"UI/IUiHandler.h"
+	"UI/RmlUI/RmlHandler.h" 
+	"UI/RmlUI/RmlHandler.cpp"   
+	"UI/RmlUI/CustomRenderInterface_GL3.h" 
+	"UI/RmlUI/CustomRenderInterface_GL3.cpp"
+	"UI/RmlUI/RmlClickBind.h"
+	"UI/RmlUI/RmlUiInstance.h"
+	"UI/UiInstance.h"
+	"UI/RmlUI/RmlClickListener.h")
 
 	
 set_target_properties(Core PROPERTIES

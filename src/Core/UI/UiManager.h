@@ -16,14 +16,20 @@ class CORE_API UiManager
 {
    public:
     static void Initialize(GLFWwindow* window, int width, int height);
-    static void* Create(const UiContent* content);
-    static void Destroy(void* instance);
+    static UiInstance* Create(const UiContent* content);
+    static void Destroy(UiInstance* instance);
     static void Update();
     static void RemoveContents();
     static void BeginRender(Game* game);
     static void Render(Game* game);
     static void EndRender();
     static void Shutdown();
+
+    // hook data
+    static void Set(UiInstance* instance, const std::string& prop, std::string& value);
+    static void Set(UiInstance* instance, const std::string& prop, int value);
+    static void Set(UiInstance* instance, const std::string& prop, float value);
+    static void BindOnClickCallback(UiInstance* instance, const std::string& prop, const std::function<void()> callback);
 
     // Input event processing - returns true if UI consumed the event
     static bool ProcessMouseMove(int x, int y);

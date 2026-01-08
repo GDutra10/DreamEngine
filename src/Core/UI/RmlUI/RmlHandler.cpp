@@ -1,10 +1,12 @@
-
 #include "RmlHandler.h"
 
 #include "CustomRenderInterface_GL3.h"
+#include "RmlClickBind.h"
+#include "RmlClickListener.h"
 #include "Loggers/LoggerSingleton.h"
 #include "RmlUi_Platform_GLFW.h"
 #include "RmlUi_Renderer_GL3.h"
+#include "../../../Vendors/RmlUi/Source/Core/DataModel.h"
 #include "RmlUi/Core/Core.h"
 #include "RmlUi/Core/Context.h"
 #include "RmlUi/Core/ElementDocument.h"
@@ -13,8 +15,12 @@
 using namespace DreamEngine::Core::UI::RmlUI;
 
 Rml::Context* RmlHandler::m_spContext = nullptr;
+
 SystemInterface_GLFW* RmlHandler::m_spSystemInterface = nullptr;
+
 CustomRenderInterface_GL3* RmlHandler::m_spRenderInterface = nullptr;
+
+std::vector<RmlUiInstance*> RmlHandler::m_sUiInstances;
 
 void RmlHandler::Initialize(GLFWwindow* window, int width, int height)
 {
@@ -53,21 +59,30 @@ void RmlHandler::Initialize(GLFWwindow* window, int width, int height)
     if (!isFontOk)
         Loggers::LoggerSingleton::Instance().LogWarning("Rml font load failed: Assets/Fonts/Roboto-Regular.ttf");
 }
-
-void* RmlHandler::Create(const UiContent* content)
+UiInstance* RmlHandler::Create(const UiContent* content)
 {
-    const Rml::String strRml(content->text);
-    Rml::ElementDocument* document = m_spContext->LoadDocumentFromMemory(strRml);
+    RmlUiInstance* ui = new RmlUiInstance();
+    ui->rmlText = content->text;
+    ui->dataModelConstructor = m_spContext->CreateDataModel(content->name);
+    ui->dataModelHandle = ui->dataModelConstructor.GetModelHandle();
+    ui->document = m_spContext->LoadDocumentFromMemory(Rml::String(ui->rmlText));
 
-    if (document)
-        document->Show();
+    if (!ui->document)
+        return nullptr;
 
-    return document;
+    m_sUiInstances.push_back(ui);
+
+    ui->document->Show();
+
+    return ui;
 }
 
-void RmlHandler::Destroy(void* instance)
+void RmlHandler::Destroy(UiInstance* instance)
 {
-    m_spContext->UnloadDocument(static_cast<Rml::ElementDocument*>(instance));
+    RmlUiInstance* uiInstance = static_cast<RmlUiInstance*>(instance);
+    std::erase(m_sUiInstances, uiInstance);
+    m_spContext->UnloadDocument(uiInstance->document);
+    delete uiInstance;
 }
 
 void RmlHandler::Update()
@@ -112,6 +127,37 @@ void RmlHandler::Shutdown()
 
     Rml::Shutdown();
     ShutdownInterfaces();
+}
+
+void RmlHandler::Set(UiInstance* instance, const std::string prop, std::string& value)
+{
+    Set(instance, prop, Rml::Variant(Rml::String(value)));
+}
+
+void RmlHandler::Set(UiInstance* instance, const std::string prop, int value)
+{
+    Set(instance, prop, Rml::Variant(value));
+}
+
+void RmlHandler::Set(UiInstance* instance, const std::string prop, float value)
+{
+    Set(instance, prop, Rml::Variant(value));
+}
+
+void RmlHandler::BindOnClickCallback(
+    UiInstance* instance,
+    const std::string& event,
+    const std::function<void()> callback)
+{
+    auto* ui = static_cast<RmlUiInstance*>(instance);
+    
+    if (!ui)
+        return;
+
+    auto* el = ui->document->GetElementById(event);
+
+    if (TryAddOnClickEventListener(ui, event, callback))
+        ui->clickBindings.push_back({event, callback});
 }
 
 bool RmlHandler::ProcessMouseMove(const int x, const int y)
@@ -324,4 +370,67 @@ int RmlHandler::GetKeyModifiers(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_ALT) == GLFW_PRESS)
         modifiers |= Rml::Input::KM_ALT;
     return modifiers;
+}
+
+void RmlHandler::Set(UiInstance*& instance, const std::string& prop, const Rml::Variant& value)
+{
+    auto* ui = static_cast<RmlUiInstance*>(instance);
+    if (!ui)
+        return;
+
+    ui->vars[prop] = value;
+
+    // Bind getter/setter once
+    if (ui->bound.insert(prop).second)
+    {
+        RmlUiInstance* ui_ptr = ui;
+
+        ui->dataModelConstructor.BindFunc(
+            prop,
+            [ui_ptr, prop](Rml::Variant& out)
+            {
+                auto vit = ui_ptr->vars.find(prop);
+                out = (vit != ui_ptr->vars.end()) ? vit->second : Rml::Variant();
+            },
+            [ui_ptr, prop](const Rml::Variant& in) { ui_ptr->vars[prop] = in; });
+    }
+
+    Reload(ui);
+    ui->dataModelHandle.DirtyVariable(prop);
+}
+
+void RmlHandler::Reload(RmlUiInstance* ui)
+{
+    if (ui->document)
+        ui->document->Close();
+
+    Rml::ElementDocument* newDocument = m_spContext->LoadDocumentFromMemory(Rml::String(ui->rmlText));
+
+    if (!newDocument)
+    {
+        Loggers::LoggerSingleton::Instance().LogWarning("RmlHandler::Reload -> reload failed");
+        return;
+    }
+
+    ui->document = newDocument;
+    newDocument->Show();
+    AttachEvents(ui);
+}
+
+void RmlHandler::AttachEvents(const RmlUiInstance* ui)
+{
+    for (const RmlClickBinding& binding : ui->clickBindings)
+        TryAddOnClickEventListener(ui, binding.elementId, binding.callback);
+}
+
+bool RmlHandler::TryAddOnClickEventListener(const RmlUiInstance* ui, const std::string& id, const std::function<void()> callback)
+{
+    if (Rml::Element* element = ui->document->GetElementById(id))
+    {
+        element->AddEventListener("click", new RmlClickListener(callback));
+        
+        return true;
+    }
+
+    return false;
 }

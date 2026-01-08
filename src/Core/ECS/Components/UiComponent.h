@@ -3,15 +3,16 @@
 
 #include "Component.h"
 #include "UI/UiContent.h"
+#include "UI/UiInstance.h"
 
 namespace DreamEngine::Core::ECS::Components
 {
 class CORE_API UiComponent : public Component
 {
    public:
-    UI::UiContent* content;
     int zOrder = 0;
-    void* instance = nullptr;
+    UI::UiContent* content;
+    UI::UiInstance* instance = nullptr;
 };
 }  // namespace DreamEngine::Core::ECS::Components
 #endif
