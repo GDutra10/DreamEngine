@@ -104,8 +104,7 @@ bool CORE_CALL Core_UiManagerBindOnClickCallback(size_t entityId, const char* ev
         return false;
     
     UiManager::BindOnClickCallback(uiComponent.instance, std::string(event), [eventId]()
-    { 
-        LoggerSingleton::Instance().LogInfo("UiManagerBindOnClickCallback callback clicked!");
+    {
         ScriptEventHandler::QueueEvent(eventId);
     });
 
