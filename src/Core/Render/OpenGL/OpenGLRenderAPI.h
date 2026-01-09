@@ -17,13 +17,13 @@ class OpenGLRenderAPI : public RenderAPI
     Texture* CreateTexture(unsigned char* data, int width, int height, int nrChannels) override;
     Mesh* CreateMesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const std::vector<Texture*>& textures) override;
     FrameBuffer* CreateFrameBuffer(int width, int height) override;
-    void AfterRender(int width, int height) override;
+    void AfterRender(RenderView& renderView) override;
     void OutlineBeginPass(const OutlineOptions& options) override;
     void OutlineEndPass() override;
 
    protected:
     unsigned int m_rbo = 0;
-    void BeforeRender() override;
+    void BeforeRender(RenderView& renderView) override;
     void SetSceneBackgroundColor(Color* color) override;
     void SetTransform(const Shader* shader, const std::string name, glm::mat4& transform) override;
     void StencilDefaultNoWrite() override;

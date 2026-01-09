@@ -20,6 +20,10 @@ struct CORE_API RenderView
 {
     uint32_t mask = 0;
     FrameBuffer* frameBuffer = nullptr;
+    int width = 1;
+    int height = 1;
+
+    bool IsDefault() const { return frameBuffer == nullptr; }
 };
 }  // namespace DreamEngine::Core::Render
 #endif

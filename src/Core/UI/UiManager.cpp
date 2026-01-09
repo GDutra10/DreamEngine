@@ -36,14 +36,14 @@ void UiManager::RemoveContents()
     m_sUiManager.m_pUiHandler->RemoveContents();
 }
 
-void UiManager::BeginRender(Game* game)
+void UiManager::BeginRender(const int width, const int height)
 {
-    m_sUiManager.m_pUiHandler->BeginRender(game);
+    m_sUiManager.m_pUiHandler->BeginRender(width, height);
 }
 
-void UiManager::Render(Game* game)
+void UiManager::Render()
 {
-    m_sUiManager.m_pUiHandler->Render(game);
+    m_sUiManager.m_pUiHandler->Render();
 }
 
 void UiManager::EndRender()

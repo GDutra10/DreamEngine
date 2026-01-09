@@ -20,8 +20,8 @@ class IUiHandler
     virtual void Destroy(UiInstance* instance) = 0;
     virtual void Update() = 0;
     virtual void RemoveContents() = 0;
-    virtual void BeginRender(Game* game) = 0;
-    virtual void Render(Game* game) = 0;
+    virtual void BeginRender(const int width, const int height) = 0;
+    virtual void Render() = 0;
     virtual void EndRender() = 0;
     virtual void Shutdown() = 0;
     virtual void AddFont(Font* font) = 0;

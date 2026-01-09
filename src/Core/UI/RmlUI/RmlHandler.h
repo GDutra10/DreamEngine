@@ -24,8 +24,8 @@ class RmlHandler final : public IUiHandler
     void Destroy(UiInstance* instance) override;
     void Update() override;
     void RemoveContents() override;
-    void BeginRender(Game* game) override;
-    void Render(Game* game) override;
+    void BeginRender(const int width, const int height) override;
+    void Render() override;
     void EndRender() override;
     void Shutdown() override;
     void AddFont(Font* font) override;

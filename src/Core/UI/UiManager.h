@@ -20,8 +20,8 @@ class CORE_API UiManager
     static void Destroy(UiInstance* instance);
     static void Update();
     static void RemoveContents();
-    static void BeginRender(Game* game);
-    static void Render(Game* game);
+    static void BeginRender(const int width, const int height);
+    static void Render();
     static void EndRender();
     static void Shutdown();
     static void AddFont(Font* font);

@@ -92,16 +92,17 @@ void RmlHandler::RemoveContents()
     m_spContext->UnloadAllDocuments();
 }
 
-void RmlHandler::BeginRender(Game* game)
+void RmlHandler::BeginRender(const int width, const int height)
 {
     if (!m_spContext || !m_spRenderInterface)
         return;
 
-    m_spRenderInterface->SetViewport(game->width, game->height);
+    m_spContext->SetDimensions({width, height});
+    m_spRenderInterface->SetViewport(width, height);
     m_spRenderInterface->BeginFrame();
 }
 
-void RmlHandler::Render(Game* game)
+void RmlHandler::Render()
 {
     if (!m_spContext)
         return;
@@ -172,7 +173,9 @@ bool RmlHandler::ProcessMouseMove(const int x, const int y)
 
     m_spContext->ProcessMouseMove(x, y, 0);
 
-    return m_spContext->GetHoverElement() != nullptr;
+    auto* hover = m_spContext->GetHoverElement();
+
+    return hover != nullptr;
 }
 
 bool RmlHandler::ProcessMouseButton(const int button, const int action, const int mods)

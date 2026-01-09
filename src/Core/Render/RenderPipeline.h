@@ -15,12 +15,12 @@ class CORE_API RenderPipeline final
 {
 public:
     void Initialize(RenderAPI* renderer, GLFWwindow* window, const int width, const int height);
-    void Render(GameSystem::Game* game, const RenderView& renderView);
+    void Render(Scene* scene, RenderView& renderView);
 private:
     RenderAPI* m_pRenderer = nullptr;
     GLFWwindow* m_pWindow = nullptr;
     std::vector<RenderView> m_renderViews;
-    void RenderSceneEntities(Scene* scene, int width, int height) const;
+    void RenderSceneEntities(RenderView& renderView, Scene* scene) const;
 };
 }  // namespace DreamEngine::Core::Render
 #endif

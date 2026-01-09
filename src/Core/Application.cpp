@@ -72,19 +72,29 @@ void Application::Run(int width, int height, const std::string& name, const Rend
             m_lastFrame = currentFrame;
 
             // update scene and entities
-            m_game->GetActiveScene()->Update(m_deltaTime);
+            Scene* currentScene = game->GetActiveScene();
+            currentScene->Update(m_deltaTime);
 
             // render
             if (const int isMinimized = glfwGetWindowAttrib(m_window, GLFW_ICONIFIED); !isMinimized)
             {
-                m_renderAPI->BeforeRender();
-
-                for (const RenderView* renderView : RenderViewProvider::GetAll())
-                    m_renderPipeline->Render(m_game, *renderView);
-
                 int displayW, displayH;
                 glfwGetFramebufferSize(m_window, &displayW, &displayH);
-                m_renderAPI->AfterRender(game->width, game->height);
+                
+                game->width = displayW;
+                game->height = displayH;
+
+                for (RenderView* renderView : RenderViewProvider::GetAll())
+                {
+                    // default framebuffer
+                    if (renderView->frameBuffer == nullptr)
+                    {
+                        renderView->width = displayW;
+                        renderView->height = displayH;
+                    }
+
+                    m_renderPipeline->Render(currentScene, *renderView);
+                }
             }
 
             glfwSwapBuffers(m_window);
@@ -211,7 +221,7 @@ void Application::KeyCallback(GLFWwindow* window, int key, int scancode, int act
 
 void Application::FrameBufferSizeCallback(GLFWwindow* window, const int width, const int height)
 {
-    Application::Instance().GetRenderAPI()->RescaleFrameBuffers(width, height);
+    //Application::Instance().GetRenderAPI()->RescaleFrameBuffers(width, height);
 }
 
 MouseButton Application::GetMouseButtonByGLFW(const int mouseButton)

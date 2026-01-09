@@ -36,8 +36,19 @@ void SceneWindow::DrawContent()
 
         // Invisible button to handle clicks
         //ImGui::SetItemAllowOverlap();
+        ImVec2 size = ImGui::GetContentRegionAvail();
+        
+        // Avoid zero / negative size
+        int desiredW = std::max(1, (int)size.x);
+        int desiredH = std::max(1, (int)size.y);
+
+        RenderView* sceneRenderView = EditorSingleton::Instance().GetSceneRenderView();
+        sceneRenderView->width = desiredW;
+        sceneRenderView->height = desiredH;
+        sceneRenderView->frameBuffer->Rescale(desiredW, desiredH);
+
         ImGui::SetCursorPos({0, 0});
-        ImGui::Image((void*)(intptr_t)EditorSingleton::Instance().GetViewPortFbo()->textureColorBuffer, ImGui::GetContentRegionAvail(), ImVec2(0, 1), ImVec2(1, 0));
+        ImGui::Image((void*)(intptr_t)sceneRenderView->frameBuffer->textureColorBuffer, size, ImVec2(0, 1), ImVec2(1, 0));
 
         // Check if the image is hovered
         //bool isHovered = ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);

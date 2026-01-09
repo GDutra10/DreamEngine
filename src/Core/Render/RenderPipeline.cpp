@@ -5,6 +5,7 @@
 #include "ECS/Components/MaterialComponent.h"
 #include "ECS/Components/MeshComponent.h"
 #include "ECS/Components/OutlineComponent.h"
+#include "Loggers/LoggerSingleton.h"
 #include "UI/UiManager.h"
 
 using namespace DreamEngine::Core::Render;
@@ -19,34 +20,34 @@ void RenderPipeline::Initialize(RenderAPI* renderer, GLFWwindow* window, const i
     RenderViewProvider::Initialize();
 }
 
-void RenderPipeline::Render(GameSystem::Game* game, const RenderView& renderView)
+void RenderPipeline::Render(Scene* scene, RenderView& renderView)
 {
     if (m_pRenderer == nullptr)
         throw std::runtime_error("render pipeline not initialized!");
 
     if (renderView.frameBuffer != nullptr)
         renderView.frameBuffer->Attach();
-
-    Scene* currentScene = game->GetActiveScene();
-    Color* color = currentScene->GetBackgroundColor();
-
-    m_pRenderer->SetSceneBackgroundColor(color);
+    
+    m_pRenderer->BeforeRender(renderView);
+    m_pRenderer->SetSceneBackgroundColor(scene->GetBackgroundColor());
 
     if (renderView.mask & RenderMask::World)
-        RenderSceneEntities(currentScene, game->width, game->height);
+        RenderSceneEntities(renderView, scene);
     
     if (renderView.mask & RenderMask::UI)
     {
-        UiManager::BeginRender(game);
-        UiManager::Render(game);
+        UiManager::BeginRender(renderView.width, renderView.height);
+        UiManager::Render();
         UiManager::EndRender();
     }
+
+    m_pRenderer->AfterRender(renderView);
 
     if (renderView.frameBuffer != nullptr)
         renderView.frameBuffer->Detach();
 }
 
-void RenderPipeline::RenderSceneEntities(Scene* scene, const int width, const int height) const
+void RenderPipeline::RenderSceneEntities(RenderView& renderView, Scene* scene) const
 {
     const std::vector<Entity*>& entities = scene->GetEntityManager()->GetEntities();
 
@@ -55,7 +56,10 @@ void RenderPipeline::RenderSceneEntities(Scene* scene, const int width, const in
 
     // view and projection from camera
     Camera& camera = scene->GetCamera();
-    camera.SetPerspectiveProjectionMatrix(glm::radians(camera.fovDegree), static_cast<float>(width), static_cast<float>(height), camera.near, camera.far);
+    //camera.SetPerspectiveProjectionMatrix(glm::radians(camera.fovDegree), static_cast<float>(renderView.width), static_cast<float>(renderView.height), camera.near, camera.far);
+
+    float aspect = (renderView.height > 0) ? (float)renderView.width / (float)renderView.height : 1.0f;
+    camera.SetPerspective(glm::radians(camera.fovDegree), aspect, camera.near, camera.far);
     glm::mat4 view = camera.GetView();
     glm::mat4 projection = camera.GetProjection();
 
@@ -118,8 +122,8 @@ void RenderPipeline::RenderSceneEntities(Scene* scene, const int width, const in
 
         meshComponent.mesh->Draw(*shader);
 
-        /*for (const std::function<void(Entity* e)>& func : m_pRenderer->GetAfterRenderEntityCallbacks())
-            func(entity);*/
+        /*for (const std::function<void(RenderView& renderView, Entity& entity)>& func : m_pRenderer->))
+            func(renderView, *entity);*/
 
         if (wantsOutline)
         {

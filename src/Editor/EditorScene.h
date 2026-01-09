@@ -58,9 +58,9 @@ public:
     void InitializeImGui();
     void DrawMenuBar();
     void DrawTopBar();
-    void StartImGuiFrame();
-    void FinishImGuiFrame();
-    void UpdateBackgroundColor() const;
+    void StartImGuiFrame(const RenderView& renderView);
+    void FinishImGuiFrame(const RenderView& renderView);
+    void UpdateBackgroundColor(const RenderView& renderView) const;
     void SetStyleOne();
     void SetStyleUnreal();
     void SetStyleUnreal2();

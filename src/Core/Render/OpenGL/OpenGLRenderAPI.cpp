@@ -128,16 +128,9 @@ FrameBuffer* OpenGLRenderAPI::CreateFrameBuffer(int width, int height)
     return frameBuffer;
 }
 
-void OpenGLRenderAPI::AfterRender(int width, int height)
+void OpenGLRenderAPI::AfterRender(RenderView& renderView)
 {
-    glViewport(0, 0, width, height);
-
-    GLenum err;
-
-    while ((err = glGetError()) != GL_NO_ERROR)
-        Loggers::LoggerSingleton::Instance().LogError("OpenGLRenderAPI::AfterRender -> OpenGL error: " + std::to_string(err));
-
-    RenderAPI::AfterRender(width, height);
+    RenderAPI::AfterRender(renderView);
 }
 
 void OpenGLRenderAPI::OutlineBeginPass(const OutlineOptions& options) 
@@ -168,25 +161,17 @@ void OpenGLRenderAPI::OutlineEndPass()
     glState.depthEnabled ? glEnable(GL_DEPTH_TEST) : glDisable(GL_DEPTH_TEST);
 }
 
-void OpenGLRenderAPI::BeforeRender()
+void OpenGLRenderAPI::BeforeRender(RenderView& renderView)
 {
-    // Clear default framebuffer
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, renderView.width, renderView.height);
+
+    // Clear framebuffer
     glStencilMask(0xFF);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-    for (FrameBuffer* frameBuffer : m_frameBuffers)
-    {
-        if (frameBuffer == nullptr)
-            continue;
+    glDisable(GL_SCISSOR_TEST);
 
-        frameBuffer->Attach();
-        glStencilMask(0xFF);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-        frameBuffer->Detach();
-    }
-
-    RenderAPI::BeforeRender();
+    RenderAPI::BeforeRender(renderView);
 }
 
 void OpenGLRenderAPI::SetSceneBackgroundColor(Color* color)

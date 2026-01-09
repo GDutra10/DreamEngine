@@ -44,8 +44,8 @@ class EditorSingleton final
     [[nodiscard]] ResourceController& GetResourceController();
     [[nodiscard]] ScriptController& GetScriptController();
     [[nodiscard]] CameraEditorController& GetCameraEditorController();
-    [[nodiscard]] FrameBuffer* GetViewPortFbo() const;
-    [[nodiscard]] FrameBuffer* GetGameFbo() const;
+    [[nodiscard]] RenderView* GetSceneRenderView() const;
+    [[nodiscard]] RenderView* GetGameRenderView() const;
     void SetSelectedPath(const path& path);
     void SetSelectedScenePath(const path& scene) { m_selectedScenePath = scene; }
     void SetSelectedMaterialPath(const path& material) { m_selectedMaterialPath = material; }
@@ -53,8 +53,8 @@ class EditorSingleton final
     void SetSelectedEntity(Entity* entity);
     void SetIsViewSceneData(bool value) { m_isViewSceneData = value; }
     void SetProjectConfiguration(const ProjectConfiguration& projectConfig) const;
-    void SetViewPortFbo(FrameBuffer* fbo) { m_viewPortFbo = fbo; }
-    void SetGameFbo(FrameBuffer* fbo) { m_gameFbo = fbo; }
+    void SetSceneRenderView(RenderView* renderView);
+    void SetGameRenderView(RenderView* renderView);
    private:
     EditorSingleton(ProjectConfiguration& projectConfig, EditorConfiguration& editorConfig, Scene* pEditorScene);
     static EditorSingleton* m_sEditorSingleton;
@@ -73,8 +73,8 @@ class EditorSingleton final
     ResourceController m_resourceController;
     ScriptController m_scriptController;
     CameraEditorController m_cameraEditorController;
-    FrameBuffer* m_viewPortFbo;
-    FrameBuffer* m_gameFbo;
+    RenderView* m_pSceneRenderView = nullptr;
+    RenderView* m_pGameRenderView = nullptr;
     void SetOutlineComponent(Entity* entity, bool hasComponent);
 };
 

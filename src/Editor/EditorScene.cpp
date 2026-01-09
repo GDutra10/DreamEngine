@@ -54,9 +54,9 @@ void EditorScene::Initialize()
     Scene::Initialize();
     InitializeImGui();
 
-    Application::Instance().GetRenderAPI()->AddBeforeRenderEntitiesCallbacks([this]() { UpdateBackgroundColor(); });
-    Application::Instance().GetRenderAPI()->AddBeforeRenderEntitiesCallbacks([this]() { StartImGuiFrame(); });
-    Application::Instance().GetRenderAPI()->AddAfterRenderEntitiesCallbacks([this](int width, int height) { FinishImGuiFrame(); });
+    Application::Instance().GetRenderAPI()->AddBeforeRenderEntitiesCallbacks([this](RenderView& renderView) { UpdateBackgroundColor(renderView); });
+    Application::Instance().GetRenderAPI()->AddBeforeRenderEntitiesCallbacks([this](RenderView& renderView) { StartImGuiFrame(renderView); });
+    Application::Instance().GetRenderAPI()->AddAfterRenderEntitiesCallbacks([this](RenderView& renderView) { FinishImGuiFrame(renderView); });
     
     EditorSingleton::Instance().SetEntityManager(m_entityManager);
     
@@ -73,9 +73,8 @@ void EditorScene::Initialize()
     auto viewportRenderView = new RenderView();
     viewportRenderView->mask = RenderMask::World | RenderMask::Debug;
     viewportRenderView->frameBuffer = viewportFbo;
-
-    RenderViewProvider::Add(viewportRenderView);
-    EditorSingleton::Instance().SetViewPortFbo(viewportFbo);
+    
+    EditorSingleton::Instance().SetSceneRenderView(viewportRenderView);
 
     // add game viewport
     FrameBuffer* gameViewportFbo = Application::Instance().GetRenderAPI()->CreateFrameBuffer(game->width, game->height);
@@ -83,8 +82,7 @@ void EditorScene::Initialize()
     gameViewportRenderView->mask = RenderMask::World | RenderMask::UI;
     gameViewportRenderView->frameBuffer = gameViewportFbo;
 
-    RenderViewProvider::Add(gameViewportRenderView);
-    EditorSingleton::Instance().SetGameFbo(gameViewportFbo);
+    EditorSingleton::Instance().SetGameRenderView(gameViewportRenderView);
 
     // initialize scripts without running them
     m_mustRunScriptComponents = false;
@@ -115,9 +113,9 @@ bool EditorScene::GetIsFocused() const
 
 Camera& EditorScene::GetCamera()
 {
-    FrameBuffer* viewportFbo = EditorSingleton::Instance().GetViewPortFbo();
+    RenderView* sceneRenderView= EditorSingleton::Instance().GetSceneRenderView();
 
-    if (viewportFbo->GetIsActive())
+    if (sceneRenderView->frameBuffer->GetIsActive())
         return *EditorSingleton::Instance().GetCameraEditorController().GetCamera();
 
     return Scene::GetCamera();
@@ -299,16 +297,22 @@ void EditorScene::DrawTopBar()
     ImGui::PopStyleColor(4);
 }
 
-void EditorScene::StartImGuiFrame()
+void EditorScene::StartImGuiFrame(const RenderView& renderView)
 {
+    if (!renderView.IsDefault())
+        return;
+
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
     ImGuizmo::BeginFrame();
 }
 
-void EditorScene::FinishImGuiFrame()
+void EditorScene::FinishImGuiFrame(const RenderView& renderView)
 {
+    if (!renderView.IsDefault())
+        return;
+
     ImGui::DockSpaceOverViewport();
 
     DrawMenuBar();
@@ -341,8 +345,11 @@ void EditorScene::FinishImGuiFrame()
 }
 
 // update the scene background by scene config data
-void EditorScene::UpdateBackgroundColor() const
+void EditorScene::UpdateBackgroundColor(const RenderView& renderView) const
 {
+    if (!renderView.IsDefault())
+        return;
+
     if (const auto sceneData = EditorSingleton::Instance().sceneData; sceneData != nullptr)
     {
         const auto backgroundColor = this->GetBackgroundColor();
