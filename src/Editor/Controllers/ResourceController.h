@@ -6,10 +6,12 @@
 #include "../Importers/BaseModelImporter.h"
 #include "../../Core/Render/Material.h"
 #include "../../Core/Scripting/ScriptInfo.h"
+#include "UI/UiContent.h"
 
 namespace DreamEngine::Editor::Controllers
 {
 using namespace DreamEngine::Core::Render;
+using namespace DreamEngine::Core::UI;
 using namespace DreamEngine::Core::Scripting;
 using namespace DreamEngine::Editor::Models;
 using namespace DreamEngine::Editor::Importers;
@@ -27,9 +29,11 @@ class ResourceController
     static Material* LoadMaterial(const std::string pathAndFilename);
     static Texture* LoadTexture(const std::string pathAndFilename);
     static Model& LoadModel(const std::string pathAndFilename);
+    static UiContent* LoadUiContent(const std::string pathAndFilename);
     static void LoadMaterials(const std::vector<std::string>& materialFiles);
     static void LoadTextures(const std::vector<std::string>& textureFiles);
     static void LoadModels(const std::vector<std::string>& modelFiles);
+    static void LoadUiContents(const std::vector<std::string>& uiFiles);
     static void AddScripts(const std::vector<ScriptInfo>& scriptInfos);
     static void UnloadAllResources();
    private:
@@ -38,6 +42,7 @@ class ResourceController
     static Result TryAddToResourceManager(Material* material, const bool mustGenerateResourceId);
     static Result TryAddToResourceManager(Texture* texture, const bool mustGenerateResourceId);
     static Result TryAddToResourceManager(Mesh* mesh, const bool mustGenerateResourceId);
+    static Result TryAddToResourceManager(UiContent* mesh, const bool mustGenerateResourceId);
 };
 
 }  // namespace DreamEngine::Editor::Controllers

@@ -49,7 +49,7 @@ add_subdirectory(src/Core)
 add_subdirectory(src/Profiling)
 add_subdirectory(src/Editor)
 add_subdirectory(src/Games/NativeGame)
-add_subdirectory(src/Vendors/glfw)
+#add_subdirectory(src/Vendors/glfw)
 
 # ---- C#/.NET Core integration ----
 add_subdirectory(src/CSharpCore) # This should contain a custom CMakeLists.txt to build your .csproj
@@ -61,17 +61,42 @@ add_library(glm INTERFACE)
 target_include_directories(glm INTERFACE "${GLM_DIR}")
 add_library(glm::glm ALIAS glm)
 
+set(GLFW_DIR "src/Vendors/glfw")
+add_subdirectory(${GLFW_DIR})
+
 set(ASSIMP_DIR "src/Vendors/assimp")
 add_subdirectory(${ASSIMP_DIR})
 
 set(JSON_DIR "src/Vendors/json")
 add_subdirectory(${JSON_DIR})
 
-#set(RMLUI_DIR "src/Vendors/RmlUi")
-##add_subdirectory(${RMLUI_DIR})
-#add_library(rmlui INTERFACE)
-#target_include_directories(rmlui INTERFACE "${RMLUI_DIR}")
-#add_library(rmlui ALIAS rmlui)
+# --- RmlUi options (set BEFORE add_subdirectory) ---
+set(RMLUI_SAMPLES OFF CACHE BOOL "" FORCE)
+
+# We compile the backend .cpp files ourselves inside Core.
+set(RMLUI_BACKEND "GLFW_GL3" CACHE STRING "" FORCE)
+
+# If you want to build their Backends/ helper target(s), set a backend.
+# (Optional if you roll your own RenderInterface)
+set(RMLUI_BACKEND GLFW_GL3 CACHE STRING "" FORCE)
+
+# Build FreeType static to avoid runtime DLL dependency
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(FT_DISABLE_ZLIB ON CACHE BOOL "" FORCE)
+set(FT_DISABLE_PNG ON CACHE BOOL "" FORCE)
+set(FT_DISABLE_BZIP2 ON CACHE BOOL "" FORCE)
+
+add_subdirectory(src/Vendors/freetype)
+add_library(Freetype::Freetype ALIAS freetype)
+
+# Provide OpenGL::GL if your project doesn't use find_package(OpenGL)
+# (This is a known gotcha in some setups.) :contentReference[oaicite:1]{index=1}
+#add_library(opengl_gl INTERFACE)
+#add_library(OpenGL::GL ALIAS opengl_gl)
+
+# --- RmlUi itself ---
+set(RMLUI_DIR "src/Vendors/RmlUi")
+add_subdirectory(${RMLUI_DIR})
 
 # ---- GoogleTest via FetchContent ----
 #include(FetchContent)

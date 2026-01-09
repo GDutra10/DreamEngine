@@ -38,6 +38,7 @@ add_library (Core SHARED
 	"ECS/Components/ParentComponent.h"
 	"ECS/Components/CameraComponent.h"
 	"ECS/Components/OutlineComponent.h"
+	"ECS/Components/UiComponent.h"
 	
 	"GameSystem/Camera.h" 
 	"GameSystem/Game.h"
@@ -96,13 +97,17 @@ add_library (Core SHARED
 	"Render/OpenGL/OpenGLRenderAPI.cpp"
 	"Render/Factories/MeshFactory.h" 
 	"Render/Factories/MeshFactory.cpp" 
-	"Render/Helpers/RenderTypeHelper.h"  
+	"Render/Helpers/RenderTypeHelper.h"
+	"Render/RenderView.h" 
+	"Render/RenderPipeline.h"
+	"Render/RenderPipeline.cpp"
+	"Render/RenderViewProvider.h"
+	"Render/RenderViewProvider.cpp"
 
 	"Resources/Resource.h"
 	"Resources/ResourceManager.h"
 	"Resources/ResourceManager.cpp"
-	"Resources/GlobalResourceManager.h" 
-	"Resources/GlobalResourceManager.cpp" 
+	"Resources/Font.h"
 	
 	"Scripting/coreclrhost.h"
 	"Scripting/NativeScript.h"
@@ -112,6 +117,9 @@ add_library (Core SHARED
 	"Scripting/Script.h" 
 	"Scripting/Script.cpp" 
 	"Scripting/ScriptInfo.h"
+	"Scripting/ScriptEventHandler.h"
+	"Scripting/ScriptEventHandler.cpp"
+	
 	
 	"Sync/EntitySynchronizer.h" 
 	"Sync/EntityData.h" 
@@ -123,9 +131,19 @@ add_library (Core SHARED
 	"Sync/GameSynchronizer.h"
 	"Sync/GameSynchronizer.cpp"
 
-	"Vendors/glad.h"
-	"Vendors/glfw3.h"
-    )
+	"UI/UiContent.h"
+	"UI/UiManager.h"
+	"UI/UiManager.cpp"
+	"UI/IUiHandler.h"
+	"UI/RmlUI/RmlHandler.h" 
+	"UI/RmlUI/RmlHandler.cpp"   
+	"UI/RmlUI/CustomRenderInterface_GL3.h" 
+	"UI/RmlUI/CustomRenderInterface_GL3.cpp"
+	"UI/RmlUI/RmlClickBind.h"
+	"UI/RmlUI/RmlUiInstance.h"
+	"UI/UiInstance.h"
+	"UI/RmlUI/RmlClickListener.h"
+)
 
 	
 set_target_properties(Core PROPERTIES
@@ -133,18 +151,54 @@ set_target_properties(Core PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
 
+# rmlui backend configuration
+set(RMLUI_DIR ${CMAKE_SOURCE_DIR}/src/Vendors/RmlUi)
+set(RMLUI_BACKENDS_DIR ${RMLUI_DIR}/Backends)
+
+target_sources(Core PRIVATE
+  ${RMLUI_BACKENDS_DIR}/RmlUi_Platform_GLFW.cpp
+  ${RMLUI_BACKENDS_DIR}/RmlUi_Renderer_GL3.cpp
+)
+
+target_include_directories(Core PUBLIC 
+	${RMLUI_DIR}/Include
+    ${RMLUI_BACKENDS_DIR}
+)
+
+target_compile_definitions(Core PRIVATE 
+    RMLUI_GL3_CUSTOM_LOADER="glad/glad.h"
+)
+
 # add link libraries
 target_link_libraries(Core 
-	PUBLIC glm::glm
-	PRIVATE glfw glad)
+	PUBLIC 
+		glm::glm
+	PRIVATE 
+		glfw 
+		glad
+		RmlUi::Core)
 
 # Include GLFW headers
-target_include_directories(Core PUBLIC ${CMAKE_SOURCE_DIR}/src/Vendors/glfw/include)
+#target_include_directories(Core PUBLIC ${CMAKE_SOURCE_DIR}/src/Vendors/glfw/include)
 #target_include_directories(Core PUBLIC ${GLM_DIR})
 target_include_directories(Core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Define the export macro
 target_compile_definitions(Core PRIVATE CORE_EXPORTS)
+
+# Enable Edit and Continue for MSVC in Debug mode
+if(MSVC)
+    target_compile_options(Core PRIVATE
+        $<$<CONFIG:Debug>:/ZI>           # Edit and Continue debug info
+        $<$<CONFIG:Debug>:/Od>           # Disable optimizations
+        $<$<CONFIG:Debug>:/RTC1>         # Runtime checks
+    )
+    # Also need to set linker flags for Edit and Continue
+    target_link_options(Core PRIVATE
+        $<$<CONFIG:Debug>:/INCREMENTAL>  # Incremental linking
+        $<$<CONFIG:Debug>:/SAFESEH:NO>   # Disable Safe Exception Handlers (required for /ZI)
+    )
+endif()
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET Core PROPERTY CXX_STANDARD 20)

@@ -9,7 +9,8 @@
 #include "../../Singletons/EditorSingleton.h"
 #include "../../Vendors/imgui/imgui.h"
 #include "ECS/Components/MaterialComponent.h"
-#include "Resources/GlobalResourceManager.h"
+#include "ECS/Components/UiComponent.h"
+#include "Resources/ResourceManager.h"
 
 using namespace std;
 using namespace std::filesystem;
@@ -92,11 +93,11 @@ void FileExplorerWindow::DrawContent()
 
                     MeshComponent& meshComponent = meshEntity->GetComponent<MeshComponent>();
                     meshComponent.has = true;
-                    meshComponent.mesh = GlobalResourceManager::Instance().GetMesh(mesh->resourceId);
+                    meshComponent.mesh = ResourceManager::Instance().GetMesh(mesh->resourceId);
 
                     MaterialComponent& materialComponent = meshEntity->GetComponent<MaterialComponent>();
                     materialComponent.has = true;
-                    materialComponent.material = GlobalResourceManager::Instance().GetMaterial(DEFAULT_MATERIAL_NAME);    
+                    materialComponent.material = ResourceManager::Instance().GetMaterial(DEFAULT_MATERIAL_NAME);    
 
                     // delete this mesh because it will be used from the resource manager
                     //delete mesh;
@@ -105,7 +106,42 @@ void FileExplorerWindow::DrawContent()
                 m_sRightClickFile.clear();
                 ImGui::CloseCurrentPopup();
             }
-            
+        }
+
+        if (m_sRightClickFile.extension() == EDITOR_DEFAULT_UI_FILE_EXTENSION)
+        {
+            if (ImGui::MenuItem("Reload"))
+            {
+                const UiContent* content = ResourceController::LoadUiContent(m_sRightClickFile.string());
+                const std::string resourceId = FileHelper::GetRelativePathByProject(m_sRightClickFile).string();
+                const map<string, UiContent*>& contents = ResourceManager::Instance().GetUiContents();
+
+                if (const auto it = contents.find(resourceId); it != contents.end() && it->second != nullptr)
+                {
+                    it->second->text = content->text;
+
+                    for (Entity* entity : EditorSingleton::Instance().GetEntityManager()->GetEntities())
+                    {
+                        if (entity->HasComponent<UiComponent>())
+                        {
+                            UiComponent& uiComponent = entity->GetComponent<UiComponent>();
+
+                            if (uiComponent.content->resourceId != resourceId)
+                                continue;
+                            
+                            if (uiComponent.instance == nullptr)
+                                continue;
+
+                            UiManager::Destroy(uiComponent.instance);
+                            uiComponent.instance = nullptr;
+                        }
+                    }
+                }
+
+                m_sRightClickFile.clear();
+                ImGui::CloseCurrentPopup();
+                delete content;
+            }
         }
 
         ImGui::EndPopup();

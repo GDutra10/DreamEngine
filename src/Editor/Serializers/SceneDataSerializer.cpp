@@ -151,6 +151,13 @@ SceneData& SceneDataSerializer::Deserialize(std::ifstream& stream)
                 jsonComponent["camera"]["near"].get_to(e.components.camera.near);
                 jsonComponent["camera"]["far"].get_to(e.components.camera.far);
             }
+
+            if (jsonComponent.find("ui") != jsonComponent.end())
+            {
+                e.components.ui.has = true;
+                jsonComponent["ui"]["zOrder"].get_to(e.components.ui.zOrder);
+                jsonComponent["ui"]["resourceId"].get_to(e.components.ui.resourceId);
+            }
         }
 
         sceneData->entities.push_back(std::move(e));
@@ -207,6 +214,13 @@ json SceneDataSerializer::Serialize(EntityConfigData& entityConfig)
         jsonEntity["components"]["camera"]["fovDegree"] = entityConfig.components.camera.fovDegree;
         jsonEntity["components"]["camera"]["near"] = entityConfig.components.camera.near;
         jsonEntity["components"]["camera"]["far"] = entityConfig.components.camera.far;
+    }
+
+    // ui
+    if (entityConfig.components.ui.has)
+    {
+        jsonEntity["components"]["ui"]["zOrder"] = entityConfig.components.ui.zOrder;
+        jsonEntity["components"]["ui"]["resourceId"] = entityConfig.components.ui.resourceId;
     }
 
     // children

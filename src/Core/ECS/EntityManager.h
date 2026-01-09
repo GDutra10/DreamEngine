@@ -16,6 +16,7 @@ class CORE_API EntityManager
 
     Entity* AddEntity(const std::string& tag);
     Entity* AddEntity(const std::string& tag, Entity* parent);
+    Entity* GetEntityById(size_t id);
     void RemoveEntity(Entity* entity);
     const std::vector<Entity*>& GetEntities();
     const std::vector<Entity*>& GetEntities(const std::string& tag);

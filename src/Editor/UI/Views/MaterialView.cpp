@@ -1,6 +1,6 @@
 #include "MaterialView.h"
 
-#include "../../../Core/Resources/GlobalResourceManager.h"
+#include "../../../Core/Resources/ResourceManager.h"
 #include "../../Helpers/ImGuiHelper.h"
 #include "../../Singletons/EditorSingleton.h"
 #include "../../Vendors/imgui/imgui.h"
@@ -17,7 +17,7 @@ void MaterialView::Draw(Material& material, const function<void(Material*)>& cal
 
         if (ImGui::BeginCombo("##material.view.combo", material.name.c_str()))
         {
-            for (auto& [_, mat] : GlobalResourceManager::Instance().GetMaterials())
+            for (auto& [_, mat] : ResourceManager::Instance().GetMaterials())
             {
                 const bool isSelected = material.name == mat->name;
 

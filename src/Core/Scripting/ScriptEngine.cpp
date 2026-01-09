@@ -31,6 +31,7 @@ releaseInstanceDelegate ScriptEngine::m_spReleaseInstanceDelegate = nullptr;
 getScriptInfoDelegate ScriptEngine::m_spGetScriptInfoDelegate = nullptr;
 releaseScriptInfoDelegate ScriptEngine::m_spReleaseScriptInfoDelegate = nullptr;
 updateGameDelegate ScriptEngine::m_spUpdateGameDelegate = nullptr;
+processEventDelegate ScriptEngine::m_spProcessEventDelegate = nullptr;
 // assembly delegate
 assemblyInitializeDelegate ScriptEngine::m_spAssemblyInitializeDelegate = nullptr;
 assembliesUnloadDelegate ScriptEngine::m_spAssembliesUnloadDelegate = nullptr;
@@ -167,6 +168,11 @@ void ScriptEngine::Update(void* instance, void* entityData)
 void ScriptEngine::UpdateGame(void* gameData)
 {
     m_spUpdateGameDelegate(gameData);
+}
+
+void ScriptEngine::ProcessEvent(const int eventId)
+{
+    m_spProcessEventDelegate(eventId);
 }
 
 std::vector<ScriptInfo> ScriptEngine::GetClassInfoList()
@@ -449,13 +455,28 @@ bool ScriptEngine::CreateCoreCLRDelegates()
 		return false;
 	}
 
+    const int processEventStatus = m_spCoreClrCreateDelegate(m_spHostHandle,                         // CoreCLR host handle
+         m_sDomainId,                            // AppDomain ID
+         SCRIPT_ENGINE_ASSEMBLY_NAME,            // Assembly name
+         SCRIPT_ENGINE_SCRIPT_MANAGER_NAME,      // Type name (including namespace)
+         "ProcessEvent",                         // Method name
+         (void**)&m_spProcessEventDelegate       // Delegate to store the function pointer
+    );
+
+    if (processEventStatus != 0)
+    {
+        LoggerSingleton::Instance().LogError("Failed to bind ProcessEvent delegate.");
+        return false;
+    }
+
     return createInstanceDelegateStatus == 0 &&
         releaseInstanceDelegateStatus == 0 &&
         updateDelegateStatus == 0 &&
         getScriptInfoStatus == 0 &&
         assemblyInitStatus == 0 &&
         assemblyUnloadStatus == 0 && 
-        releaseScriptInfoStatus == 0;
+        releaseScriptInfoStatus == 0 && 
+        processEventStatus == 0;
 }
 
 // Helper functions to load CoreCLR

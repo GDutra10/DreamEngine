@@ -7,20 +7,23 @@
 #include "Application.h"
 #include "../../Core/EngineDefine.h"
 #include "../../Core/Loggers/LoggerSingleton.h"
-#include "../../Core/Resources/GlobalResourceManager.h"
+#include "../../Core/Resources/ResourceManager.h"
 #include "../Singletons/EditorSingleton.h"
 #include "../Serializers/MaterialSerializer.h"
 #include "../Serializers/ModelSerializer.h"
 #include "../Serializers/TextureSerializer.h"
+#include "../Serializers/UiContentSerializer.h"
 #include "../EditorDefine.h"
 #include "../Importers/AssimpModelImporter.h"
 #include "../Serializers/SceneDataSerializer.h"
+#include "../Helpers/FileHelper.h"
 
 using namespace DreamEngine::Core::Loggers;
 using namespace DreamEngine::Core::ECS::Components;
 using namespace DreamEngine::Editor::Controllers;
 using namespace DreamEngine::Editor::Singletons;
 using namespace DreamEngine::Editor::Serializers;
+using namespace DreamEngine::Editor::Helpers;
 
 BaseModelImporter* ResourceController::m_modelImporter = new AssimpModelImporter();
 
@@ -49,7 +52,7 @@ Result ResourceController::CreateMaterialFile(const std::string& filename)
     try
     {
         // Add the material to the resource manager
-        newMaterial = new Material(*GlobalResourceManager::Instance().GetMaterial(DEFAULT_MATERIAL_NAME));
+        newMaterial = new Material(*ResourceManager::Instance().GetMaterial(DEFAULT_MATERIAL_NAME));
         newMaterial->name = filename;
         result = TryAddToResourceManager(newMaterial, true);
 
@@ -107,11 +110,11 @@ Result ResourceController::CreateMeshFileFromModelFile(const std::string& filena
     Model& model = m_modelImporter->Import(filename);
 
     for (Texture* texture : model.textures)
-        GlobalResourceManager::Instance().AddTexture(texture);
+        ResourceManager::Instance().AddTexture(texture);
 
     // add mesh to the global resource manager
     for (Mesh* mesh : model.meshes)
-        GlobalResourceManager::Instance().AddMesh(mesh);
+        ResourceManager::Instance().AddMesh(mesh);
 
     std::string pathAndFileName = filename;
 
@@ -253,7 +256,7 @@ void ResourceController::DeleteMaterialFile(const std::string& pathAndFilename)
 
         if (material != nullptr)
         {
-            Material* materialFromManager = GlobalResourceManager::Instance().GetMaterial(material->resourceId);
+            Material* materialFromManager = ResourceManager::Instance().GetMaterial(material->resourceId);
 
             delete material;
 
@@ -284,7 +287,7 @@ void ResourceController::DeleteMaterialFromResourceManager(const Material* mater
 
     std::string materialResourceId = material->resourceId;
 
-    GlobalResourceManager::Instance().RemoveMaterial(material);
+    ResourceManager::Instance().RemoveMaterial(material);
 
     LoggerSingleton::Instance().LogDebug("Removed material '" + materialResourceId + "' from Resource manager");
 }
@@ -314,6 +317,15 @@ Model& ResourceController::LoadModel(const std::string pathAndFilename)
     std::ifstream stream(pathAndFilename);
 
     return ModelSerializer::Deserialize(stream);
+}
+
+UiContent* ResourceController::LoadUiContent(const std::string pathAndFilename)
+{
+    LoggerSingleton::Instance().LogTrace("ResourceController::LoadUiContent -> Loading ui '" + pathAndFilename + "'");
+
+    std::ifstream stream(pathAndFilename);
+
+    return UiContentSerializer::Deserialize(stream);
 }
 
 void ResourceController::LoadMaterials(const std::vector<std::string>& materialFiles)
@@ -367,7 +379,7 @@ void ResourceController::LoadModels(const std::vector<std::string>& modelFiles)
 
             for (Texture* texture : mesh->textures)
             {
-                Texture* textureFromResourceManager = GlobalResourceManager::Instance().GetTexture(texture->resourceId);
+                Texture* textureFromResourceManager = ResourceManager::Instance().GetTexture(texture->resourceId);
 
                 if (textureFromResourceManager == nullptr)
                 {
@@ -391,11 +403,27 @@ void ResourceController::LoadModels(const std::vector<std::string>& modelFiles)
     }
 }
 
+void ResourceController::LoadUiContents(const std::vector<std::string>& uiFiles)
+{
+    LoggerSingleton::Instance().LogTrace("ResourceController::LoadUiContents -> Start");
+
+    for (const std::string& uiFile : uiFiles)
+    {
+        UiContent* uiContent = LoadUiContent(uiFile);
+        
+        const path p = path(uiFile);
+        uiContent->name = p.filename().string();
+        uiContent->resourceId = FileHelper::GetRelativePathByProject(uiFile).string();  
+
+        TryAddToResourceManager(uiContent, false);
+    }
+}
+
 void ResourceController::AddScripts(const std::vector<ScriptInfo>& scriptInfos)
 {
     LoggerSingleton::Instance().LogTrace("ResourceController::AddScripts -> Start");
 
-    const std::map<std::string, Script*>& scripts = GlobalResourceManager::Instance().GetScripts();
+    const std::map<std::string, Script*>& scripts = ResourceManager::Instance().GetScripts();
 
     LoggerSingleton::Instance().LogTrace("ResourceController::AddScripts -> Adding new Scripts");
 
@@ -418,7 +446,7 @@ void ResourceController::AddScripts(const std::vector<ScriptInfo>& scriptInfos)
 
             Script* newScript = new Script(scriptInfo.Name, scriptInfo.AssemblyName);
             newScript->name = nameStr;
-            GlobalResourceManager::Instance().AddScript(newScript);
+            ResourceManager::Instance().AddScript(newScript);
         }
     }
 
@@ -445,14 +473,14 @@ void ResourceController::AddScripts(const std::vector<ScriptInfo>& scriptInfos)
     }
 
     for (const Script* script : scriptToRemove)
-        GlobalResourceManager::Instance().RemoveScript(script);
+        ResourceManager::Instance().RemoveScript(script);
 
     LoggerSingleton::Instance().LogTrace("ResourceController::AddScripts -> Finish");
 }
 
 void ResourceController::UnloadAllResources()
 {
-    GlobalResourceManager::Instance().Clear();
+    ResourceManager::Instance().Clear();
 }
 
 Result ResourceController::TryAddToResourceManager(Material* material, const bool mustGenerateResourceId)
@@ -465,16 +493,16 @@ Result ResourceController::TryAddToResourceManager(Material* material, const boo
         return {"Material is null", false};
     }
 
-    if (!mustGenerateResourceId && GlobalResourceManager::Instance().GetMaterial(material->resourceId) != nullptr)
+    if (!mustGenerateResourceId && ResourceManager::Instance().GetMaterial(material->resourceId) != nullptr)
     {
         LoggerSingleton::Instance().LogWarning("ResourceController::TryAddToResourceManager -> Material already exists in the resource manager");
         return {"Material already exists in the resource manager", false};
     }
 
     if (mustGenerateResourceId)
-        GlobalResourceManager::Instance().AddMaterial(material);
+        ResourceManager::Instance().AddMaterial(material);
     else
-        GlobalResourceManager::Instance().AddMaterial(material->resourceId, material);
+        ResourceManager::Instance().AddMaterial(material->resourceId, material);
 
     LoggerSingleton::Instance().LogDebug("Material '" + material->name + "' (" + material->resourceId + ") added to the resource manager");
 
@@ -491,16 +519,16 @@ Result ResourceController::TryAddToResourceManager(Texture* texture, const bool 
         return {"Texture is null", false};
     }
 
-    if (!mustGenerateResourceId && GlobalResourceManager::Instance().GetTexture(texture->resourceId) != nullptr)
+    if (!mustGenerateResourceId && ResourceManager::Instance().GetTexture(texture->resourceId) != nullptr)
     {
         LoggerSingleton::Instance().LogWarning("ResourceController::TryAddToResourceManager -> Texture already exists in the resource manager");
         return {"Texture already exists in the resource manager", false};
     }
 
     if (mustGenerateResourceId)
-        GlobalResourceManager::Instance().AddTexture(texture);
+        ResourceManager::Instance().AddTexture(texture);
     else
-        GlobalResourceManager::Instance().AddTexture(texture->resourceId, texture);
+        ResourceManager::Instance().AddTexture(texture->resourceId, texture);
 
     LoggerSingleton::Instance().LogDebug("Texture '" + texture->name + "' (" + texture->resourceId + ") added to the resource manager");
 
@@ -517,18 +545,44 @@ Result ResourceController::TryAddToResourceManager(Mesh* mesh, const bool mustGe
         return {"Mesh is null", false};
     }
 
-    if (!mustGenerateResourceId && GlobalResourceManager::Instance().GetMesh(mesh->resourceId) != nullptr)
+    if (!mustGenerateResourceId && ResourceManager::Instance().GetMesh(mesh->resourceId) != nullptr)
     {
         LoggerSingleton::Instance().LogWarning("ResourceController::TryAddToResourceManager -> Mesh already exists in the resource manager");
         return {"Mesh already exists in the resource manager", false};
     }
 
     if (mustGenerateResourceId)
-        GlobalResourceManager::Instance().AddMesh(mesh);
+        ResourceManager::Instance().AddMesh(mesh);
     else
-        GlobalResourceManager::Instance().AddMesh(mesh->resourceId, mesh);
+        ResourceManager::Instance().AddMesh(mesh->resourceId, mesh);
 
     LoggerSingleton::Instance().LogDebug("Mesh '" + mesh->name + "' (" + mesh->resourceId + ") added to the resource manager");
+
+    return {"", true};
+}
+
+Result ResourceController::TryAddToResourceManager(UiContent* uiContent, const bool mustGenerateResourceId)
+{
+    LoggerSingleton::Instance().LogTrace("ResourceController::TryAddToResourceManager -> Start");
+
+    if (uiContent == nullptr)
+    {
+        LoggerSingleton::Instance().LogError("ResourceController::TryAddToResourceManager -> Mesh is null");
+        return {"UIContent is null", false};
+    }
+
+    if (!mustGenerateResourceId && ResourceManager::Instance().GetMesh(uiContent->resourceId) != nullptr)
+    {
+        LoggerSingleton::Instance().LogWarning("ResourceController::TryAddToResourceManager -> UIContent already exists in the resource manager");
+        return {"UIContent already exists in the resource manager", false};
+    }
+
+    if (mustGenerateResourceId)
+        ResourceManager::Instance().AddUiContent(uiContent);
+    else
+        ResourceManager::Instance().AddUiContent(uiContent->resourceId, uiContent);
+
+    LoggerSingleton::Instance().LogDebug("UIContent '" + uiContent->name + "' (" + uiContent->resourceId + ") added to the resource manager");
 
     return {"", true};
 }

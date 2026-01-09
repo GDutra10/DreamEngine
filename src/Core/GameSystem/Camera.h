@@ -44,6 +44,11 @@ struct CORE_API Camera
         m_projectionMatrix = glm::perspective(radFov, width / height, nearP, farP);
     }
 
+    void SetPerspective(const float fovRad, const float aspect, const float nearP, const float farP)
+    {
+        m_projectionMatrix = glm::perspective(fovRad, aspect, nearP, farP);
+    }
+
    private:
     glm::mat4 m_projectionMatrix = glm::mat4(1.0f);
 };

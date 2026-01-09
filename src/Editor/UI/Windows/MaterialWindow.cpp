@@ -4,7 +4,7 @@
 #include "../../Helpers/ImGuiHelper.h"
 #include "../../Singletons/EditorSingleton.h"
 #include "../../Vendors/imgui/imgui.h"
-#include "../../../Core/Resources/GlobalResourceManager.h"
+#include "../../../Core/Resources/ResourceManager.h"
 
 using namespace DreamEngine::Editor::UI::Windows;
 using namespace DreamEngine::Editor::UI::Views;
@@ -29,7 +29,7 @@ void MaterialWindow::DrawContent()
 
             if (m_originalMaterial != nullptr)
             {
-                m_pMaterial = GlobalResourceManager::Instance().GetMaterial(m_originalMaterial->resourceId);
+                m_pMaterial = ResourceManager::Instance().GetMaterial(m_originalMaterial->resourceId);
             }
         }
     }

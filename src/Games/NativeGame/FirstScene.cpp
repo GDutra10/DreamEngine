@@ -1,7 +1,7 @@
 #include "FirstScene.h"
 #include <Loggers/LoggerSingleton.h>
 #include <IO/File.h>
-#include <Resources/GlobalResourceManager.h>
+#include <Resources/ResourceManager.h>
 #include <Application.h>
 #include <Render/Factories/MeshFactory.h>
 #include <Render/Shape.h>
@@ -9,8 +9,17 @@
 #include <ECS/Components/MaterialComponent.h>
 #include <ECS/Components/NativeScriptComponent.h>
 
+#include "ECS/Components/CameraComponent.h"
+#include "ECS/Components/UiComponent.h"
 #include "Vendors/stb_image.h"
 #include "Scripts/BoxScript.h"
+#include "Scripts/CameraScript.h"
+#include "Scripts/HudScript.h"
+
+#include <fstream>
+#include <vector>
+#include <filesystem>
+#include <iostream>
 
 using namespace DreamEngine::Core;
 using namespace DreamEngine::Core::IO;
@@ -35,12 +44,23 @@ void FirstScene::Initialize()
     this->m_globalLight->directionalLight.influence = 0.5f;
     this->m_globalLight->directionalLight.specular = {255, 100, 100};
 
+    LoadResources();
+    CreateEntities();
+}
+
+void FirstScene::Unload() 
+{
+    Scene::Unload();
+}
+
+void FirstScene::LoadResources()
+{
     // default shader
     const std::string vertexShader = File::ReadAllText("Assets/Shaders/default.vert.glsl");
     const std::string fragmentShader = File::ReadAllText("Assets/Shaders/default.frag.glsl");
     Shader* shader = Application::Instance().GetRenderAPI()->CreateShader("defaultshader", vertexShader, fragmentShader);
     shader->name = "defaultshader";
-    GlobalResourceManager::Instance().AddShader(shader->name, shader);
+    ResourceManager::Instance().AddShader(shader->name, shader);
 
     // default material
     Material* material = new Material();
@@ -50,7 +70,7 @@ void FirstScene::Initialize()
     material->ambient = {0.2f, 0.2f, 0.2f};
     material->diffuse = {0.8f, 0.8f, 0.8f};
     material->shininess = 32.0f;
-    GlobalResourceManager::Instance().AddMaterial("defaultmaterial", material);
+    ResourceManager::Instance().AddMaterial("defaultmaterial", material);
 
     // default texture
     int width, height, nrChannels;
@@ -62,33 +82,70 @@ void FirstScene::Initialize()
     if (texture != nullptr)
     {
         texture->type = Diffuse;
-        GlobalResourceManager::Instance().AddTexture("defaulttexture", texture);
+        ResourceManager::Instance().AddTexture("defaulttexture", texture);
     }
 
     Mesh* cubeMesh = DreamEngine::Core::Render::Factories::MeshFactory::CreateMesh(DreamEngine::Core::Render::Shape::Cube);
     cubeMesh->name = "cubemesh";
-    GlobalResourceManager::Instance().AddMesh("cubemesh", cubeMesh);
+    ResourceManager::Instance().AddMesh("cubemesh", cubeMesh);
 
-    // add entities
-    Entity* entity = this->m_entityManager->AddEntity("player");
+    // ui content
+    UiContent* hudUiContent = new UiContent();
+    hudUiContent->name = "hud";
+    hudUiContent->text = File::ReadAllText("Assets/UI/hud.rml");
+    ResourceManager::Instance().AddUiContent("hud_ui_content", hudUiContent);
+
+    // font
+    // load font
+    const std::string filePath = "Assets/Fonts/Roboto-Regular.ttf";
+    std::ifstream inputFile(filePath, std::ios_base::binary);
+    auto fileSize = std::filesystem::file_size(filePath);
+    std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(inputFile), {});
+
+    Font* defaultFont = new Font(buffer);
+    defaultFont->path = filePath;
+    ResourceManager::Instance().AddFont("default_font", defaultFont);
+    UiManager::AddFont(defaultFont);
+}
+
+void FirstScene::CreateEntities()
+{
+    // add box
+    Entity* entity = this->m_entityManager->AddEntity("box");
     TransformComponent& transformComponent = entity->GetComponent<TransformComponent>();
     transformComponent.has = true;
-    transformComponent.SetPosition({-1.0f, -2.0f, -10.0f});
+    transformComponent.SetPosition({0.0f, 0, -10.0f});
 
     MeshComponent& meshComponent = entity->GetComponent<MeshComponent>();
     meshComponent.has = true;
-    meshComponent.mesh = cubeMesh;
-    
+    meshComponent.mesh = ResourceManager::Instance().GetMesh("cubemesh");
+
     MaterialComponent& materialComponent = entity->GetComponent<MaterialComponent>();
     materialComponent.has = true;
-    materialComponent.material = material;
+    materialComponent.material = ResourceManager::Instance().GetMaterial("defaultmaterial");
 
     NativeScriptComponent& nativeScriptComponent = entity->GetComponent<NativeScriptComponent>();
     nativeScriptComponent.has = true;
     nativeScriptComponent.script = new BoxScript();
-}
 
-void FirstScene::Unload() 
-{
-    Scene::Unload();
+    // add camera
+    Entity* cameraEntity = this->m_entityManager->AddEntity("main_camera");
+    CameraComponent& cameraComponent = cameraEntity->GetComponent<CameraComponent>();
+    cameraComponent.has = true;
+
+    NativeScriptComponent& cameraScriptComponent = cameraEntity->GetComponent<NativeScriptComponent>();
+    cameraScriptComponent.has = true;
+    cameraScriptComponent.script = new CameraScript();
+
+    this->SetMainCameraEntity(cameraEntity);
+
+    // add ui
+    Entity* uiEntity = this->m_entityManager->AddEntity("ui_canvas");
+    UiComponent& uiComponent = uiEntity->GetComponent<UiComponent>();
+    uiComponent.has = true;
+    uiComponent.content = ResourceManager::Instance().GetUiContent("hud_ui_content");
+
+    NativeScriptComponent& uiScriptComponent = uiEntity->GetComponent<NativeScriptComponent>();
+    uiScriptComponent.has = true;
+    uiScriptComponent.script = new HudScript();
 }

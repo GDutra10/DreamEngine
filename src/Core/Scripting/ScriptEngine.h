@@ -33,6 +33,7 @@ typedef void (*updateDelegate)(void*, void*);
 typedef void* (*getScriptInfoDelegate)(int*);
 typedef void (*releaseScriptInfoDelegate)(void*, int*);
 typedef void (*updateGameDelegate)(void*);
+typedef void (*processEventDelegate)(int);
 
 // assembly manager
 typedef void (*assemblyInitializeDelegate)(const char*);
@@ -53,6 +54,7 @@ class CORE_API ScriptEngine
     static void ReleaseInstance(void* instance);
     static void Update(void* instance, void* entityData);
     static void UpdateGame(void* gameData);
+    static void ProcessEvent(int eventId);
     std::vector<ScriptInfo> GetClassInfoList();
 
    private:
@@ -73,6 +75,7 @@ class CORE_API ScriptEngine
     static getScriptInfoDelegate m_spGetScriptInfoDelegate;
     static releaseScriptInfoDelegate m_spReleaseScriptInfoDelegate;
     static updateGameDelegate m_spUpdateGameDelegate;
+    static processEventDelegate m_spProcessEventDelegate;
     // assembly delegate
     static assemblyInitializeDelegate m_spAssemblyInitializeDelegate;
     static assembliesUnloadDelegate m_spAssembliesUnloadDelegate;

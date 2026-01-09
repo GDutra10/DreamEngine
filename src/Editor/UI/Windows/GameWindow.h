@@ -14,6 +14,7 @@ class GameWindow : public BaseWindow
 
    protected:
     void DrawContent() override;
+    void ForwardToUi(int x, int y);
 };
 
 }  // namespace DreamEngine::Editor::UI::Windows

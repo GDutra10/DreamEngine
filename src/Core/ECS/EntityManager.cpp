@@ -2,6 +2,7 @@
 
 #include "EntityMemoryPool.h"
 #include "../Loggers/LoggerSingleton.h"
+#include "UI/UiManager.h"
 
 using namespace DreamEngine::Core::ECS;
 
@@ -79,6 +80,24 @@ Entity* EntityManager::AddEntity(const std::string& tag, Entity* parent)
 	return entity;
 }
 
+Entity* EntityManager::GetEntityById(size_t id)
+{
+    auto it = std::find_if(
+        m_entities.begin(), 
+        m_entities.end(), 
+        [id](const Entity* e)
+        {
+            return e->GetId() == id;
+        });
+
+    if (it != m_entities.end())
+    {
+        return *it;
+    }
+
+    return nullptr;
+}
+
 void EntityManager::RemoveEntity(Entity* entity)
 {
     Loggers::LoggerSingleton::Instance().LogTrace("EntityManager::RemoveEntity -> Removing entity with id: " + std::to_string(entity->GetId()));
@@ -128,7 +147,20 @@ const std::map<std::string, std::vector<Entity*>>& EntityManager::GetEntityMap()
 void EntityManager::Reset()
 {
     for (Entity* entity : m_entities)
+    {
+        // reset components
+        UiComponent& uiComponent = entity->GetComponent<UiComponent>();
+
+        if (uiComponent.instance != nullptr)
+        {
+            UiManager::Destroy(uiComponent.instance);
+            uiComponent.instance = nullptr;
+            uiComponent.content = nullptr;
+            uiComponent.zOrder = 0;
+        }
+
         RemoveEntity(entity);
+    }
 }
 
 void EntityManager::AddChildToRemove(Entity* entity, std::vector<Entity*>& entitiesToRemove)

@@ -11,6 +11,7 @@
 #include "../GameSystem/Game.h"
 
 #include "CoreExport.h"
+#include "RenderView.h"
 
 namespace DreamEngine::Core::Render
 {
@@ -26,28 +27,28 @@ class CORE_API RenderAPI
     virtual Texture* CreateTexture(unsigned char* data, int width, int height, int nrChannels) = 0;
     virtual Mesh* CreateMesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const std::vector<Texture*>& textures) = 0;
     virtual FrameBuffer* CreateFrameBuffer(int width, int height) = 0;
-    void Render(Game* game);
-    virtual void AfterRender(int width, int height);
-    void AddBeforeRenderEntitiesCallbacks(const std::function<void()>& callback);
-    void AddAfterRenderEntitiesCallbacks(const std::function<void(int width, int height)>& callback);
-    void AddAfterRenderEntityCallbacks(const std::function<void(Entity* entity)>& callback);
+    virtual void AfterRender(RenderView& renderView);
+    void AddBeforeRenderEntitiesCallbacks(const std::function<void(RenderView& renderView)>& callback);
+    void AddAfterRenderEntitiesCallbacks(const std::function<void(RenderView& renderView)>& callback);
+    void AddAfterRenderEntityCallbacks(const std::function<void(RenderView& renderView, Entity& entity)>& callback);
     void RescaleFrameBuffers(int width, int height) const;
     std::vector<FrameBuffer*> GetFrameBuffers() const;
-    virtual void BeforeRender();
+    virtual void BeforeRender(RenderView& renderView);
     virtual void OutlineBeginPass(const OutlineOptions& options) = 0;
     virtual void OutlineEndPass() = 0;
-
-   protected:
-    std::vector<FrameBuffer*> m_frameBuffers;
     virtual void SetSceneBackgroundColor(Color* color) = 0;
     virtual void SetTransform(const Shader* shader, const std::string name, glm::mat4& transform) = 0;
     virtual void StencilDefaultNoWrite() = 0;
     virtual void StencilWriteObject() = 0;
     virtual void StencilDrawOutlineRegion() = 0;
+
+   protected:
+    std::vector<FrameBuffer*> m_frameBuffers;
+    
    private:
-    std::vector<std::function<void()>> m_beforeRenderEntitiesCallbacks;
-    std::vector<std::function<void(int width, int height)>> m_afterRenderEntitiesCallbacks;
-    std::vector<std::function<void(Entity* entity)>> m_afterRenderEntityCallbacks;
+    std::vector<std::function<void(RenderView& renderView)>> m_beforeRenderEntitiesCallbacks;
+    std::vector<std::function<void(RenderView& renderView)>> m_afterRenderEntitiesCallbacks;
+    std::vector<std::function<void(RenderView& renderView, Entity& entity)>> m_afterRenderEntityCallbacks;
 };
 
 }  // namespace DreamEngine::Core::Render

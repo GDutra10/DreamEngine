@@ -5,6 +5,7 @@ namespace DreamEngine::Core::Sync
 {
 struct EntityData
 {
+    size_t id;
     float transformPositionX;
     float transformPositionY;
     float transformPositionZ;
@@ -14,6 +15,7 @@ struct EntityData
     float transformScaleX;
     float transformScaleY;
     float transformScaleZ;
+    bool uiComponentHas;
 };
 }  // namespace DreamEngine::Core::Sync
 #endif

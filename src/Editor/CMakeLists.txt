@@ -60,6 +60,7 @@ add_executable(Editor
     Models/Datas/Components/ParentComponentData.h
     Models/Datas/Components/ChildrenComponentData.h
     Models/Datas/Components/MaterialComponentData.h
+    Models/Datas/Components/UiComponentData.h
 
     Serializers/MaterialSerializer.h
     Serializers/MaterialSerializer.cpp
@@ -74,6 +75,8 @@ add_executable(Editor
     Serializers/SceneDataSerializer.h
     Serializers/SceneDataSerializer.cpp
     Serializers/ShaderSerializer.h
+    Serializers/UiContentSerializer.h
+    Serializers/UiContentSerializer.cpp
 
     Singletons/EditorSingleton.h
     Singletons/EditorSingleton.cpp
@@ -147,7 +150,7 @@ add_executable(Editor
     Vendors/imgui/imgui_impl_opengl3_loader.h
     Vendors/imgui/imgui_impl_glfw.cpp
     Vendors/imgui/imgui_impl_glfw.h
-)
+  )
 
 # Link dependencies
 target_link_libraries(Editor PRIVATE

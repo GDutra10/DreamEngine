@@ -1,8 +1,16 @@
 #include "FileHelper.h"
 
+#include <filesystem>
 #include <iostream>
+#include <fstream>
+#include <vector>
+#include <iterator>
+#include <string>
+
+#include "../Singletons/EditorSingleton.h"
 
 using namespace DreamEngine::Editor::Helpers;
+using namespace DreamEngine::Editor::Singletons;
 
 vector<string> FileHelper::GetFilesWithExtension(const path& directory, const string& extension)
 {
@@ -33,6 +41,20 @@ vector<path> FileHelper::GetAllFilesInCurrentDirectory(const path& directoryPath
     }
 
     return files;
+}
+
+path FileHelper::GetRelativePathByProject(const path& filePath)
+{
+    return relative(filePath, EditorSingleton::Instance().GetProjectConfiguration().projectPath);
+}
+
+std::vector<unsigned char> FileHelper::LoadFileIntoVector(const std::string& filename)
+{
+    std::ifstream inputFile(filename, std::ios_base::binary);
+    auto fileSize = std::filesystem::file_size(filename);
+    std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(inputFile), {});
+
+    return buffer;
 }
 
 #if defined(_WIN32) || defined(_WIN64)

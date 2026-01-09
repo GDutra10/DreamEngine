@@ -28,6 +28,7 @@ class ResourceManagerWindow : public BaseWindow
     void DrawShaders();
     void DrawTextures();
     void DrawScripts();
+    void DrawUiContent();
     
 };
 

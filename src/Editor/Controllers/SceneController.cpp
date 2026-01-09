@@ -13,7 +13,8 @@
 #include "ECS/Components/ParentComponent.h"
 #include "ECS/Components/ScriptComponent.h"
 #include "ECS/Components/CameraComponent.h"
-#include "Resources/GlobalResourceManager.h"
+#include "ECS/Components/UiComponent.h"
+#include "Resources/ResourceManager.h"
 
 using namespace DreamEngine::Core;
 using namespace DreamEngine::Core::ECS::Components;
@@ -143,6 +144,13 @@ bool SceneController::SaveSceneData(EntityManager* entityManager)
         if (const ParentComponent& parent = entity->GetComponent<ParentComponent>(); parent.has && parent.parent != nullptr)
             entityConfig.components.parent.parentIdentifier = parent.parent->GetIdentifier();
 
+        if (const UiComponent& uiComponent = entity->GetComponent<UiComponent>(); uiComponent.has)
+        {
+            entityConfig.components.ui.has = true;
+            entityConfig.components.ui.zOrder = uiComponent.zOrder;
+            entityConfig.components.ui.resourceId = uiComponent.content->resourceId;
+        }
+
         sceneData->entities.push_back(entityConfig);
     }
 
@@ -260,21 +268,21 @@ vector<Entity*> SceneController::CreateEntities(EntityManager* entityManager, Sc
         if (!entityConfig.components.mesh.resourceId.empty())
         {
             MeshComponent& meshComponent = entity->GetComponent<MeshComponent>();
-            meshComponent.mesh = GlobalResourceManager::Instance().GetMesh(entityConfig.components.mesh.resourceId);
+            meshComponent.mesh = ResourceManager::Instance().GetMesh(entityConfig.components.mesh.resourceId);
             meshComponent.has = true;
         }
 
         if (!entityConfig.components.material.resourceId.empty())
         {
             MaterialComponent& materialComponent = entity->GetComponent<MaterialComponent>();
-            materialComponent.material = GlobalResourceManager::Instance().GetMaterial(entityConfig.components.material.resourceId);
+            materialComponent.material = ResourceManager::Instance().GetMaterial(entityConfig.components.material.resourceId);
             materialComponent.has = true;
         }
 
         if (!entityConfig.components.script.resourceId.empty())
         {
             ScriptComponent& scriptComponent = entity->GetComponent<ScriptComponent>();
-            scriptComponent.script = GlobalResourceManager::Instance().GetScript(entityConfig.components.script.resourceId);
+            scriptComponent.script = ResourceManager::Instance().GetScript(entityConfig.components.script.resourceId);
             scriptComponent.has = true;
         }
 
@@ -285,6 +293,14 @@ vector<Entity*> SceneController::CreateEntities(EntityManager* entityManager, Sc
             cameraComponent.fovDegree = entityConfig.components.camera.fovDegree;
             cameraComponent.near = entityConfig.components.camera.near;
             cameraComponent.far = entityConfig.components.camera.far;
+        }
+
+        if (!entityConfig.components.ui.resourceId.empty())
+        {
+            UiComponent& uiComponent = entity->GetComponent<UiComponent>();
+            uiComponent.has = true;
+            uiComponent.zOrder = entityConfig.components.ui.zOrder;
+            uiComponent.content = ResourceManager::Instance().GetUiContent(entityConfig.components.ui.resourceId);
         }
 
         entities.push_back(entity);

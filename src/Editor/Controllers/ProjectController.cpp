@@ -15,7 +15,7 @@
 #include "../Vendors/assimp/contrib/pugixml/src/pugixml.hpp"
 #include "IO/File.h"
 #include "Render/Factories/MeshFactory.h"
-#include "Resources/GlobalResourceManager.h"
+#include "Resources/ResourceManager.h"
 
 #include "../Vendors/stb_image.h"
 
@@ -145,14 +145,14 @@ void ProjectController::LoadDefaultResources()
     const std::string fragmentShader = Core::IO::File::ReadAllText("Assets/Shaders/default.frag.glsl");
     Shader* shader = Core::Application::Instance().GetRenderAPI()->CreateShader(DEFAULT_SHADER_NAME, vertexShader, fragmentShader);
     shader->name = DEFAULT_SHADER_NAME;
-    GlobalResourceManager::Instance().AddShader(shader->name, shader);
+    ResourceManager::Instance().AddShader(shader->name, shader);
 
     // add outline shader
     const std::string outlineVertexShader = Core::IO::File::ReadAllText("Assets/Shaders/outline.vert.glsl");
     const std::string outlineFragmentShader = Core::IO::File::ReadAllText("Assets/Shaders/outline.frag.glsl");
     Shader* outlineShader = Core::Application::Instance().GetRenderAPI()->CreateShader(EDITOR_OUTLINE_SHADER_NAME, outlineVertexShader, outlineFragmentShader);
     outlineShader->name = EDITOR_OUTLINE_SHADER_NAME;
-    GlobalResourceManager::Instance().AddShader(outlineShader->name, outlineShader);
+    ResourceManager::Instance().AddShader(outlineShader->name, outlineShader);
 
     // add default material
     Material* material = new Material();
@@ -162,7 +162,7 @@ void ProjectController::LoadDefaultResources()
     material->ambient = {0.2f, 0.2f, 0.2f};
     material->diffuse = {0.8f, 0.8f, 0.8f};
     material->shininess = 32.0f;
-    GlobalResourceManager::Instance().AddMaterial(DEFAULT_MATERIAL_NAME, material);
+    ResourceManager::Instance().AddMaterial(DEFAULT_MATERIAL_NAME, material);
 
     // add default texture
     int width, height, nrChannels;
@@ -174,31 +174,31 @@ void ProjectController::LoadDefaultResources()
     if (texture != nullptr)
     {
         texture->type = Diffuse;
-        GlobalResourceManager::Instance().AddTexture(DEFAULT_TEXTURE_NAME, texture);
+        ResourceManager::Instance().AddTexture(DEFAULT_TEXTURE_NAME, texture);
     }
 
     Mesh* cubeMesh = Factories::MeshFactory::CreateMesh(Cube);
     cubeMesh->name = DEFAULT_CUBE_MESH_NAME;
-    GlobalResourceManager::Instance().AddMesh(DEFAULT_CUBE_MESH_NAME, cubeMesh);
+    ResourceManager::Instance().AddMesh(DEFAULT_CUBE_MESH_NAME, cubeMesh);
 
     Mesh* sphereMesh = Factories::MeshFactory::CreateMesh(Sphere);
     sphereMesh->name = DEFAULT_SPHERE_MESH_NAME;
-    GlobalResourceManager::Instance().AddMesh(DEFAULT_SPHERE_MESH_NAME, sphereMesh);
+    ResourceManager::Instance().AddMesh(DEFAULT_SPHERE_MESH_NAME, sphereMesh);
 
     Mesh* capsuleMesh = Factories::MeshFactory::CreateMesh(Capsule);
     capsuleMesh->name = DEFAULT_CAPSULE_MESH_NAME;
-    GlobalResourceManager::Instance().AddMesh(DEFAULT_CAPSULE_MESH_NAME, capsuleMesh);
+    ResourceManager::Instance().AddMesh(DEFAULT_CAPSULE_MESH_NAME, capsuleMesh);
 
     Mesh* cylinderMesh = Factories::MeshFactory::CreateMesh(Cylinder);
     cylinderMesh->name = DEFAULT_CYLINDER_MESH_NAME;
-    GlobalResourceManager::Instance().AddMesh(DEFAULT_CYLINDER_MESH_NAME, cylinderMesh);
+    ResourceManager::Instance().AddMesh(DEFAULT_CYLINDER_MESH_NAME, cylinderMesh);
 
     Mesh* planeMesh = Factories::MeshFactory::CreateMesh(Plane);
     planeMesh->name = DEFAULT_PLANE_MESH_NAME;
-    GlobalResourceManager::Instance().AddMesh(DEFAULT_PLANE_MESH_NAME, planeMesh);
+    ResourceManager::Instance().AddMesh(DEFAULT_PLANE_MESH_NAME, planeMesh);
 }
 
-void ProjectController::LoadResourcesFromProject(ProjectConfiguration& projectConfiguration)
+void ProjectController::LoadResourcesFromProject(const ProjectConfiguration& projectConfiguration)
 {
     // TODO: load all resources from the project
 
@@ -209,6 +209,9 @@ void ProjectController::LoadResourcesFromProject(ProjectConfiguration& projectCo
 
     std::vector<std::string> modelFiles = Helpers::FileHelper::GetFilesWithExtension(projectConfiguration.projectPath, EDITOR_DEFAULT_MODEL_FILE_EXTENSION);
     ResourceController::LoadModels(modelFiles);
+
+    std::vector<std::string> uiFiles = Helpers::FileHelper::GetFilesWithExtension(projectConfiguration.projectPath, EDITOR_DEFAULT_UI_FILE_EXTENSION);
+    ResourceController::LoadUiContents(uiFiles);
 }
 
 bool ProjectController::TryAddDreamEngineReferenceInCsproj(const std::string& projectPath, const std::string& projectName)

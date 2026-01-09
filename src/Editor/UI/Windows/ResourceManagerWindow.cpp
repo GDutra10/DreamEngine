@@ -1,6 +1,6 @@
 #include "ResourceManagerWindow.h"
 
-#include "../../../Core/Resources/GlobalResourceManager.h"
+#include "../../../Core/Resources/ResourceManager.h"
 #include "../../Helpers/ImGuiHelper.h"
 
 using namespace DreamEngine::Editor::UI::Windows;
@@ -28,12 +28,17 @@ using namespace DreamEngine::Core::Render;
 #define COMBO_RESOURCE_SCRIPT "Script##resource.manager.window.script"
 #endif
 
+#ifndef COMBO_RESOURCE_UI
+#define COMBO_RESOURCE_UI "UI##resource.manager.window.ui"
+#endif
+
 vector<string> ResourceManagerWindow::m_sResourcesNames = {
     COMBO_RESOURCE_MATERIAL,
     COMBO_RESOURCE_MESH,
     COMBO_RESOURCE_SHADER,
     COMBO_RESOURCE_TEXTURE,
-    COMBO_RESOURCE_SCRIPT
+    COMBO_RESOURCE_SCRIPT, 
+    COMBO_RESOURCE_UI
 };
 
 ResourceManagerWindow::ResourceManagerWindow(const string& title) : BaseWindow(std::move(title))
@@ -63,6 +68,9 @@ void ResourceManagerWindow::DrawContent()
         if (ImGui::Selectable(COMBO_RESOURCE_SCRIPT, m_resourceSelected == COMBO_RESOURCE_SCRIPT))
             m_resourceSelected = COMBO_RESOURCE_SCRIPT;
 
+        if (ImGui::Selectable(COMBO_RESOURCE_UI, m_resourceSelected == COMBO_RESOURCE_UI))
+            m_resourceSelected = COMBO_RESOURCE_UI;
+
         ImGui::EndCombo();
     }
 
@@ -71,6 +79,7 @@ void ResourceManagerWindow::DrawContent()
     DrawShaders();
     DrawTextures();
     DrawScripts();
+    DrawUiContent();
 }
 
 void ResourceManagerWindow::DrawMaterials()
@@ -82,7 +91,7 @@ void ResourceManagerWindow::DrawMaterials()
     {
         unsigned int count = 0;
 
-        for (const pair<const string, Resource*> keyValue: GlobalResourceManager::Instance().GetMaterials())
+        for (const pair<const string, Resource*> keyValue: ResourceManager::Instance().GetMaterials())
         {
             ImGuiHelper::NextRow("resource.manager.material." + count, keyValue.second->name.c_str(), keyValue.second->resourceId, false);
             count++;
@@ -101,7 +110,7 @@ void ResourceManagerWindow::DrawMeshes()
     {
         unsigned int count = 0;
 
-        for (const pair<const string, Resource*> keyValue : GlobalResourceManager::Instance().GetMeshes())
+        for (const pair<const string, Resource*> keyValue : ResourceManager::Instance().GetMeshes())
         {
             ImGuiHelper::NextRow("resource.manager.mesh." + count, keyValue.second->name.c_str(), keyValue.second->resourceId, false);
             count++;
@@ -120,7 +129,7 @@ void ResourceManagerWindow::DrawShaders()
     {
         unsigned int count = 0;
 
-        for (const pair<const string, Resource*> keyValue : GlobalResourceManager::Instance().GetShaders())
+        for (const pair<const string, Resource*> keyValue : ResourceManager::Instance().GetShaders())
         {
             ImGuiHelper::NextRow("resource.manager.shader." + count, keyValue.second->name.c_str(), keyValue.second->resourceId, false);
             count++;
@@ -139,7 +148,7 @@ void ResourceManagerWindow::DrawTextures()
     {
         unsigned int count = 0;
 
-        for (const pair<const string, Resource*> keyValue : GlobalResourceManager::Instance().GetTextures())
+        for (const pair<const string, Resource*> keyValue : ResourceManager::Instance().GetTextures())
         {
             ImGuiHelper::NextRow("resource.manager.texture." + count, keyValue.second->name.c_str(), keyValue.second->resourceId, false);
             count++;
@@ -158,9 +167,28 @@ void ResourceManagerWindow::DrawScripts()
     {
         unsigned int count = 0;
 
-        for (const pair<const string, Resource*> keyValue : GlobalResourceManager::Instance().GetScripts())
+        for (const pair<const string, Resource*> keyValue : ResourceManager::Instance().GetScripts())
         {
             ImGuiHelper::NextRow("resource.manager.script." + count, keyValue.second->name.c_str(), keyValue.second->resourceId, false);
+            count++;
+        }
+
+        ImGui::EndTable();
+    }
+}
+
+void ResourceManagerWindow::DrawUiContent()
+{
+    if (m_resourceSelected != COMBO_RESOURCE_UI)
+        return;
+
+    if (ImGuiHelper::BeginTable("resource.manager.ui", 2))
+    {
+        unsigned int count = 0;
+
+        for (const pair<const string, Resource*> keyValue : ResourceManager::Instance().GetUiContents())
+        {
+            ImGuiHelper::NextRow("resource.manager.ui." + count, keyValue.second->name.c_str(), keyValue.second->resourceId, false);
             count++;
         }
 

@@ -4,7 +4,8 @@
 #include "../../Core/ECS/Components/ChildrenComponent.h"
 #include "../../Core/ECS/Components/OutlineComponent.h"
 #include "../../Core/Loggers/LoggerSingleton.h"
-#include "../../Core/Resources/GlobalResourceManager.h"
+#include "../../Core/Resources/ResourceManager.h"
+#include "Render/RenderViewProvider.h"
 
 using namespace DreamEngine::Core;
 using namespace DreamEngine::Core::ECS::Components;
@@ -101,14 +102,14 @@ CameraEditorController& EditorSingleton::GetCameraEditorController()
     return m_cameraEditorController;
 }
 
-FrameBuffer* EditorSingleton::GetViewPortFbo() const
+RenderView* EditorSingleton::GetSceneRenderView() const
 {
-    return m_viewPortFbo;
+    return m_pSceneRenderView;
 }
 
-FrameBuffer* EditorSingleton::GetGameFbo() const
+RenderView* EditorSingleton::GetGameRenderView() const
 {
-    return m_gameFbo;
+    return m_pGameRenderView;
 }
 
 void EditorSingleton::SetSelectedPath(const path& path)
@@ -154,7 +155,7 @@ void EditorSingleton::SetOutlineComponent(Entity* entity, const bool hasComponen
     }
 
     if (hasComponent && !outlineComponent.shader)
-        outlineComponent.shader = GlobalResourceManager::Instance().GetShader(EDITOR_OUTLINE_SHADER_NAME);
+        outlineComponent.shader = ResourceManager::Instance().GetShader(EDITOR_OUTLINE_SHADER_NAME);
 
     ChildrenComponent& childrenComponent = entity->GetComponent<ChildrenComponent>();
 
@@ -168,6 +169,18 @@ void EditorSingleton::SetOutlineComponent(Entity* entity, const bool hasComponen
 void EditorSingleton::SetProjectConfiguration(const ProjectConfiguration& projectConfig) const
 {
     m_projectConfig = projectConfig;
+}
+
+void EditorSingleton::SetSceneRenderView(RenderView* renderView)
+{
+    m_pSceneRenderView = renderView;
+    RenderViewProvider::Add(m_pSceneRenderView);
+}
+
+void EditorSingleton::SetGameRenderView(RenderView* renderView)
+{
+    m_pGameRenderView = renderView;
+    RenderViewProvider::Add(m_pGameRenderView);
 }
 
 EditorSingleton::EditorSingleton(ProjectConfiguration& projectConfig, EditorConfiguration& editorConfig, Scene* pEditorScene)

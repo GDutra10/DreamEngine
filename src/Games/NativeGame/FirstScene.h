@@ -9,4 +9,7 @@ class FirstScene : public Scene
     void Update(const float deltaTime) override;
     void Initialize() override;
     void Unload() override;
+   private:
+    static void LoadResources();
+    void CreateEntities();
 };

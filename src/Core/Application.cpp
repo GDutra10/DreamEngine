@@ -1,8 +1,9 @@
 #include "Application.h"
 
+#include "Render/RenderViewProvider.h"
 #include "Render/OpenGL/OpenGLRenderAPI.h"
 #include "../Core/Inputs/Input.h"
-#include "../Core/Resources/GlobalResourceManager.h"
+#include "../Core/Resources/ResourceManager.h"
 #include "../Core/Loggers/LoggerSingleton.h"
 
 using namespace DreamEngine::Core;
@@ -24,7 +25,6 @@ Application& Application::Instance()
 
 void Application::Run(int width, int height, const std::string& name, const RenderType renderType, Game* game)
 {
-
     try
     {
         SetRenderAPI(renderType);
@@ -35,14 +35,16 @@ void Application::Run(int width, int height, const std::string& name, const Rend
         GLFWInit();
         InitializeWindow(width, height, name);
 
+        glfwMakeContextCurrent(m_window);
+
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
             throw std::exception("Failed to initialized GLAD");
 
         if (game->hasScriptEngine)
             m_scriptEngine = new ScriptEngine();
 
-        m_renderAPI->Initialize(width, height);
         m_game = game;
+        m_renderPipeline->Initialize(m_renderAPI, m_window, width, height);
 
         // TODO: Load the assets(ResourceManager) by the first scene file
         // TODO: Initialize entities from the first scene file
@@ -51,8 +53,6 @@ void Application::Run(int width, int height, const std::string& name, const Rend
         {
             if (m_game->GetActiveScene() == nullptr)
                 m_game->ChangeActiveScene();
-
-            // TODO: Updates logic
 
             if (glfwWindowShouldClose(m_window))
                 break;
@@ -72,37 +72,36 @@ void Application::Run(int width, int height, const std::string& name, const Rend
             m_lastFrame = currentFrame;
 
             // update scene and entities
-            m_game->GetActiveScene()->Update(m_deltaTime);
+            Scene* currentScene = game->GetActiveScene();
+            currentScene->Update(m_deltaTime);
 
             // render
             if (const int isMinimized = glfwGetWindowAttrib(m_window, GLFW_ICONIFIED); !isMinimized)
             {
-                // render default
-                m_renderAPI->BeforeRender();
-                m_renderAPI->Render(m_game);
-
-                // render in each fbo
-                std::vector<FrameBuffer*> frameBuffers = m_renderAPI->GetFrameBuffers();
-
-                for (FrameBuffer* frameBuffer : frameBuffers)
-                {
-                    if (frameBuffer == nullptr)
-                        continue;
-
-                    frameBuffer->Attach();
-                    m_renderAPI->Render(m_game);
-                    frameBuffer->Detach();
-                }
-
                 int displayW, displayH;
                 glfwGetFramebufferSize(m_window, &displayW, &displayH);
-                m_renderAPI->AfterRender(m_game->width, m_game->height);
+                
+                game->width = displayW;
+                game->height = displayH;
+
+                for (RenderView* renderView : RenderViewProvider::GetAll())
+                {
+                    // default framebuffer
+                    if (renderView->frameBuffer == nullptr)
+                    {
+                        renderView->width = displayW;
+                        renderView->height = displayH;
+                    }
+
+                    m_renderPipeline->Render(currentScene, *renderView);
+                }
             }
 
             glfwSwapBuffers(m_window);
             glfwPollEvents();
         }
 
+        UiManager::Shutdown();
         glfwTerminate();
     }
     catch (const std::exception& e)
@@ -128,22 +127,12 @@ void Application::Run(const int width, const int height, const std::string& name
     // TODO: get from embeded dll
     Game* game = nullptr;
 
-    // TODO: remove this block after create the scene system
-    /*{
-        auto scene = new Scene("firstScene");
-
-        std::map<std::string, Scene*> scenes;
-        scenes.emplace("firstScene", scene);
-
-        game = new Game(width, height, scenes);
-        game->ChangeActiveScene("firstScene");
-    }*/
-
     Run(width, height, name, renderType, game);
 }
 
 void Application::SetRenderAPI(const RenderType renderType)
 {
+    m_renderPipeline = new RenderPipeline();
     m_renderType = renderType;
 
     switch (renderType)
@@ -214,22 +203,25 @@ void Application::MousePositionCallback(GLFWwindow* window, double xPosIn, doubl
     m_sMouseLastX = xPos;
     m_sMouseLastY = yPos;
 
+    UiManager::ProcessMouseMove(static_cast<int>(xPos), static_cast<int>(yPos));
     Input::SetMousePosition({xOffset, yOffset});
 }
 
 void Application::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
+    UiManager::ProcessMouseButton(button, action, mods);
     Input::SetMouseState(GetMouseButtonByGLFW(button), GetMouseKeyEventByGLFW(action));
 }
 
 void Application::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+    UiManager::ProcessKey(key, scancode, action, mods);
     Input::SetKeyState(GetKeyByGLFWKey(key), GetMouseKeyEventByGLFW(action));
 }
 
 void Application::FrameBufferSizeCallback(GLFWwindow* window, const int width, const int height)
 {
-    Application::Instance().GetRenderAPI()->RescaleFrameBuffers(width, height);
+    //Application::Instance().GetRenderAPI()->RescaleFrameBuffers(width, height);
 }
 
 MouseButton Application::GetMouseButtonByGLFW(const int mouseButton)

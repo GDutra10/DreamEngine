@@ -1,0 +1,84 @@
+<rml>
+	<head>
+		<style>
+			body {
+				margin: 0px;
+				font-family: "Roboto";
+				font-size: 14px;
+				color: #ffffff;
+			}
+
+			#hud {
+				position: absolute;
+				top: 20px;
+				left: 20px;
+				color: white;
+			}
+
+			#health, #ammo {
+				margin-bottom: 10px;
+			}
+
+			#health-value {
+				color: #ff4d4d;
+			}
+
+			#ammo-value {
+				color: #4d94ff;
+			}
+
+			#name-value {
+				color: green;
+			}
+
+			#degree-value {
+				color: yellow;
+			}
+
+			button {
+				width: 200px;
+				display: inline-block;
+				padding: 6px 12px;
+				margin-top: 6px;
+
+				background: #2d2d2d;
+				/*border: 1px solid #666;*/
+				border-radius: 4px;
+
+				color: #fff;
+				font-size: 14px;
+			}
+
+			button:hover {
+				background: #3a3a3a;
+			}
+
+			button:active {
+				background: #1f1f1f;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="hud" data-model="hud">
+			<div id="something">
+				<label>Name: </label>
+				<span id="name-value">{{name}}</span>
+			</div>
+			<div id="health">
+				<label>Health: </label>
+				<span id="health-value">{{health}}</span>
+			</div>
+			<div id="ammo">
+				<label>Ammo: </label>
+				<span id="ammo-value">{{ammo}}</span>
+			</div>
+			<div id="degree">
+				<label>Degree: </label>
+				<span id="degree-value">{{degree}}</span>
+			</div>
+			<div id="button">
+				<button id="btnReset" onclick="onReset">Reset</button>
+			</div>
+		</div>
+	</body>
+</rml>
