@@ -7,7 +7,7 @@ namespace DreamEngine::Core::Sync
 class GameSynchronizer
 {
    public:
-    static GameData* Synchronize(bool isFocused);
+    static GameData* Synchronize(bool isFocused, bool mustRecreateEntities);
 };
 }  // namespace DreamEngine::Core::Sync
 #endif

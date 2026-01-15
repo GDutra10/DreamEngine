@@ -1,5 +1,6 @@
 #include "EntitySynchronizer.h"
 #include "../ECS/Components/TransformComponent.h"
+#include "ECS/Components/ScriptComponent.h"
 #include "ECS/Components/UiComponent.h"
 #include "glm/gtx/quaternion.hpp"
 
@@ -26,6 +27,19 @@ void EntitySynchronizer::SynchronizeToData(Entity* entity)
 
     UiComponent& uiComponent = entity->GetComponent<UiComponent>();
     entity->entityData.uiComponentHas = uiComponent.has;
+
+    // script info
+    ScriptComponent& scriptComponent = entity->GetComponent<ScriptComponent>();
+    if (scriptComponent.has && scriptComponent.script != nullptr)
+    {
+        std::string assembly = scriptComponent.script->GetAssemblyName();
+        std::strncpy(entity->entityData.scriptAssemblyName, assembly.c_str(), sizeof(entity->entityData.scriptAssemblyName) - 1);
+        entity->entityData.scriptAssemblyName[sizeof(entity->entityData.scriptAssemblyName) - 1] = '\0';
+        
+        std::string className = scriptComponent.script->GetClassName();
+        std::strncpy(entity->entityData.scriptClassName, className.c_str(), sizeof(entity->entityData.scriptClassName) - 1);
+        entity->entityData.scriptClassName[sizeof(entity->entityData.scriptClassName) - 1] = '\0';
+    }
 }
 
 void EntitySynchronizer::SynchronizeFromData(Entity* entity)

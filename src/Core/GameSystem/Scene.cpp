@@ -40,12 +40,6 @@ void Scene::Update(const float deltaTime)
 {
     m_entityManager->Update();
 
-    if (m_mustRunScriptComponents)
-    {
-        ScriptEventHandler::Process();
-        ScriptEngine::UpdateGame(GameSynchronizer::Synchronize(this->GetIsFocused()));
-    }
-
     for (Entity* entity : m_entityManager->GetEntities())
     {
         if (!entity->GetIsActive())
@@ -69,19 +63,35 @@ void Scene::Update(const float deltaTime)
             nativeScriptComponent.script->Initialize();
             nativeScriptComponent.script->Update();
         }
+    }
 
-        // script
-        ScriptComponent& scriptComponent = entity->GetComponent<ScriptComponent>();
+    if (m_mustRunScriptComponents)
+    {
+        ScriptEventHandler::Process();
+        GameData* pGameData = GameSynchronizer::Synchronize(this->GetIsFocused(), m_mustRecreateEntitiesInScriptEngine);
 
-        if (m_mustRunScriptComponents && scriptComponent.has && scriptComponent.script != nullptr)
+        std::vector<EntityData> entityDataArray;
+
+        for (Entity* entity : m_entityManager->GetEntities())
         {
             EntitySynchronizer::SynchronizeToData(entity);
-            scriptComponent.instance = scriptComponent.script->Update(scriptComponent.instance, &entity->entityData);
+            entityDataArray.push_back(entity->entityData);
+        }
+
+        int size = static_cast<int>(entityDataArray.size());
+        EntityData* pEntityDataList = entityDataArray.data();
+        ScriptEngine::UpdateGame(pGameData, pEntityDataList, size);
+
+        for (size_t i = 0; i < size; i++)
+        {
+            Entity* entity = m_entityManager->GetEntityById(entityDataArray[i].id);
+            entity->entityData = pEntityDataList[i];
             EntitySynchronizer::SynchronizeFromData(entity);
         }
     }
 
     UiManager::Update();
+    m_mustRecreateEntitiesInScriptEngine = false;
 }
 
 void Scene::Initialize()
@@ -159,5 +169,8 @@ bool Scene::GetIsFocused() const
 
 void Scene::SetMustRunScriptComponents(const bool val)
 {
+    if (m_mustRunScriptComponents == false && val == true)
+        m_mustRecreateEntitiesInScriptEngine = true;
+
     m_mustRunScriptComponents = val;
 }

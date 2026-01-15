@@ -24,14 +24,6 @@ void ScriptController::ReloadScripts()
     ProjectConfiguration projectConfig = EditorSingleton::Instance().GetProjectConfiguration();
     ScriptEngine* scriptEngine = Application::Instance().GetScriptEngine();
 
-    for (Entity* entity : EditorSingleton::Instance().GetEntityManager()->GetEntities())
-    {
-        ScriptComponent& scriptComponent = entity->GetComponent<ScriptComponent>();
-
-        if (scriptComponent.has && scriptComponent.script != nullptr)
-            scriptComponent.instance = scriptComponent.script->Destroy(scriptComponent.instance);
-    }
-
     scriptEngine->UnloadAssembly();
     scriptEngine->LoadAssembly(projectConfig.csProjectDebugPath + "\\" + projectConfig.csProjectDebugDll);
 

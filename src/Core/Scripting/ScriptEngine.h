@@ -7,6 +7,8 @@
 #include "coreclrhost.h"
 #include "ScriptInfo.h"
 #include "CoreExport.h"
+#include "Sync/EntityData.h"
+#include "Sync/GameData.h"
 
 namespace DreamEngine::Core::Scripting
 {
@@ -27,12 +29,9 @@ extern "C"
 }
 
 // scripts manager
-typedef void* (*createInstanceDelegate)(const char*, const char*);
-typedef void (*releaseInstanceDelegate)(void*);
-typedef void (*updateDelegate)(void*, void*);
 typedef void* (*getScriptInfoDelegate)(int*);
 typedef void (*releaseScriptInfoDelegate)(void*, int*);
-typedef void (*updateGameDelegate)(void*);
+typedef void (*updateGameDelegate)(Sync::GameData*, Sync::EntityData*, int);
 typedef void (*processEventDelegate)(int);
 
 // assembly manager
@@ -50,10 +49,7 @@ class CORE_API ScriptEngine
     void Shutdown();
     bool IsRunning();
 
-    static void* CreateInstance(const char* assemblyName, const char* typeName);
-    static void ReleaseInstance(void* instance);
-    static void Update(void* instance, void* entityData);
-    static void UpdateGame(void* gameData);
+    static void UpdateGame(Sync::GameData* gameData, Sync::EntityData* entityDataArray, int entityCount);
     static void ProcessEvent(int eventId);
     std::vector<ScriptInfo> GetClassInfoList();
 
@@ -69,9 +65,6 @@ class CORE_API ScriptEngine
     static coreclr_create_delegate_ptr m_spCoreClrCreateDelegate;
     static coreclr_shutdown_ptr m_spCoreClrShutdown;
     // scripts delegate
-    static updateDelegate m_spUpdateDelegate;
-    static createInstanceDelegate m_spCreateInstanceDelegate;
-    static releaseInstanceDelegate m_spReleaseInstanceDelegate;
     static getScriptInfoDelegate m_spGetScriptInfoDelegate;
     static releaseScriptInfoDelegate m_spReleaseScriptInfoDelegate;
     static updateGameDelegate m_spUpdateGameDelegate;
