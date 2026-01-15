@@ -42,7 +42,7 @@ internal static class EntitySynchronizer
     {
         var uiComponent = entity.GetComponent<UiComponent>();
 
-        if (!entityData.uiComponentHas)
+        if (entityData.uiComponentHas == 0)
         {
             if (uiComponent is null)
                 return;

@@ -6,5 +6,6 @@ namespace DreamEngine.Sync;
 internal struct GameData
 {
     public float deltaTime;
+    public byte mustRecreateEntities;
     public InputData inputData;
 }

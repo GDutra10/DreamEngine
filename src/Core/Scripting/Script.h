@@ -16,8 +16,6 @@ class CORE_API Script : public Resource
 {
    public:
     Script(const std::string& className, const std::string& assemblyName);
-    void* Update(void* instance, EntityData* entityData);
-    void* Destroy(void* instance);
     std::string GetAssemblyName() const;
     std::string GetClassName() const;
 

@@ -4,17 +4,20 @@ namespace DreamEngine.Scripting;
 
 public class Script
 {
-    public Entity Entity { get; private set; } = new();
-    
-    private bool _isInitialized = false;
+    public Entity Entity => _entity!;
 
-    public void Initialize()
+    private Entity? _entity;
+
+    private bool HasBeenInitialized => _entity is not null;
+
+    internal void Initialize(Entity entity)
     {
-        if (_isInitialized)
+        if (HasBeenInitialized)
             return;
 
+        _entity = entity;
+
         this.Start();
-        _isInitialized = true;
     }
 
     public virtual void Start()

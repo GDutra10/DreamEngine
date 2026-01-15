@@ -59,6 +59,7 @@ class CORE_API Scene
     Entity* m_pMainCameraEntity = nullptr;
     bool m_showCursor;
     bool m_mustRunScriptComponents = true;
+    bool m_mustRecreateEntitiesInScriptEngine = false;
    private:
     std::string m_name;
 };
