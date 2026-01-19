@@ -5,14 +5,15 @@
 #include <cstdint>
 
 #include "InputData.h"
+#include "SceneData.h"
 
 namespace DreamEngine::Core::Sync
 {
 struct GameData
 {
     float deltaTime;
-    uint8_t mustRecreateEntities;
     InputData inputData;
+    SceneData sceneData;
 };
 }  // namespace DreamEngine::Core::Sync
 #endif

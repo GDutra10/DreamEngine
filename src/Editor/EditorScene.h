@@ -40,6 +40,7 @@ public:
     void Update(float deltaTime) override;
     bool GetIsFocused() const override;
     Camera& GetCamera() override;
+    bool ChangeScene(std::string sceneName) override;
 
    private:
     bool m_imGuiInitialized = false;

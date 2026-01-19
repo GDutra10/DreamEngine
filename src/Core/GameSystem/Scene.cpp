@@ -36,6 +36,11 @@ void Scene::SetMainCameraEntity(Entity* entity)
     m_pMainCameraEntity = entity;
 }
 
+bool Scene::ChangeScene(const std::string sceneName)
+{
+    return Application::Instance().GetGame()->ChangeActiveScene(sceneName);
+}
+
 void Scene::Update(const float deltaTime)
 {
     m_entityManager->Update();
@@ -68,7 +73,7 @@ void Scene::Update(const float deltaTime)
     if (m_mustRunScriptComponents)
     {
         ScriptEventHandler::Process();
-        GameData* pGameData = GameSynchronizer::Synchronize(this->GetIsFocused(), m_mustRecreateEntitiesInScriptEngine);
+        GameData* pGameData = GameSynchronizer::Synchronize(this->GetIsFocused());
 
         std::vector<EntityData> entityDataArray;
 
@@ -127,6 +132,19 @@ GlobalLight* Scene::GetGlobalLight()
 Entity* Scene::GetMainCameraEntity() const
 {
     return m_pMainCameraEntity;
+}
+
+SceneData* Scene::GetSceneData() const
+{
+    m_pSceneData->mainCameraEntityId = m_pMainCameraEntity != nullptr ? m_pMainCameraEntity->GetId() : 0;
+    m_pSceneData->showCursor = m_showCursor ? 1 : 0;
+    m_pSceneData->mustRecreateEntities = m_mustRecreateEntitiesInScriptEngine ? 1 : 0;
+    m_pSceneData->globalLightColorR = m_globalLight->directionalLight.color.red;
+    m_pSceneData->globalLightColorG = m_globalLight->directionalLight.color.green;
+    m_pSceneData->globalLightColorB = m_globalLight->directionalLight.color.blue;
+    m_pSceneData->globalLightIntensity = m_globalLight->directionalLight.influence;
+
+    return m_pSceneData;
 }
 
 Camera& Scene::GetCamera()

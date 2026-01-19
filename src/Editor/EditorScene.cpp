@@ -1,5 +1,6 @@
 ﻿#include "EditorScene.h"
 
+#include "EditorDefine.h"
 #include "Helpers/FileHelper.h"
 #include "Serializers/MaterialSerializer.h"
 #include "Singletons/EditorSingleton.h"
@@ -15,6 +16,7 @@
 #include "../Core/Inputs/Input.h"
 #include "../Core/IO/File.h"
 #include "Render/RenderViewProvider.h"
+#include "Serializers/SceneDataSerializer.h"
 
 
 using namespace DreamEngine::Editor;
@@ -119,6 +121,46 @@ Camera& EditorScene::GetCamera()
         return *EditorSingleton::Instance().GetCameraEditorController().GetCamera();
 
     return Scene::GetCamera();
+}
+
+bool EditorScene::ChangeScene(const std::string sceneName)
+{
+    if (EditorSingleton::Instance().sceneData->path.stem().string() == sceneName)
+    {
+        LoggerSingleton::Instance().LogWarning("The scene '" + sceneName + "' is already loaded.");
+
+        return false;
+    }
+
+    const path currentDirectory = EditorSingleton::Instance().GetProjectConfiguration().projectPath;
+    const vector<std::string> sceneFiles = Helpers::FileHelper::GetFilesWithExtension(currentDirectory, EDITOR_DEFAULT_SCENE_FILE_EXTENSION);
+    path sceneFilePath;
+
+    for (const std::string& sceneFile : sceneFiles)
+    {
+        if (const auto filePath = path(sceneFile); filePath.stem().string() == sceneName)
+        {
+            sceneFilePath = filePath;
+            break;
+        }
+    }
+
+    if (!sceneFilePath.empty())
+    {
+        EntityManager* entityManager = this->GetEntityManager();
+        std::vector<Entity*> entities = entityManager->GetEntities();
+
+        for (Entity* entity : entities)
+            entityManager->RemoveEntity(entity);    
+
+        SceneController::LoadSceneData(sceneFilePath, this->m_entityManager, true);
+
+        return true;
+    }
+
+    LoggerSingleton::Instance().LogWarning("Scene '" + sceneName + "' not found!");
+
+    return false;
 }
 
 ProjectConfiguration& EditorScene::GetProjectConfiguration() const
