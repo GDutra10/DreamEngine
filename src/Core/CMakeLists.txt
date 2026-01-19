@@ -37,7 +37,7 @@ add_library (Core SHARED
 	"ECS/Components/ChildrenComponent.h"
 	"ECS/Components/ParentComponent.h"
 	"ECS/Components/CameraComponent.h"
-	"ECS/Components/OutlineComponent.h"
+	
 	"ECS/Components/UiComponent.h"
 	
 	"GameSystem/Camera.h" 
@@ -101,6 +101,7 @@ add_library (Core SHARED
 	"Render/RenderPipeline.cpp"
 	"Render/RenderViewProvider.h"
 	"Render/RenderViewProvider.cpp"
+	"Render/RenderPass.h"
 
 	"Resources/Resource.h"
 	"Resources/ResourceManager.h"
@@ -142,7 +143,7 @@ add_library (Core SHARED
 	"UI/RmlUI/RmlUiInstance.h"
 	"UI/UiInstance.h"
 	"UI/RmlUI/RmlClickListener.h"
- )
+)
 
 	
 set_target_properties(Core PROPERTIES

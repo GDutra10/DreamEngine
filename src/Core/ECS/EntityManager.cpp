@@ -184,11 +184,6 @@ void EntityManager::Reset()
         NativeScriptComponent& nativeScriptComponent = entity->GetComponent<NativeScriptComponent>();
         nativeScriptComponent.script = nullptr;
 
-        OutlineComponent& outlineComponent = entity->GetComponent<OutlineComponent>();
-        outlineComponent.color = Color(1.0f, 1.0f, 0.0f, 1.0f);
-        outlineComponent.thickness = 0.06f;
-        outlineComponent.shader = nullptr;
-
         ScriptComponent& scriptCompoennt = entity->GetComponent<ScriptComponent>();
         scriptCompoennt.instance = nullptr;
         scriptCompoennt.script = nullptr;
