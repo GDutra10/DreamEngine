@@ -32,6 +32,7 @@ class CORE_API Application
     [[nodiscard]] GLFWwindow* GetWindow() const;
     [[nodiscard]] RenderAPI* GetRenderAPI() const { return m_renderAPI; }
     [[nodiscard]] RenderType GetRenderType() const { return m_renderType; }
+    [[nodiscard]] RenderPass* GetRenderPass() const { return (RenderPass*)m_renderPipeline; }
     [[nodiscard]] Game* GetGame() const { return m_game; }
     [[nodiscard]] ScriptEngine* GetScriptEngine() const { return m_scriptEngine; }
     [[nodiscard]] GameData* GetGameData() { return m_gameData; }

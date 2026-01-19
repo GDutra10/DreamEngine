@@ -4,7 +4,6 @@
 #include "RenderViewProvider.h"
 #include "ECS/Components/MaterialComponent.h"
 #include "ECS/Components/MeshComponent.h"
-#include "ECS/Components/OutlineComponent.h"
 #include "Loggers/LoggerSingleton.h"
 #include "UI/UiManager.h"
 
@@ -40,6 +39,9 @@ void RenderPipeline::Render(Scene* scene, RenderView& renderView)
         UiManager::Render();
         UiManager::EndRender();
     }
+
+    if (renderView.mask & RenderMask::Debug && m_fnDebugPass)
+        m_fnDebugPass(*scene, renderView, m_pRenderer);
 
     m_pRenderer->AfterRender(renderView);
 
@@ -80,17 +82,12 @@ void RenderPipeline::RenderSceneEntities(RenderView& renderView, Scene* scene) c
 
         const MeshComponent& meshComponent = entity->GetComponent<MeshComponent>();
         const MaterialComponent& materialComponent = entity->GetComponent<MaterialComponent>();
-        OutlineComponent& outlineComponent = entity->GetComponent<OutlineComponent>();
-        const bool wantsOutline = outlineComponent.has && outlineComponent.shader != nullptr;
-
+        
         // is this correct?
         if (meshComponent.mesh == nullptr || materialComponent.material == nullptr)
             continue;
 
         m_pRenderer->StencilDefaultNoWrite();
-
-        if (wantsOutline)
-            m_pRenderer->StencilWriteObject();
 
         const Material* material = materialComponent.material;
         Shader* shader = material->shader;
@@ -124,30 +121,5 @@ void RenderPipeline::RenderSceneEntities(RenderView& renderView, Scene* scene) c
 
         /*for (const std::function<void(RenderView& renderView, Entity& entity)>& func : m_pRenderer->))
             func(renderView, *entity);*/
-
-        if (wantsOutline)
-        {
-            // draw where stencil != 1
-            m_pRenderer->StencilDrawOutlineRegion();
-
-            OutlineOptions opts{};
-            opts.disableDepthTest = false;
-            opts.cullFace = OutlineOptions::CullFace::Front;
-
-            OutlineScope guard(*m_pRenderer, opts);
-
-            outlineComponent.shader->Use();
-            outlineComponent.shader->SetMat4("view", view);
-            outlineComponent.shader->SetVec3("viewPos", camera.position);
-            outlineComponent.shader->SetMat4("projection", projection);
-            outlineComponent.shader->SetMat4("model", transform);
-            outlineComponent.shader->SetVec3("outlineColor", outlineComponent.color.ToVec3());
-            outlineComponent.shader->SetFloat("thicknessWS", outlineComponent.thickness);
-
-            meshComponent.mesh->Draw(*outlineComponent.shader);
-
-            // reset stencil behavior
-            m_pRenderer->StencilDefaultNoWrite();
-        }
     }
 }

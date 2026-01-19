@@ -66,6 +66,7 @@ public:
     void SetStyleUnreal();
     void SetStyleUnreal2();
     void SetStyleEngine();
+    void RenderDebugPass(Scene& scene, RenderView& renderView, RenderAPI* pRenderer);
 };
 
 }  // namespace DreamEngine::Editor::Loggers
