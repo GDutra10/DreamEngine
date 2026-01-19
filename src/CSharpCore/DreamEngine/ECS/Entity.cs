@@ -1,6 +1,5 @@
-﻿using System.ComponentModel;
-using DreamEngine.Scripting;
-using DreamEngine.Sync;
+﻿using DreamEngine.Scripting;
+using DreamEngine.Sync.Data;
 using Component = DreamEngine.ECS.Components.Component;
 
 namespace DreamEngine.ECS;

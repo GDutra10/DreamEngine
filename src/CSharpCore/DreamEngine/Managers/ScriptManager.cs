@@ -5,7 +5,7 @@ using DreamEngine.Sync;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Loader;
-using DreamEngine.ECS;
+using DreamEngine.Sync.Data;
 
 namespace DreamEngine.Managers;
 

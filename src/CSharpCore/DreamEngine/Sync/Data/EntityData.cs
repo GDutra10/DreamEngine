@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace DreamEngine.Sync;
+namespace DreamEngine.Sync.Data;
 
 [StructLayout(LayoutKind.Sequential)]
 internal unsafe struct EntityData
@@ -16,8 +16,11 @@ internal unsafe struct EntityData
     public float transformScaleX;
     public float transformScaleY;
     public float transformScaleZ;
-
+    public float cameraFov;
+    public float cameraNear;
+    public float cameraFar;
     public byte uiComponentHas;
+    public byte cameraComponentHas;
     public fixed byte scriptAssemblyName[256];
     public fixed byte scriptClassName[256];
 

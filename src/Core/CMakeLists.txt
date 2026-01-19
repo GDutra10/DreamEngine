@@ -44,8 +44,6 @@ add_library (Core SHARED
 	"GameSystem/Game.h"
 	"GameSystem/Game.cpp"
 	"GameSystem/GlobalLight.h"
-	 
-	"GameSystem/Scene.h"
 	"GameSystem/Scene.cpp"
 
 	"Helpers/DateHelper.h"
@@ -130,6 +128,7 @@ add_library (Core SHARED
 	"Sync/GameData.h"
 	"Sync/GameSynchronizer.h"
 	"Sync/GameSynchronizer.cpp"
+	"Sync/SceneData.h"	
 
 	"UI/UiContent.h"
 	"UI/UiManager.h"
@@ -143,7 +142,7 @@ add_library (Core SHARED
 	"UI/RmlUI/RmlUiInstance.h"
 	"UI/UiInstance.h"
 	"UI/RmlUI/RmlClickListener.h"
-)
+ )
 
 	
 set_target_properties(Core PROPERTIES

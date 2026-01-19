@@ -8,6 +8,7 @@ namespace DreamEngine::Core::Sync
 struct EntityData
 {
     unsigned int id;
+    // components
     float transformPositionX;
     float transformPositionY;
     float transformPositionZ;
@@ -17,7 +18,12 @@ struct EntityData
     float transformScaleX;
     float transformScaleY;
     float transformScaleZ;
+    float cameraFov;
+    float cameraNear;
+    float cameraFar;
     uint8_t uiComponentHas;
+    uint8_t cameraComponentHas;
+
     char scriptAssemblyName[256];
     char scriptClassName[256];
 };
