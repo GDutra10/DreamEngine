@@ -22,6 +22,40 @@ internal static class EntitySynchronizer
         entityData.transformScaleX = entity.Transform.Scale.X;
         entityData.transformScaleY = entity.Transform.Scale.Y;
         entityData.transformScaleZ = entity.Transform.Scale.Z;
+
+        // ### Components to EntityData ###
+
+        // ui component
+        entityData.uiComponentHas = HasComponentInByte(entity.GetComponent<UiComponent>());
+
+        // camera component
+        var cameraComponent = entity.GetComponent<CameraComponent>();
+        entityData.cameraComponentHas = HasComponentInByte(cameraComponent);
+        
+        if (cameraComponent is not null)
+        {
+            entityData.cameraFar = cameraComponent.Far;
+            entityData.cameraNear = cameraComponent.Near;
+            entityData.cameraFov = cameraComponent.Fov;
+        }
+
+        // directional light component
+        var directionalLightComponent = entity.GetComponent<DirectionalLightComponent>();
+        entityData.directionalLightComponentHas = HasComponentInByte(directionalLightComponent);
+
+        if (directionalLightComponent is not null)
+        {
+            entityData.directionalLightColorRed = directionalLightComponent.Color.Red;
+            entityData.directionalLightColorGreen = directionalLightComponent.Color.Green;
+            entityData.directionalLightColorBlue = directionalLightComponent.Color.Blue;
+            entityData.directionalLightColorAlpha = directionalLightComponent.Color.Alpha;
+
+            entityData.directionalLightSpecularX = directionalLightComponent.Specular.X;
+            entityData.directionalLightSpecularY = directionalLightComponent.Specular.Y;
+            entityData.directionalLightSpecularZ = directionalLightComponent.Specular.Z;
+
+            entityData.directionalLightInfluence = directionalLightComponent.Influence;
+        }
     }
 
     // using the ref keyword is the same case as above
@@ -38,16 +72,22 @@ internal static class EntitySynchronizer
         entity.Transform.Scale.Y = entityData.transformScaleY;
         entity.Transform.Scale.Z = entityData.transformScaleZ;
 
-        HandleComponent<UiComponent>(ref entityData, entity, entityData.uiComponentHas);
-        HandleComponent<CameraComponent>(ref entityData, entity, entityData.uiComponentHas, HandleCreateCameraComponent);
+        HandleComponentToEntity<UiComponent>(ref entityData, entity, entityData.uiComponentHas);
+        HandleComponentToEntity<CameraComponent>(ref entityData, entity, entityData.cameraComponentHas, HandleCreateCameraComponent);
+        HandleComponentToEntity<DirectionalLightComponent>(ref entityData, entity, entityData.directionalLightComponentHas, HandleCreateDirectionalLightComponent);
     }
 
-    private static void HandleComponent<T>(ref EntityData entityData, Entity entity, byte hasComponent, Action<EntityData, T>? action = null) 
+    private static byte HasComponentInByte(Component? component)
+    {
+        return (byte)(component is not null ? 1 : 0);
+    }
+
+    private static void HandleComponentToEntity<T>(ref EntityData entityData, Entity entity, byte hasComponent, Action<EntityData, T>? action = null) 
         where T : Component
     {
         var component = entity.GetComponent<T>();
 
-        if (hasComponent == 1)
+        if (hasComponent == 0)
         {
             if (component is null)
                 return;
@@ -57,17 +97,7 @@ internal static class EntitySynchronizer
             return;
         }
 
-        if (component is null)
-        {
-            component = (T)Activator.CreateInstance(
-                type: typeof(T), 
-                bindingAttr: BindingFlags.Instance | BindingFlags.NonPublic,
-                binder: null,
-                args: [ entity.Id ],
-                culture: CultureInfo.CurrentCulture)!;
-            entity.AddComponent(component);
-        }
-
+        component ??= entity.AddComponent<T>();
         action?.Invoke(entityData, component);
     }
 
@@ -76,5 +106,19 @@ internal static class EntitySynchronizer
         cameraComponent.Far = entityData.cameraFar;
         cameraComponent.Fov = entityData.cameraFov;
         cameraComponent.Near = entityData.cameraNear;
+    }
+
+    private static void HandleCreateDirectionalLightComponent(EntityData entityData, DirectionalLightComponent directionalLightComponent)
+    {
+        directionalLightComponent.Color.Red = entityData.directionalLightColorRed;
+        directionalLightComponent.Color.Green = entityData.directionalLightColorGreen;
+        directionalLightComponent.Color.Blue = entityData.directionalLightColorBlue;
+        directionalLightComponent.Color.Alpha = entityData.directionalLightColorAlpha;
+
+        directionalLightComponent.Specular.X = entityData.directionalLightSpecularX;
+        directionalLightComponent.Specular.Y = entityData.directionalLightSpecularY;
+        directionalLightComponent.Specular.Z = entityData.directionalLightSpecularZ;
+
+        directionalLightComponent.Influence = entityData.directionalLightInfluence;
     }
 }

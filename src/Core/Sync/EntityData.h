@@ -21,8 +21,18 @@ struct EntityData
     float cameraFov;
     float cameraNear;
     float cameraFar;
+    float directionalLightSpecularX;
+    float directionalLightSpecularY;
+    float directionalLightSpecularZ;
+    float directionalLightColorRed;
+    float directionalLightColorGreen;
+    float directionalLightColorBlue;
+    float directionalLightColorAlpha;
+    float directionalLightInfluence;
+
     uint8_t uiComponentHas;
     uint8_t cameraComponentHas;
+    uint8_t directionalLightComponentHas;
 
     char scriptAssemblyName[256];
     char scriptClassName[256];

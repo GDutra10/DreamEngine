@@ -33,8 +33,9 @@ public class Script
     protected Entity CreateEntity(string tag = "default", string name = "") 
         => Game.Scene.CreateEntity(tag, name);
 
-    protected T? GetComponent<T>() where T : Component
-    {
-        return Entity.GetComponent<T>();
-    }
+    protected T? GetComponent<T>() where T : Component => Entity.GetComponent<T>();
+
+    protected T AddComponent<T>() where T : Component => Entity.AddComponent<T>();
+
+    protected void RemoveComponent<T>() where T : Component => Entity.RemoveComponent<T>();
 }
