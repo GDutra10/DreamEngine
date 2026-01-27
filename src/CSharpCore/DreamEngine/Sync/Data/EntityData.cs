@@ -19,8 +19,18 @@ internal unsafe struct EntityData
     public float cameraFov;
     public float cameraNear;
     public float cameraFar;
+    public float directionalLightSpecularX;
+    public float directionalLightSpecularY;
+    public float directionalLightSpecularZ;
+    public float directionalLightColorRed;
+    public float directionalLightColorGreen;
+    public float directionalLightColorBlue;
+    public float directionalLightColorAlpha;
+    public float directionalLightInfluence;
+
     public byte uiComponentHas;
     public byte cameraComponentHas;
+    public byte directionalLightComponentHas;
     public fixed byte scriptAssemblyName[256];
     public fixed byte scriptClassName[256];
 
