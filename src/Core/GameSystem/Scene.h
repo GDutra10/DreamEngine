@@ -7,6 +7,7 @@
 #include "../Color.h"
 #include "../ECS/EntityManager.h"
 #include "../Resources/ResourceManager.h"
+#include "../Sync/SceneData.h"
 
 namespace DreamEngine::Core::GameSystem
 {
@@ -31,8 +32,10 @@ class CORE_API Scene
     [[nodiscard]] EntityManager* GetEntityManager() const;
     [[nodiscard]] GlobalLight* GetGlobalLight();
     [[nodiscard]] Entity* GetMainCameraEntity() const;
+    [[nodiscard]] SceneData* GetSceneData() const;
     virtual Camera& GetCamera();
     virtual bool GetIsFocused() const;
+    virtual bool ChangeScene(std::string sceneName);
     bool GetMustRunScriptComponents() const;
     void SetMustRunScriptComponents(bool val);
     void SetShowCursor(bool showCursor);
@@ -57,8 +60,10 @@ class CORE_API Scene
     ResourceManager* m_resourceManager;
     GlobalLight* m_globalLight;
     Entity* m_pMainCameraEntity = nullptr;
+    SceneData* m_pSceneData = new SceneData();
     bool m_showCursor;
     bool m_mustRunScriptComponents = true;
+    bool m_mustRecreateEntitiesInScriptEngine = false;
    private:
     std::string m_name;
 };

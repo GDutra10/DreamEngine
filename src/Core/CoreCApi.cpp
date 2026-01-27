@@ -110,3 +110,51 @@ bool CORE_CALL Core_UiManagerBindOnClickCallback(size_t entityId, const char* ev
 
     return true;
 }
+
+unsigned int CORE_CALL Core_SceneManagerCreateEntity(const char* tag, const char* name) noexcept
+{
+    Entity* entity = Application::Instance().GetGame()->GetActiveScene()->GetEntityManager()->AddEntity(tag);
+
+    if (name[0] != '\0')
+    {
+        std::string& entityName = entity->GetName();
+        entityName = name;
+    }
+
+    return entity->GetId();
+}
+
+bool CORE_CALL Core_SceneManagerSetMainCamera(unsigned int entityId) noexcept
+{
+    Entity* entity = Application::Instance().GetGame()->GetActiveScene()->GetEntityManager()->GetEntityById(entityId);
+
+    if (entity == nullptr)
+        return false;
+
+    Application::Instance().GetGame()->GetActiveScene()->SetMainCameraEntity(entity);
+    
+    return true;
+}
+
+bool CORE_CALL Core_SceneManagerSetShowCursor(bool showCursor) noexcept
+{
+    Application::Instance().GetGame()->GetActiveScene()->SetShowCursor(showCursor);
+    
+    return true;
+}
+
+bool CORE_CALL Core_SceneManagerSetGlobalLight(float r, float g, float b, float intensity) noexcept
+{
+    GlobalLight* globalLight = Application::Instance().GetGame()->GetActiveScene()->GetGlobalLight();
+    globalLight->directionalLight.color = { r, g, b };
+    globalLight->directionalLight.influence = intensity;
+
+    return true;
+}
+
+bool CORE_CALL Core_SceneManagerChangeScene(const char* sceneName) noexcept
+{
+    Scene* scene = Application::Instance().GetGame()->GetActiveScene();
+
+    return scene->ChangeScene(sceneName);
+}

@@ -4,6 +4,7 @@
 #include "CoreExport.h"
 #include "RenderAPI.h"
 
+#include "RenderPass.h"
 #include "RenderView.h"
 #include <glad/glad.h>  
 #include "GLFW/glfw3.h"
@@ -11,12 +12,13 @@
 
 namespace DreamEngine::Core::Render
 {
-class CORE_API RenderPipeline final
+class CORE_API RenderPipeline final : public RenderPass
 {
 public:
     void Initialize(RenderAPI* renderer, GLFWwindow* window, const int width, const int height);
     void Render(Scene* scene, RenderView& renderView);
-private:
+
+   private:
     RenderAPI* m_pRenderer = nullptr;
     GLFWwindow* m_pWindow = nullptr;
     std::vector<RenderView> m_renderViews;

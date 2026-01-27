@@ -75,7 +75,6 @@ class EditorSingleton final
     CameraEditorController m_cameraEditorController;
     RenderView* m_pSceneRenderView = nullptr;
     RenderView* m_pGameRenderView = nullptr;
-    void SetOutlineComponent(Entity* entity, bool hasComponent);
 };
 
 }  // namespace DreamEngine::Editor

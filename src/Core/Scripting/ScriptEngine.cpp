@@ -25,9 +25,6 @@ coreclr_initialize_ptr ScriptEngine::m_spCoreClrInitialize = nullptr;
 coreclr_create_delegate_ptr ScriptEngine::m_spCoreClrCreateDelegate = nullptr;
 coreclr_shutdown_ptr ScriptEngine::m_spCoreClrShutdown = nullptr;
 // scripts delegate
-updateDelegate ScriptEngine::m_spUpdateDelegate = nullptr;
-createInstanceDelegate ScriptEngine::m_spCreateInstanceDelegate = nullptr;
-releaseInstanceDelegate ScriptEngine::m_spReleaseInstanceDelegate = nullptr;
 getScriptInfoDelegate ScriptEngine::m_spGetScriptInfoDelegate = nullptr;
 releaseScriptInfoDelegate ScriptEngine::m_spReleaseScriptInfoDelegate = nullptr;
 updateGameDelegate ScriptEngine::m_spUpdateGameDelegate = nullptr;
@@ -137,10 +134,13 @@ void ScriptEngine::Shutdown()
     m_sDomainId = 0;
 
     // delegates
-    m_spUpdateDelegate = nullptr;
-    m_spCreateInstanceDelegate = nullptr;
-    m_spReleaseInstanceDelegate = nullptr;
+    m_spAssemblyInitializeDelegate = nullptr;
+    m_spAssembliesUnloadDelegate = nullptr;
+
     m_spGetScriptInfoDelegate = nullptr;
+    m_spReleaseScriptInfoDelegate = nullptr;
+    m_spUpdateGameDelegate = nullptr;
+    m_spProcessEventDelegate = nullptr;
 }
 
 bool ScriptEngine::IsRunning()
@@ -148,26 +148,9 @@ bool ScriptEngine::IsRunning()
     return m_spHostHandle != nullptr;
 }
 
-void* ScriptEngine::CreateInstance(const char* assemblyName, const char* typeName)
+void ScriptEngine::UpdateGame(Sync::GameData* gameData, Sync::EntityData* entityDataArray, const int entityCount)
 {
-    void* pointer = m_spCreateInstanceDelegate(assemblyName, typeName);
-
-    return pointer;
-}
-
-void ScriptEngine::ReleaseInstance(void* instance)
-{
-    m_spReleaseInstanceDelegate(instance);
-}
-
-void ScriptEngine::Update(void* instance, void* entityData)
-{
-    m_spUpdateDelegate(instance, entityData);
-}
-
-void ScriptEngine::UpdateGame(void* gameData)
-{
-    m_spUpdateGameDelegate(gameData);
+    m_spUpdateGameDelegate(gameData, entityDataArray, entityCount);
 }
 
 void ScriptEngine::ProcessEvent(const int eventId)
@@ -337,52 +320,6 @@ std::string ScriptEngine::NormalizePath(const std::string& path)
 bool ScriptEngine::CreateCoreCLRDelegates()
 {
     LoggerSingleton::Instance().LogTrace("ScriptEngine::CreateCoreCLRDelegates -> Start");
-
-    // Create instance delegate
-    const int createInstanceDelegateStatus = m_spCoreClrCreateDelegate(
-        m_spHostHandle,                      // CoreCLR host handle
-        m_sDomainId,                         // AppDomain ID
-        SCRIPT_ENGINE_ASSEMBLY_NAME,         // Assembly name
-        SCRIPT_ENGINE_SCRIPT_MANAGER_NAME,   // Type name (including namespace)
-        "CreateInstance",                    // Method name
-        (void**)&m_spCreateInstanceDelegate  // Delegate to store the function pointer
-    );
-
-    if (createInstanceDelegateStatus != 0)
-    {
-        LoggerSingleton::Instance().LogError("ScriptEngine::CreateCoreCLRDelegates -> Failed to bind CreateInstance delegate.");
-    }
-    
-    // Release delegate
-    const int releaseInstanceDelegateStatus = m_spCoreClrCreateDelegate(
-        m_spHostHandle,                       // CoreCLR host handle
-        m_sDomainId,                          // AppDomain ID
-        SCRIPT_ENGINE_ASSEMBLY_NAME,          // Assembly name
-        SCRIPT_ENGINE_SCRIPT_MANAGER_NAME,    // Type name (including namespace)
-        "ReleaseInstance",                    // Method name
-        (void**)&m_spReleaseInstanceDelegate  // Delegate to store the function pointer
-    );
-
-    if (releaseInstanceDelegateStatus != 0)
-    {
-        LoggerSingleton::Instance().LogError("ScriptEngine::CreateCoreCLRDelegates -> Failed to bind ReleaseInstance delegate.");
-    }
-
-
-    // Update delegate
-    const int updateDelegateStatus = m_spCoreClrCreateDelegate(
-        m_spHostHandle,                     // CoreCLR host handle
-        m_sDomainId,                        // AppDomain ID
-        SCRIPT_ENGINE_ASSEMBLY_NAME,        // Assembly name
-        SCRIPT_ENGINE_SCRIPT_MANAGER_NAME,  // Type name (including namespace)
-        "UpdateInstance",                   // Method name
-        (void**)&m_spUpdateDelegate         // Delegate to store the function pointer
-    );
-    
-    if (updateDelegateStatus != 0)
-    {
-        LoggerSingleton::Instance().LogError("ScriptEngine::CreateCoreCLRDelegates -> Failed to bind Update delegate.");
-    }
     
     const int getScriptInfoStatus = m_spCoreClrCreateDelegate(
         m_spHostHandle,                     // CoreCLR host handle
@@ -469,9 +406,7 @@ bool ScriptEngine::CreateCoreCLRDelegates()
         return false;
     }
 
-    return createInstanceDelegateStatus == 0 &&
-        releaseInstanceDelegateStatus == 0 &&
-        updateDelegateStatus == 0 &&
+    return 
         getScriptInfoStatus == 0 &&
         assemblyInitStatus == 0 &&
         assemblyUnloadStatus == 0 && 
