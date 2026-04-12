@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 using DreamEngine.Sync.Data;
+using DreamEngine.Commands;
 
 namespace DreamEngine.Managers;
 
@@ -125,9 +126,13 @@ internal static class ScriptManager
             // Sync managed scene from native data
             GameSynchronizer.Synchronize(ref gameData, entityData, entityCount);
 
+            var entities = Game.Scene.Entities.Select(e => e.Value);
+
+            CommandQueue.Process();
+
             // Scripts
-            foreach (var entity in Game.Scene.Entities)
-                entity.Value.Script?.Update();
+            foreach (var entity in entities)
+                entity.Script?.Update();
 
             // Map id -> index once
             var indexById = new Dictionary<uint, int>(entityCount);
@@ -136,13 +141,7 @@ internal static class ScriptManager
                 indexById[entityData[i].id] = i;
 
             // Write changes directly into native buffer
-            foreach (var kv in Game.Scene.Entities)
-            {
-                if (!indexById.TryGetValue(kv.Key, out var idx))
-                    continue;
-
-                EntitySynchronizer.SynchronizeFromTo(kv.Value, ref entityData[idx]);
-            }
+            Game.Scene.Update(indexById, entityData);
 
             // Write back game data (only if you actually modify it)
             Marshal.StructureToPtr(gameData, gameDataHandle, false);

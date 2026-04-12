@@ -7,6 +7,7 @@ namespace DreamEngine.Sync.Data;
 internal unsafe struct EntityData
 {
     public uint id;
+    public uint parentId;
     public float transformPositionX;
     public float transformPositionY;
     public float transformPositionZ;

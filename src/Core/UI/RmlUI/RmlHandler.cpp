@@ -97,8 +97,15 @@ void RmlHandler::BeginRender(const int width, const int height)
     if (!m_spContext || !m_spRenderInterface)
         return;
 
-    m_spContext->SetDimensions({width, height});
-    m_spRenderInterface->SetViewport(width, height);
+    if (m_width != width || m_height != height)
+    {
+        m_width = width;
+        m_height = height;
+
+        m_spContext->SetDimensions({width, height});
+        m_spRenderInterface->SetViewport(width, height);
+    }
+    
     m_spRenderInterface->BeginFrame();
 }
 

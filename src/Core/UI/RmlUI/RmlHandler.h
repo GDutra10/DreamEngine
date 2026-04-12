@@ -43,6 +43,8 @@ class RmlHandler final : public IUiHandler
     bool ProcessScroll(double xOffset, double yOffset) override;
 
    private:
+    int m_width = 0;
+    int m_height = 0;
     static Rml::Context* m_spContext;
     static SystemInterface_GLFW* m_spSystemInterface;
     static CustomRenderInterface_GL3* m_spRenderInterface;

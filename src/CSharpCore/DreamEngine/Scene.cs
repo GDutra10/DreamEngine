@@ -1,6 +1,8 @@
 using DreamEngine.Core;
 using DreamEngine.ECS;
 using DreamEngine.ECS.Components;
+using DreamEngine.Sync;
+using DreamEngine.Sync.Data;
 
 namespace DreamEngine;
 
@@ -15,6 +17,7 @@ public class Scene
     internal SceneEnvironment environment = new ();
 
     internal Dictionary<uint, Entity> Entities { get; } = [];
+    internal Dictionary<uint, Entity> EntitiesToAdd { get; } = [];
 
     internal Entity CameraEntity { get; set; } = null!;
 
@@ -22,7 +25,9 @@ public class Scene
     {
         var entity = SceneManager.CreateEntity(tag, name);
 
-        Entities[entity.Id] = entity;
+        EntitiesToAdd[entity.Id] = entity;
+
+        entity.MustProcessCommandsNextUpdate = true;
 
         return entity;
     }
@@ -79,6 +84,27 @@ public class Scene
 
         return entity;
     }
+
+    internal unsafe void Update(Dictionary<uint, int> indexById, EntityData* entityData)
+    {
+        foreach (var kv in Entities)
+        {
+            if (!indexById.TryGetValue(kv.Key, out var idx))
+                continue;
+
+            EntitySynchronizer.SynchronizeFromTo(kv.Value, ref entityData[idx]);
+        }
+
+        foreach (var entityToAdd in EntitiesToAdd)
+        {
+            Entities[entityToAdd.Key] = entityToAdd.Value;
+        }
+
+        if (EntitiesToAdd.Count > 0)
+            EntitiesToAdd.Clear();
+    }
+
+    internal Entity? GetEntity(uint id) => Entities.TryGetValue(id, out var entity) ? entity : null;
 
     public struct SceneEnvironment
     {

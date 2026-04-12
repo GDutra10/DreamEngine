@@ -8,6 +8,7 @@ namespace DreamEngine::Core::Sync
 struct EntityData
 {
     unsigned int id;
+    unsigned int parentId;
     // components
     float transformPositionX;
     float transformPositionY;

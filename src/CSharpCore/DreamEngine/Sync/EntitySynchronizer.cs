@@ -13,6 +13,8 @@ internal static class EntitySynchronizer
     // without ref, c# pass it a copy of that struct
     public static void SynchronizeFromTo(Entity entity, ref EntityData entityData)
     {
+        entityData.parentId = entity.Parent?.Id ?? 0;
+
         entityData.transformPositionX = entity.Transform.Position.X;
         entityData.transformPositionY = entity.Transform.Position.Y;
         entityData.transformPositionZ = entity.Transform.Position.Z;
@@ -62,15 +64,19 @@ internal static class EntitySynchronizer
     public static void SynchronizeFromTo(ref EntityData entityData, Entity entity)
     {
         entity.Id = entityData.id;
-        entity.Transform.Position.X = entityData.transformPositionX;
-        entity.Transform.Position.Y = entityData.transformPositionY;
-        entity.Transform.Position.Z = entityData.transformPositionZ;
-        entity.Transform.Rotation.X = entityData.transformRotationX;
-        entity.Transform.Rotation.Y = entityData.transformRotationY;
-        entity.Transform.Rotation.Z = entityData.transformRotationZ;
-        entity.Transform.Scale.X = entityData.transformScaleX;
-        entity.Transform.Scale.Y = entityData.transformScaleY;
-        entity.Transform.Scale.Z = entityData.transformScaleZ;
+
+        if (entityData.parentId != 0)
+            entity.Parent = Game.Scene.GetEntity(entityData.parentId);
+
+        entity.Transform.Position.InternalX = entityData.transformPositionX;
+        entity.Transform.Position.InternalY = entityData.transformPositionY;
+        entity.Transform.Position.InternalZ = entityData.transformPositionZ;
+        entity.Transform.Rotation.InternalX = entityData.transformRotationX;
+        entity.Transform.Rotation.InternalY = entityData.transformRotationY;
+        entity.Transform.Rotation.InternalZ = entityData.transformRotationZ;
+        entity.Transform.Scale.InternalX = entityData.transformScaleX;
+        entity.Transform.Scale.InternalY = entityData.transformScaleY;
+        entity.Transform.Scale.InternalZ = entityData.transformScaleZ;
 
         HandleComponentToEntity<UiComponent>(ref entityData, entity, entityData.uiComponentHas);
         HandleComponentToEntity<CameraComponent>(ref entityData, entity, entityData.cameraComponentHas, HandleCreateCameraComponent);

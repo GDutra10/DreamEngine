@@ -1,4 +1,5 @@
-﻿using DreamEngine.Scripting;
+﻿using DreamEngine.Commands;
+using DreamEngine.Scripting;
 using DreamEngine.Sync.Data;
 using System.Globalization;
 using System.Reflection;
@@ -7,15 +8,34 @@ using Component = DreamEngine.ECS.Components.Component;
 namespace DreamEngine.ECS;
 public class Entity
 {
-    public Transform Transform { get; internal set; } = new();
+    public Transform Transform { get; init; }
     public Script? Script { get; internal set; }
-    
+    public Entity? Parent
+    {
+        get => InternalParent;
+        set
+        {
+            if (MustProcessCommandsNextUpdate)
+                CommandQueue.Add(new ParentCommand(this, value));
+            else
+                InternalParent = value;
+        }
+    }
+
+    public IReadOnlyList<Entity> Children => [.. Game.Scene.Entities.Values.Where(x => x.Parent is not null && x.Parent.Id == Id)];
+
+    internal Entity? InternalParent;
+
     internal readonly HashSet<Component> _components = [];
     internal EntityData _entityData;
+    internal bool MustProcessCommandsNextUpdate { get; set; }
 
     internal uint Id { get; set; }
-    
-    internal Entity() { }
+
+    internal Entity() 
+    {
+        Transform = new Transform(this);
+    }
 
     public T? GetComponent<T>() where T : Component
     {

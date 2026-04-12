@@ -4,6 +4,8 @@
 #include "ECS/Components/UiComponent.h"
 #include "ECS/Components/DirectionalLightComponent.h"
 #include "ECS/Components/CameraComponent.h"
+#include "ECS/Components/ChildrenComponent.h"
+#include "Application.h"
 #include "glm/gtx/quaternion.hpp"
 
 using namespace DreamEngine::Core::Sync;
@@ -27,6 +29,13 @@ void EntitySynchronizer::SynchronizeToData(Entity* entity)
     entity->entityData.transformScaleY = scale.y;
     entity->entityData.transformScaleZ = scale.z;
 
+    // parent component
+    ParentComponent& parentComponent = entity->GetComponent<ParentComponent>();
+
+    if (parentComponent.has && parentComponent.parent != nullptr)
+        entity->entityData.parentId = parentComponent.parent->GetId();
+
+    // ui component
     UiComponent& uiComponent = entity->GetComponent<UiComponent>();
     entity->entityData.uiComponentHas = uiComponent.has;
 
@@ -75,13 +84,17 @@ void EntitySynchronizer::SynchronizeToData(Entity* entity)
 
 void EntitySynchronizer::SynchronizeFromData(Entity* entity)
 {
-    EntityData& entityData = entity->entityData;
     TransformComponent& transformComponent = entity->GetComponent<TransformComponent>();
 
+    // parent id component
+    HandleParentComponent(entity);
+
     // Extract individual components from EntityData
-    glm::vec3 scale(entityData.transformScaleX, entityData.transformScaleY, entityData.transformScaleZ);
-    glm::vec3 rotationEuler(glm::radians(entityData.transformRotationX), glm::radians(entityData.transformRotationY), glm::radians(entityData.transformRotationZ));
-    glm::vec3 position(entityData.transformPositionX, entityData.transformPositionY, entityData.transformPositionZ);
+    glm::vec3 scale(entity->entityData.transformScaleX, entity->entityData.transformScaleY, entity->entityData.transformScaleZ);
+    glm::vec3 rotationEuler(glm::radians(entity->entityData.transformRotationX), 
+                            glm::radians(entity->entityData.transformRotationY),
+                            glm::radians(entity->entityData.transformRotationZ));
+    glm::vec3 position(entity->entityData.transformPositionX, entity->entityData.transformPositionY, entity->entityData.transformPositionZ);
 
     // Update the TransformComponent's individual properties
     transformComponent.SetScale(scale);
@@ -122,4 +135,55 @@ void EntitySynchronizer::SynchronizeFromData(Entity* entity)
     cameraComponent.far = entity->entityData.cameraFar;
     cameraComponent.fovDegree = entity->entityData.cameraFov;
     cameraComponent.near = entity->entityData.cameraNear;
+}
+
+void DreamEngine::Core::Sync::EntitySynchronizer::HandleParentComponent(Entity* entity)
+{
+    ParentComponent& parentComponent = entity->GetComponent<ParentComponent>();
+    parentComponent.has = entity->entityData.parentId > 0;
+
+    if (parentComponent.parent != nullptr && (parentComponent.parent->GetId() != entity->entityData.parentId || entity->entityData.parentId <= 0) ||
+        parentComponent.parent == nullptr && entity->entityData.parentId > 0)
+    {
+        RemoveEntityFromParent(entity, parentComponent);
+        AddEntityToParent(entity, parentComponent);
+    }
+}
+
+void DreamEngine::Core::Sync::EntitySynchronizer::RemoveEntityFromParent(Entity* entity, ParentComponent& parentComponent)
+{
+    if (parentComponent.parent == nullptr)
+        return;
+
+    unsigned int entityId = entity->GetId();
+    ChildrenComponent& oldParentChildrenComp = parentComponent.parent->GetComponent<ChildrenComponent>();
+
+    std::vector<Entity*>::iterator childrenFound =
+        std::find_if(oldParentChildrenComp.children.begin(), oldParentChildrenComp.children.end(), [entityId](Entity* ent) { return ent->GetId() == entityId; });
+
+    if (childrenFound != oldParentChildrenComp.children.end())
+    {
+        oldParentChildrenComp.children.erase(childrenFound);
+    }
+}
+
+void DreamEngine::Core::Sync::EntitySynchronizer::AddEntityToParent(Entity* entity, ParentComponent& parentComponent)
+{
+    if (entity->entityData.parentId <= 0)
+    {
+        parentComponent.parent = nullptr;
+
+        return;
+    }
+
+    unsigned int parentId = entity->entityData.parentId;
+    std::vector<Entity*> entities = Application::Instance().GetGame()->GetActiveScene()->GetEntityManager()->GetEntities();
+    std::vector<Entity*>::iterator it = std::find_if(entities.begin(), entities.end(), [parentId](Entity* pEntity) { return pEntity->GetId() == parentId; });
+
+    if (it != entities.end())
+    {
+        parentComponent.parent = (*it);
+        ChildrenComponent& parentChildrenComponent = parentComponent.parent->GetComponent<ChildrenComponent>();
+        parentChildrenComponent.children.push_back(entity);
+    }
 }
