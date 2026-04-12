@@ -21,6 +21,9 @@ using namespace DreamEngine::Core::ECS::Components;
 using namespace DreamEngine::Core::Loggers;
 using namespace DreamEngine::Editor::Controllers;
 using namespace DreamEngine::Editor::Singletons;
+using namespace DreamEngine::Editor::Models::Datas;
+
+Datas::SceneData* SceneController::m_pOriginalSceneData = nullptr;
 
 bool SceneController::ShouldLoadSceneData(path& path)
 {
@@ -28,11 +31,14 @@ bool SceneController::ShouldLoadSceneData(path& path)
     return path != EditorSingleton::Instance().GetSelectedScenePath();
 }
 
-void SceneController::LoadSceneData(path& path, EntityManager* entityManager)
+void SceneController::LoadSceneData(path& path, EntityManager* entityManager, bool isByChangeScene)
 {
     LoggerSingleton::Instance().LogTrace("SceneController::LoadSceneData -> Start");
 
     std::ifstream file(path.string());
+
+    if (isByChangeScene && m_pOriginalSceneData == nullptr)
+        m_pOriginalSceneData = EditorSingleton::Instance().sceneData;
 
     SceneData* sceneData = &Serializers::SceneDataSerializer::Deserialize(file);
     sceneData->path = path;
@@ -183,6 +189,13 @@ void SceneController::Stop(EntityManager* entityManager)
     LoggerSingleton::Instance().LogTrace("SceneController::Stop -> Start");
 
     EditorSingleton::Instance().GetEditorScene()->SetMustRunScriptComponents(false);
+
+    if (m_pOriginalSceneData != nullptr)
+    {
+        EditorSingleton::Instance().sceneData = m_pOriginalSceneData;
+        m_pOriginalSceneData = nullptr;
+    }
+
     LoadScene(entityManager);
 }
 

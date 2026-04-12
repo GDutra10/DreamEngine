@@ -5,12 +5,12 @@
 using namespace DreamEngine::Core::GameSystem;
 using namespace DreamEngine::Core::Loggers;
 
-void Game::ChangeActiveScene()
+bool Game::ChangeActiveScene()
 {
-    ChangeActiveScene(m_scenes.begin()->first);
+    return ChangeActiveScene(m_scenes.begin()->first);
 }
 
-void Game::ChangeActiveScene(const std::string& sceneName)
+bool Game::ChangeActiveScene(const std::string& sceneName)
 {
     if (const auto it = m_scenes.find(sceneName); it != m_scenes.end())
     {
@@ -19,7 +19,11 @@ void Game::ChangeActiveScene(const std::string& sceneName)
 
         m_activeScene = it->second;
         m_activeScene->Initialize();
+
+        return true;
     }
-    else
-        LoggerSingleton::Instance().LogWarning("Scene not found");
+    
+    LoggerSingleton::Instance().LogWarning("Scene '" + sceneName + "'not found");
+    
+    return false;
 }

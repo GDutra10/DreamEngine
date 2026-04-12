@@ -12,7 +12,6 @@
 #include "Components/ParentComponent.h"
 #include "Components/NativeScriptComponent.h"
 #include "Components/CameraComponent.h"
-#include "Components/OutlineComponent.h"
 #include "Components/UiComponent.h"
 
 namespace DreamEngine::Core::ECS
@@ -29,7 +28,6 @@ typedef std::tuple<std::vector<TransformComponent>,
                    std::vector<ParentComponent>,
                    std::vector<NativeScriptComponent>,
                    std::vector<CameraComponent>,
-                   std::vector<OutlineComponent>, 
                    std::vector<UiComponent>
    > EntityComponentVectorTuple;
 

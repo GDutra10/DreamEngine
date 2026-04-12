@@ -5,6 +5,8 @@ using DreamEngine.Sync;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Loader;
+using DreamEngine.Sync.Data;
+using DreamEngine.Commands;
 
 namespace DreamEngine.Managers;
 
@@ -55,68 +57,6 @@ internal static class ScriptManager
             GC.WaitForPendingFinalizers();
 
             Logger.LogInfo("Assembly has been unloaded!");
-        }
-        catch (Exception e)
-        {
-            Logger.LogError(e.ToString());
-        }
-    }
-
-    public static IntPtr CreateInstance(string assemblyName, string name)
-    {
-        try
-        {
-            if (_assembly is null || _assembly.GetName().Name != assemblyName)
-                throw new NotFoundAssemblyException(assemblyName);
-
-            var type = _assembly.GetType(name);
-
-            if (type is null)
-                throw new TypeNotFoundException(name, assemblyName);
-
-            var instance = Activator.CreateInstance(type);
-
-            if (!type.IsSubclassOf(typeof(Script)))
-                throw new InvalidScriptTypeException(type);
-
-            // create on GC
-            var handle = GCHandle.Alloc(instance);
-
-            return GCHandle.ToIntPtr(handle);
-        } 
-        catch (Exception e)
-        {
-            Logger.LogError(e.ToString());
-        }
-        
-        return IntPtr.Zero;
-    }
-
-    public static void ReleaseInstance(IntPtr handle)
-    {
-        GCHandle.FromIntPtr(handle).Free();
-    }
-
-    public static void UpdateInstance(IntPtr handle, IntPtr entityDataHandle)
-    {
-        if (GCHandle.FromIntPtr(handle).Target is not Script script)
-        {
-            Logger.LogError("Pointer is not a Script");
-            
-            return;
-        }
-
-        try
-        {
-            var entityData = Marshal.PtrToStructure<EntityData>(entityDataHandle);
-            
-            EntitySynchronizer.SynchronizeFromTo(ref entityData, script.Entity);
-            script.Initialize();
-            script.Update();
-            EntitySynchronizer.SynchronizeFromTo(script.Entity, ref entityData);
-
-            // Marshal the updated structure back to unmanaged memory
-            Marshal.StructureToPtr(entityData, entityDataHandle, false);
         }
         catch (Exception e)
         {
@@ -176,12 +116,35 @@ internal static class ScriptManager
         Marshal.FreeHGlobal(ptr);
     }
 
-    public static void UpdateGame(IntPtr gameDataHandle)
+    public static unsafe void UpdateGame(IntPtr gameDataHandle, IntPtr entitiesDataArrayPtr, int entityCount)
     {
         try
         {
             var gameData = Marshal.PtrToStructure<GameData>(gameDataHandle);
-            GameSynchronizer.Synchronize(ref gameData);
+            var entityData = (EntityData*)entitiesDataArrayPtr;
+
+            // Sync managed scene from native data
+            GameSynchronizer.Synchronize(ref gameData, entityData, entityCount);
+
+            var entities = Game.Scene.Entities.Select(e => e.Value);
+
+            CommandQueue.Process();
+
+            // Scripts
+            foreach (var entity in entities)
+                entity.Script?.Update();
+
+            // Map id -> index once
+            var indexById = new Dictionary<uint, int>(entityCount);
+            
+            for (var i = 0; i < entityCount; i++)
+                indexById[entityData[i].id] = i;
+
+            // Write changes directly into native buffer
+            Game.Scene.Update(indexById, entityData);
+
+            // Write back game data (only if you actually modify it)
+            Marshal.StructureToPtr(gameData, gameDataHandle, false);
         }
         catch (Exception e)
         {
@@ -199,5 +162,35 @@ internal static class ScriptManager
         {
             Logger.LogError(e.ToString());
         }
+    }
+
+    internal static IntPtr CreateInstance(string assemblyName, string name)
+    {
+        try
+        {
+            if (_assembly is null || _assembly.GetName().Name != assemblyName)
+                throw new NotFoundAssemblyException(assemblyName);
+
+            var type = _assembly.GetType(name);
+
+            if (type is null)
+                throw new TypeNotFoundException(name, assemblyName);
+
+            var instance = Activator.CreateInstance(type);
+
+            if (!type.IsSubclassOf(typeof(Script)))
+                throw new InvalidScriptTypeException(type);
+
+            // create on GC
+            var handle = GCHandle.Alloc(instance);
+
+            return GCHandle.ToIntPtr(handle);
+        }
+        catch (Exception e)
+        {
+            Logger.LogError(e.ToString());
+        }
+
+        return IntPtr.Zero;
     }
 }

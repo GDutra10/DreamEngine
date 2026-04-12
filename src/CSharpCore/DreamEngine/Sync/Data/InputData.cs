@@ -1,6 +1,6 @@
 ﻿using DreamEngine.Inputs;
 
-namespace DreamEngine.Sync;
+namespace DreamEngine.Sync.Data;
 
 internal struct InputData
 {

@@ -2,7 +2,6 @@
 #include "../EditorDefine.h"
 #include "../../Core/Application.h"
 #include "../../Core/ECS/Components/ChildrenComponent.h"
-#include "../../Core/ECS/Components/OutlineComponent.h"
 #include "../../Core/Loggers/LoggerSingleton.h"
 #include "../../Core/Resources/ResourceManager.h"
 #include "Render/RenderViewProvider.h"
@@ -127,43 +126,7 @@ void EditorSingleton::SetEntityManager(EntityManager* entityManager)
 void EditorSingleton::SetSelectedEntity(Entity* entity)
 {   
     m_isViewSceneData = false;
-
-    // just skipping if the entity is the same
-    if (entity == m_pSelectedEntity)
-        return;
-    
-    if (m_pSelectedEntity != nullptr)
-        SetOutlineComponent(m_pSelectedEntity, false);
-
-    if (entity != nullptr)
-        SetOutlineComponent(entity, true);
-
     m_pSelectedEntity = entity;
-}
-
-void EditorSingleton::SetOutlineComponent(Entity* entity, const bool hasComponent)
-{
-    OutlineComponent& outlineComponent = entity->GetComponent<OutlineComponent>();
-    outlineComponent.has = hasComponent;
-
-    if (hasComponent)
-    {
-        outlineComponent.color.red = 1.f;
-        outlineComponent.color.green = 1.f;
-        outlineComponent.color.blue = 0;
-        outlineComponent.thickness = 0.02f;
-    }
-
-    if (hasComponent && !outlineComponent.shader)
-        outlineComponent.shader = ResourceManager::Instance().GetShader(EDITOR_OUTLINE_SHADER_NAME);
-
-    ChildrenComponent& childrenComponent = entity->GetComponent<ChildrenComponent>();
-
-    if (childrenComponent.has)
-    {
-        for (Entity* child : childrenComponent.children)
-            SetOutlineComponent(child, hasComponent);
-    }
 }
 
 void EditorSingleton::SetProjectConfiguration(const ProjectConfiguration& projectConfig) const

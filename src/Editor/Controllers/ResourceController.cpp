@@ -191,7 +191,7 @@ Result ResourceController::CreateSceneFile(const std::string& filename)
 
         if (file.is_open())
         {
-            SceneData sceneData;
+            Datas::SceneData sceneData;
             sceneData.globalLight.transform.position = {0.f, 500.f, 0.f};
             sceneData.globalLight.transform.rotation= {0.f, 0.f, 0.f};
             sceneData.globalLight.transform.scale = {0.f, 0.f, 0.f};

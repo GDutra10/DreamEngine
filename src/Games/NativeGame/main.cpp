@@ -36,5 +36,6 @@ int main()
         game->height,
         "Native Game", 
         openGL,
-        game);
+        game,
+        {});
 }

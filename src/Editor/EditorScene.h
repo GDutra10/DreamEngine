@@ -40,6 +40,7 @@ public:
     void Update(float deltaTime) override;
     bool GetIsFocused() const override;
     Camera& GetCamera() override;
+    bool ChangeScene(std::string sceneName) override;
 
    private:
     bool m_imGuiInitialized = false;
@@ -65,6 +66,7 @@ public:
     void SetStyleUnreal();
     void SetStyleUnreal2();
     void SetStyleEngine();
+    void RenderDebugPass(Scene& scene, RenderView& renderView, RenderAPI* pRenderer);
 };
 
 }  // namespace DreamEngine::Editor::Loggers

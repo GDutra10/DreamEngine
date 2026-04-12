@@ -17,12 +17,13 @@ class SceneController
 {
    public:
     static bool ShouldLoadSceneData(path& path);
-    static void LoadSceneData(path& path, EntityManager* entityManager);
+    static void LoadSceneData(path& path, EntityManager* entityManager, bool isByChangeScene = false);
     static bool SaveSceneData(EntityManager* entityManager);
     static void Play(EntityManager* entityManager);
     static void Stop(EntityManager* entityManager);
 
 private:
+    static SceneData* m_pOriginalSceneData;
     static void LoadScene(EntityManager* entityManager);
     static vector<Entity*> CreateEntities(EntityManager* entityManager, SceneData* sceneData);
     static void SetParentAndChildren(const SceneData* sceneData, Entity*& mainCameraEntity, vector<Entity*> entities);

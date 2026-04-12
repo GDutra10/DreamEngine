@@ -66,12 +66,12 @@ std::string SceneDataSerializer::Serialize(SceneData& sceneData)
     return j.dump(4);
 }
 
-SceneData& SceneDataSerializer::Deserialize(std::ifstream& stream)
+Datas::SceneData& SceneDataSerializer::Deserialize(std::ifstream& stream)
 {
     json j;
     stream >> j;
 
-    SceneData* sceneData = new SceneData();
+    Datas::SceneData* sceneData = new SceneData();
     
     j["background"][0].get_to(sceneData->backgroundColor.red);
     j["background"][1].get_to(sceneData->backgroundColor.green);

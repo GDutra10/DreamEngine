@@ -1,20 +1,24 @@
 ﻿using DreamEngine.ECS;
+using DreamEngine.ECS.Components;
 
 namespace DreamEngine.Scripting;
 
 public class Script
 {
-    public Entity Entity { get; private set; } = new();
-    
-    private bool _isInitialized = false;
+    public Entity Entity => _entity!;
 
-    public void Initialize()
+    private Entity? _entity;
+
+    private bool HasBeenInitialized => _entity is not null;
+
+    internal void Initialize(Entity entity)
     {
-        if (_isInitialized)
+        if (HasBeenInitialized)
             return;
 
+        _entity = entity;
+
         this.Start();
-        _isInitialized = true;
     }
 
     public virtual void Start()
@@ -25,4 +29,13 @@ public class Script
     {
         Console.WriteLine("Hello from .NET!");
     }
+
+    protected Entity CreateEntity(string tag = "default", string name = "") 
+        => Game.Scene.CreateEntity(tag, name);
+
+    protected T? GetComponent<T>() where T : Component => Entity.GetComponent<T>();
+
+    protected T AddComponent<T>() where T : Component => Entity.AddComponent<T>();
+
+    protected void RemoveComponent<T>() where T : Component => Entity.RemoveComponent<T>();
 }

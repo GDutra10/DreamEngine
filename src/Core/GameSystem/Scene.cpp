@@ -36,15 +36,14 @@ void Scene::SetMainCameraEntity(Entity* entity)
     m_pMainCameraEntity = entity;
 }
 
+bool Scene::ChangeScene(const std::string sceneName)
+{
+    return Application::Instance().GetGame()->ChangeActiveScene(sceneName);
+}
+
 void Scene::Update(const float deltaTime)
 {
     m_entityManager->Update();
-
-    if (m_mustRunScriptComponents)
-    {
-        ScriptEventHandler::Process();
-        ScriptEngine::UpdateGame(GameSynchronizer::Synchronize(this->GetIsFocused()));
-    }
 
     for (Entity* entity : m_entityManager->GetEntities())
     {
@@ -69,19 +68,35 @@ void Scene::Update(const float deltaTime)
             nativeScriptComponent.script->Initialize();
             nativeScriptComponent.script->Update();
         }
+    }
 
-        // script
-        ScriptComponent& scriptComponent = entity->GetComponent<ScriptComponent>();
+    if (m_mustRunScriptComponents)
+    {
+        ScriptEventHandler::Process();
+        GameData* pGameData = GameSynchronizer::Synchronize(this->GetIsFocused());
 
-        if (m_mustRunScriptComponents && scriptComponent.has && scriptComponent.script != nullptr)
+        std::vector<EntityData> entityDataArray;
+
+        for (Entity* entity : m_entityManager->GetEntities())
         {
             EntitySynchronizer::SynchronizeToData(entity);
-            scriptComponent.instance = scriptComponent.script->Update(scriptComponent.instance, &entity->entityData);
+            entityDataArray.push_back(entity->entityData);
+        }
+
+        int size = static_cast<int>(entityDataArray.size());
+        EntityData* pEntityDataList = entityDataArray.data();
+        ScriptEngine::UpdateGame(pGameData, pEntityDataList, size);
+
+        for (size_t i = 0; i < size; i++)
+        {
+            Entity* entity = m_entityManager->GetEntityById(entityDataArray[i].id);
+            entity->entityData = pEntityDataList[i];
             EntitySynchronizer::SynchronizeFromData(entity);
         }
     }
 
     UiManager::Update();
+    m_mustRecreateEntitiesInScriptEngine = false;
 }
 
 void Scene::Initialize()
@@ -117,6 +132,19 @@ GlobalLight* Scene::GetGlobalLight()
 Entity* Scene::GetMainCameraEntity() const
 {
     return m_pMainCameraEntity;
+}
+
+SceneData* Scene::GetSceneData() const
+{
+    m_pSceneData->mainCameraEntityId = m_pMainCameraEntity != nullptr ? m_pMainCameraEntity->GetId() : 0;
+    m_pSceneData->showCursor = m_showCursor ? 1 : 0;
+    m_pSceneData->mustRecreateEntities = m_mustRecreateEntitiesInScriptEngine ? 1 : 0;
+    m_pSceneData->globalLightColorR = m_globalLight->directionalLight.color.red;
+    m_pSceneData->globalLightColorG = m_globalLight->directionalLight.color.green;
+    m_pSceneData->globalLightColorB = m_globalLight->directionalLight.color.blue;
+    m_pSceneData->globalLightIntensity = m_globalLight->directionalLight.influence;
+
+    return m_pSceneData;
 }
 
 Camera& Scene::GetCamera()
@@ -159,5 +187,8 @@ bool Scene::GetIsFocused() const
 
 void Scene::SetMustRunScriptComponents(const bool val)
 {
+    if (m_mustRunScriptComponents == false && val == true)
+        m_mustRecreateEntitiesInScriptEngine = true;
+
     m_mustRunScriptComponents = val;
 }
