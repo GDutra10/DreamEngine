@@ -11,9 +11,10 @@ namespace DreamEngine::Core::Render
 
 struct RenderMask
 {
-    constexpr static uint32_t World = 1 << 0;
-    constexpr static uint32_t UI = 1 << 1;
-    constexpr static uint32_t Debug = 1 << 2;
+    constexpr static uint32_t None = 1 << 0;
+    constexpr static uint32_t World = 1 << 1;
+    constexpr static uint32_t UI = 1 << 2;
+    constexpr static uint32_t Debug = 1 << 3;
 };
 
 struct CORE_API RenderView

@@ -13,6 +13,7 @@ add_library (Core SHARED
 
 	"Application.h"
 	"Application.cpp"
+	"ApplicationOptions.h"
 	
 	"Color.h"
 	"CoreCApi.h"
@@ -143,7 +144,7 @@ add_library (Core SHARED
 	"UI/RmlUI/RmlUiInstance.h"
 	"UI/UiInstance.h"
 	"UI/RmlUI/RmlClickListener.h"
-)
+ )
 
 	
 set_target_properties(Core PROPERTIES

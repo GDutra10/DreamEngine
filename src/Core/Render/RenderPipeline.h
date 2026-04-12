@@ -15,7 +15,7 @@ namespace DreamEngine::Core::Render
 class CORE_API RenderPipeline final : public RenderPass
 {
 public:
-    void Initialize(RenderAPI* renderer, GLFWwindow* window, const int width, const int height);
+    void Initialize(RenderAPI* renderer, GLFWwindow* window, const int width, const int height, uint32_t defaultRenderMask);
     void Render(Scene* scene, RenderView& renderView);
 
    private:

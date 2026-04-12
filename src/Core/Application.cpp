@@ -23,7 +23,7 @@ Application& Application::Instance()
     return application;
 }
 
-void Application::Run(int width, int height, const std::string& name, const RenderType renderType, Game* game)
+void Application::Run(int width, int height, const std::string& name, const RenderType renderType, Game* game, ApplicationOptions options)
 {
     try
     {
@@ -44,7 +44,7 @@ void Application::Run(int width, int height, const std::string& name, const Rend
             m_scriptEngine = new ScriptEngine();
 
         m_game = game;
-        m_renderPipeline->Initialize(m_renderAPI, m_window, width, height);
+        m_renderPipeline->Initialize(m_renderAPI, m_window, width, height, options.DefaultRenderMask);
 
         // TODO: Load the assets(ResourceManager) by the first scene file
         // TODO: Initialize entities from the first scene file
@@ -127,7 +127,7 @@ void Application::Run(const int width, const int height, const std::string& name
     // TODO: get from embeded dll
     Game* game = nullptr;
 
-    Run(width, height, name, renderType, game);
+    Run(width, height, name, renderType, game, {});
 }
 
 void Application::SetRenderAPI(const RenderType renderType)

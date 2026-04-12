@@ -10,13 +10,13 @@
 using namespace DreamEngine::Core::Render;
 using namespace DreamEngine::Core::GameSystem;
 
-void RenderPipeline::Initialize(RenderAPI* renderer, GLFWwindow* window, const int width, const int height)
+void RenderPipeline::Initialize(RenderAPI* renderer, GLFWwindow* window, const int width, const int height, uint32_t defaultRenderMask)
 {
     m_pWindow = window;
     m_pRenderer = renderer;
     m_pRenderer->Initialize(width, height);
     UiManager::Initialize(window, width, height);
-    RenderViewProvider::Initialize();
+    RenderViewProvider::Initialize(defaultRenderMask);
 }
 
 void RenderPipeline::Render(Scene* scene, RenderView& renderView)

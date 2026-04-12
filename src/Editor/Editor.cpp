@@ -69,13 +69,17 @@ int main()
                                     projectConfiguration.csProjectDebugPath,
                                     scenes);
 
+    auto options = ApplicationOptions{};
+    options.DefaultRenderMask = RenderMask::None;
+
     // run application
     Application::Instance().Run(
         editorConfiguration.windowSize.x, 
         editorConfiguration.windowSize.y,
         "DreamEngine Editor - " + projectConfiguration.projectName, 
         openGL,
-        gameEditor);
+        gameEditor,
+        options);
 
 	return 0;
 }

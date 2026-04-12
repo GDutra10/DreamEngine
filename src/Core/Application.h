@@ -4,6 +4,7 @@
 #include <string>
 
 //#include <GLFW/glfw3.h>
+#include "ApplicationOptions.h"
 #include "Inputs/Key.h"
 #include "Inputs/KeyState.h"
 #include "Inputs/MouseButton.h"
@@ -28,7 +29,7 @@ class CORE_API Application
    public:
     static Application& Instance();
     void Run(const int width, const int height, const std::string& name, RenderType renderType);
-    void Run(const int width, const int height, const std::string& name, RenderType renderType, Game* game);
+    void Run(const int width, const int height, const std::string& name, RenderType renderType, Game* game, ApplicationOptions options);
     [[nodiscard]] GLFWwindow* GetWindow() const;
     [[nodiscard]] RenderAPI* GetRenderAPI() const { return m_renderAPI; }
     [[nodiscard]] RenderType GetRenderType() const { return m_renderType; }

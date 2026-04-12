@@ -2,6 +2,7 @@
 #define CORE_RENDER_RENDER_VIEW_PROVIDER_H_
 
 #include <vector>
+#include <cstdint>
 
 #include "CoreExport.h"
 #include "RenderView.h"
@@ -12,7 +13,7 @@ namespace DreamEngine::Core::Render
 class CORE_API RenderViewProvider
 {
 public:
-    static void Initialize();
+    static void Initialize(uint32_t defaultRenderMask);
     static void Add(RenderView* renderView);
     static std::vector<RenderView*> GetAll();
 private:

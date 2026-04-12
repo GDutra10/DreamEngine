@@ -4,10 +4,10 @@ using namespace DreamEngine::Core::Render;
 
 RenderViewProvider RenderViewProvider::m_instance;
 
-void RenderViewProvider::Initialize()
+void RenderViewProvider::Initialize(uint32_t defaultRenderMask)
 {
     auto renderView = new RenderView();
-    renderView->mask = RenderMask::World | RenderMask::UI;
+    renderView->mask = defaultRenderMask;
 
     m_instance.m_sRenderViews.push_back(renderView);
 }
