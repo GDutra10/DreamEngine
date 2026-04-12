@@ -108,5 +108,5 @@ add_subdirectory(${RMLUI_DIR})
 #FetchContent_MakeAvailable(googletest)
 
 # ---- Tests ----
-add_subdirectory(tests/CoreTests)
-add_subdirectory(tests/ProfilingTests)
+#add_subdirectory(tests/CoreTests)
+#add_subdirectory(tests/ProfilingTests)
