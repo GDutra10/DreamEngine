@@ -28,7 +28,7 @@ void RmlHandler::Initialize(GLFWwindow* window, int width, int height)
 
     glfwMakeContextCurrent(window);
 
-    m_spSystemInterface = new SystemInterface_GLFW();
+    m_spSystemInterface = new SystemInterface_GLFW(window);
     m_spRenderInterface = new CustomRenderInterface_GL3();
 
     Rml::SetRenderInterface(m_spRenderInterface);
