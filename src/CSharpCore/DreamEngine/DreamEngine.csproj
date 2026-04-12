@@ -20,4 +20,11 @@
 		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)'=='Release'">
+		<OutputPath>$(MSBuildProjectDirectory)/../../../out/build/x64-release/bin/</OutputPath>
+		<IntermediateOutputPath>$(MSBuildProjectDirectory)/../../../out/build/obj/Release/</IntermediateOutputPath>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+	</PropertyGroup>
+
 </Project>
