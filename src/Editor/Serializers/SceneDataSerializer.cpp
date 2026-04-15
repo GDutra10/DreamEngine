@@ -15,7 +15,7 @@ using namespace DreamEngine::Core::GameSystem;
 using namespace DreamEngine::Core::ECS::Components;
 using json = nlohmann::json;
 
-std::string SceneDataSerializer::Serialize(SceneData& sceneData)
+std::string SceneDataSerializer::Serialize(DreamEngine::Editor::Models::Datas::SceneData& sceneData)
 {
     json j;
 
@@ -136,7 +136,11 @@ Datas::SceneData& SceneDataSerializer::Deserialize(std::ifstream& stream)
                 jsonComponent["material"]["resourceId"].get_to(e.components.material.resourceId);
 
             if (jsonComponent.find("script") != jsonComponent.end())
+            {
                 jsonComponent["script"]["resourceId"].get_to(e.components.script.resourceId);
+                jsonComponent["script"]["className"].get_to(e.components.script.className);
+                jsonComponent["script"]["assemblyName"].get_to(e.components.script.assemblyName);
+            }
 
             if (jsonComponent.find("parent") != jsonComponent.end())
                 jsonComponent["parent"]["parentIdentifier"].get_to(e.components.parent.parentIdentifier);
@@ -206,7 +210,11 @@ json SceneDataSerializer::Serialize(EntityConfigData& entityConfig)
 
     // script
     if (!entityConfig.components.script.resourceId.empty())
+    {
         jsonEntity["components"]["script"]["resourceId"] = entityConfig.components.script.resourceId;
+        jsonEntity["components"]["script"]["className"] = entityConfig.components.script.className;
+        jsonEntity["components"]["script"]["assemblyName"] = entityConfig.components.script.assemblyName;
+    }
 
     // camera
     if (entityConfig.components.camera.has)

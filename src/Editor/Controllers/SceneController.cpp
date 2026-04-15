@@ -131,7 +131,11 @@ bool SceneController::SaveSceneData(EntityManager* entityManager)
             entityConfig.components.material.resourceId = material.material->resourceId;
 
         if (const ScriptComponent& script = entity->GetComponent<ScriptComponent>(); script.has && script.script != nullptr)
+        {
             entityConfig.components.script.resourceId = script.script->resourceId;
+            entityConfig.components.script.assemblyName = script.script->GetAssemblyName();
+            entityConfig.components.script.className = script.script->GetClassName();
+        }
 
         if (const CameraComponent& camera = entity->GetComponent<CameraComponent>(); camera.has)
         {
@@ -262,7 +266,7 @@ void SceneController::LoadScene(EntityManager* entityManager)
         scene->SetMainCameraEntity(mainCameraEntity);
 }
 
-vector<Entity*> SceneController::CreateEntities(EntityManager* entityManager, SceneData* sceneData)
+vector<Entity*> SceneController::CreateEntities(EntityManager* entityManager, DreamEngine::Editor::Models::Datas::SceneData* sceneData)
 {
     vector<Entity*> entities;
 
@@ -292,11 +296,16 @@ vector<Entity*> SceneController::CreateEntities(EntityManager* entityManager, Sc
             materialComponent.has = true;
         }
 
-        if (!entityConfig.components.script.resourceId.empty())
+        if (!entityConfig.components.script.className.empty() && !entityConfig.components.script.assemblyName.empty())
         {
             ScriptComponent& scriptComponent = entity->GetComponent<ScriptComponent>();
-            scriptComponent.script = ResourceManager::Instance().GetScript(entityConfig.components.script.resourceId);
-            scriptComponent.has = true;
+            scriptComponent.script = ResourceManager::Instance().GetScript(
+                entityConfig.components.script.className,
+                entityConfig.components.script.assemblyName
+            );
+            
+            if (scriptComponent.script != nullptr)
+                scriptComponent.has = true;
         }
 
         if (entityConfig.components.camera.has)
@@ -322,7 +331,7 @@ vector<Entity*> SceneController::CreateEntities(EntityManager* entityManager, Sc
     return entities;
 }
 
-void SceneController::SetParentAndChildren(const SceneData* sceneData, Entity*& mainCameraEntity, vector<Entity*> entities)
+void SceneController::SetParentAndChildren(const DreamEngine::Editor::Models::Datas::SceneData* sceneData, Entity*& mainCameraEntity, vector<Entity*> entities)
 {
     for (auto& entityConfig : sceneData->entities)
     {
