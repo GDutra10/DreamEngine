@@ -192,6 +192,21 @@ Script* ResourceManager::GetScript(const std::string& resourceId)
     return nullptr;
 }
 
+Script* ResourceManager::GetScript(const std::string& className, const std::string& assemblyName)
+{
+    for (auto& [resourceId, script] : m_scripts)
+    {
+        if (script != nullptr && 
+            script->GetClassName() == className && 
+            script->GetAssemblyName() == assemblyName)
+        {
+            return script;
+        }
+    }
+
+    return nullptr;
+}
+
 UiContent* ResourceManager::GetUiContent(const std::string& resourceId)
 {
     auto it = m_uiContents.find(resourceId);

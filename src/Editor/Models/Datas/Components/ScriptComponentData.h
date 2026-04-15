@@ -8,6 +8,8 @@ namespace DreamEngine::Editor::Models::Datas::Components
 struct ScriptComponentData
 {
     std::string resourceId;
+    std::string className;
+    std::string assemblyName;
 };
 
 }  // namespace DreamEngine::Editor::Models::Datas::Components
