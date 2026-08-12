@@ -8,6 +8,7 @@ internal unsafe struct EntityData
 {
     public uint id;
     public uint parentId;
+    public bool active;
     public float transformPositionX;
     public float transformPositionY;
     public float transformPositionZ;

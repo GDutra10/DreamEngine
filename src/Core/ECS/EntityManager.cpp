@@ -54,10 +54,10 @@ void EntityManager::Update()
 
 Entity* EntityManager::AddEntity(const std::string& tag)
 {
-	Loggers::LoggerSingleton::Instance().LogTrace("EntityManager::AddEntity -> Adding entity with tag: " + tag);
-
     const auto entityId = EntityMemoryPool::Instance().AddEntity(tag);
 	const auto entity = new Entity(entityId);
+    
+    Loggers::LoggerSingleton::Instance().LogTrace("EntityManager::AddEntity -> Adding entity with tag: " + tag + ", id: " + std::to_string(entityId));
 
 	m_entitiesToAdd.push_back(entity);
 	m_totalEntities++;

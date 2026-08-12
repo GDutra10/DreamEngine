@@ -73,6 +73,21 @@ UiInstance* RmlHandler::Create(const UiContent* content)
     return ui;
 }
 
+void RmlHandler::Show(UiInstance* instance) 
+{
+    RmlUiInstance* uiInstance = static_cast<RmlUiInstance*>(instance);
+    if (!uiInstance->document->IsVisible())
+        uiInstance->document->Show();
+}
+
+void RmlHandler::Hide(UiInstance* instance) 
+{
+    RmlUiInstance* uiInstance = static_cast<RmlUiInstance*>(instance);
+
+    if (uiInstance->document->IsVisible())
+        uiInstance->document->Hide();
+}
+
 void RmlHandler::Destroy(UiInstance* instance)
 {
     RmlUiInstance* uiInstance = static_cast<RmlUiInstance*>(instance);

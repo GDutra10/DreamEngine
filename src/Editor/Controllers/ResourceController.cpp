@@ -221,6 +221,81 @@ Result ResourceController::CreateSceneFile(const std::string& filename)
     return result;
 }
 
+Result DreamEngine::Editor::Controllers::ResourceController::CreateUIFile(const std::string& filename)
+{
+    LoggerSingleton::Instance().LogTrace("ResourceController::CreateUIFile -> Start");
+
+    Result result = {"", true};
+    string pathAndFileName = EditorSingleton::Instance().GetSelectedPath().string() + "\\" + filename + EDITOR_DEFAULT_UI_FILE_EXTENSION;
+
+    // validations
+    if (filename.empty())
+    {
+        LoggerSingleton::Instance().LogWarning("ResourceController::CreateUIFile -> Filename is empty");
+        return {"File name is empty", false};
+    }
+
+    if (exists(pathAndFileName))
+    {
+        std::string validation = "File already exists in this directory";
+        LoggerSingleton::Instance().LogWarning(validation);
+        return {validation, false};
+    }
+
+    try
+    {
+        // Create File
+        LoggerSingleton::Instance().LogTrace("ResourceController::CreateUIFile -> Creating and saving the file");
+        std::ofstream file(pathAndFileName);
+
+        if (file.is_open())
+        {
+            string contentStr = ""
+                "<rml>\n"
+                "<head>\n"
+                "    <title>" + filename + "</title>\n"
+                "    <style>\n"
+                "        body {\n"
+                "            margin: 0px;\n"
+                "            font-family: 'Roboto';\n"
+                "            font-size: 36px;\n"
+                "        }\n"
+                "    </style>\n"
+                "</head>\n"
+                "<body>\n"
+                "   <div id=\"hud-root\" data-model=\"" + filename + ".rml\">\n"
+                "       <label>HUD</label>\n"
+                "   </div>\n"
+                "</body>\n"
+                "</rml>\n";
+            file << contentStr;
+            file.close();
+
+            UiContent* hudUiContent = new UiContent();
+            hudUiContent->name = filename;
+            hudUiContent->text = contentStr;
+
+            ResourceManager::Instance().AddUiContent(hudUiContent);
+
+            LoggerSingleton::Instance().LogTrace("ResourceController::CreateUIFile -> UI '" + filename + "' saved");
+        }
+        else
+        {
+            LoggerSingleton::Instance().LogError("Failed to open the file");
+            result.errorMessage = "Failed to create the file";
+            result.isOk = false;
+        }
+    }
+    catch (const std::exception& e)
+    {
+        LoggerSingleton::Instance().LogError(e.what());
+        result.errorMessage = "An error occured! Please check the Output Window to see the error";
+        result.isOk = false;
+    }
+
+    return result;
+}
+
 void ResourceController::SaveMaterialFile(const Material* material, const std::string& pathAndFilename)
 {
     LoggerSingleton::Instance().LogTrace("ResourceController::SaveMaterialFile -> Start");
@@ -446,7 +521,7 @@ void ResourceController::AddScripts(const std::vector<ScriptInfo>& scriptInfos)
 
             Script* newScript = new Script(scriptInfo.Name, scriptInfo.AssemblyName);
             newScript->name = nameStr;
-            ResourceManager::Instance().AddScript(newScript);
+            ResourceManager::Instance().AddScript(scriptInfo.Name, newScript);
         }
     }
 

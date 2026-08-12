@@ -50,6 +50,7 @@ EditorScene::EditorScene(
       , m_resourceManagerWindow(ResourceManagerWindow("Resource Manager"))
       , m_materialWindow(MaterialWindow("Material"))
       , m_openProjectModal(OpenProjectModal("Open Project"))
+      , m_textEditorWindow(TextEditorWindow("Text Editor"))
 {
     EditorSingleton::Initialize(projectConfig, editorConfig, this);
 }
@@ -140,6 +141,8 @@ bool EditorScene::ChangeScene(const std::string sceneName)
         return false;
     }
 
+    LoggerSingleton::Instance().LogTrace("EditorScene::ChangeScene -> Changing scene to '" + sceneName + "'.");
+
     const path currentDirectory = EditorSingleton::Instance().GetProjectConfiguration().projectPath;
     const vector<std::string> sceneFiles = Helpers::FileHelper::GetFilesWithExtension(currentDirectory, EDITOR_DEFAULT_SCENE_FILE_EXTENSION);
     path sceneFilePath;
@@ -158,8 +161,9 @@ bool EditorScene::ChangeScene(const std::string sceneName)
         EntityManager* entityManager = this->GetEntityManager();
         std::vector<Entity*> entities = entityManager->GetEntities();
 
-        for (Entity* entity : entities)
-            entityManager->RemoveEntity(entity);    
+        /*for (Entity* entity : entities)
+            entityManager->RemoveEntity(entity); */   
+        //entityManager->Reset();
 
         SceneController::LoadSceneData(sceneFilePath, this->m_entityManager, true);
 
@@ -247,6 +251,11 @@ void EditorScene::DrawMenuBar()
         {
             if (ImGui::MenuItem("Recompile Scripts"))
                 EditorSingleton::Instance().GetScriptController().ReloadScripts();
+
+            //if (ImGui::MenuItem("Recompile UIs"))
+            //{
+            //    // TODO:
+            //}
 
             ImGui::EndMenu();
         }
@@ -378,7 +387,8 @@ void EditorScene::FinishImGuiFrame(const RenderView& renderView)
         m_gameWindow.Draw();
         m_fileExplorerWindow.Draw();
         m_resourceManagerWindow.Draw();
-        m_materialWindow.Draw();    
+        m_materialWindow.Draw();
+        m_textEditorWindow.Draw();
     }
 
     ImGui::Render();

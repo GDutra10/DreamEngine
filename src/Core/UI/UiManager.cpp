@@ -24,6 +24,17 @@ UiInstance* UiManager::Create(const UiContent* content)
 void UiManager::Destroy(UiInstance* instance)
 {
     m_sUiManager.m_pUiHandler->Destroy(instance);
+    instance = nullptr;
+}
+
+void UiManager::Hide(UiInstance* instance) 
+{
+    m_sUiManager.m_pUiHandler->Hide(instance);
+}
+
+void UiManager::Show(UiInstance* instance) 
+{
+    m_sUiManager.m_pUiHandler->Show(instance);
 }
 
 void UiManager::Update()

@@ -18,6 +18,8 @@ class CORE_API UiManager
     static void Initialize(GLFWwindow* window, int width, int height);
     static UiInstance* Create(const UiContent* content);
     static void Destroy(UiInstance* instance);
+    static void Hide(UiInstance* instance);
+    static void Show(UiInstance* instance);
     static void Update();
     static void RemoveContents();
     static void BeginRender(const int width, const int height);

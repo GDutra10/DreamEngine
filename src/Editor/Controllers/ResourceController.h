@@ -24,6 +24,7 @@ class ResourceController
     static Result CreateTextureFile(const std::string& filename);
     static Result CreateMeshFileFromModelFile(const std::string& filename);
     static Result CreateSceneFile(const std::string& filename);
+    static Result CreateUIFile(const std::string& filename);
     static void SaveMaterialFile(const Material* material, const std::string& pathAndFilename);
     static void DeleteMaterialFile(const std::string& pathAndFilename);
     static Material* LoadMaterial(const std::string pathAndFilename);

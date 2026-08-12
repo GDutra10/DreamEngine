@@ -46,6 +46,7 @@ void SceneController::LoadSceneData(path& path, EntityManager* entityManager, bo
     EditorSingleton::Instance().sceneData = sceneData;
 
     LoadScene(entityManager);
+    LoggerSingleton::Instance().LogTrace("SceneController::LoadSceneData -> Finish");
 }
 
 bool SceneController::SaveSceneData(EntityManager* entityManager)
@@ -264,6 +265,8 @@ void SceneController::LoadScene(EntityManager* entityManager)
 
     if (mainCameraEntity != nullptr)
         scene->SetMainCameraEntity(mainCameraEntity);
+
+    LoggerSingleton::Instance().LogTrace("SceneController::LoadScene -> Finish");
 }
 
 vector<Entity*> SceneController::CreateEntities(EntityManager* entityManager, DreamEngine::Editor::Models::Datas::SceneData* sceneData)

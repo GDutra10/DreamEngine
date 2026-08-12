@@ -37,6 +37,13 @@ ResultWithData<ProjectConfiguration> ProjectController::CreateProjectConfigurati
         return result;
     }
 
+    std::filesystem::create_directories(projectPath + "\\Assets");
+    std::filesystem::create_directories(projectPath + "\\Assets\\Materials");
+    std::filesystem::create_directories(projectPath + "\\Assets\\Models");
+    std::filesystem::create_directories(projectPath + "\\Assets\\Scenes");
+    std::filesystem::create_directories(projectPath + "\\Assets\\UIs");
+    std::filesystem::create_directories(projectPath + "\\Assets\\Textures");
+
     const int newSolutionResult = DotNetCliController::NewSolution(projectPath, projectName);
 
     if (newSolutionResult != EDITOR_DOTNET_CLI_COMMAND_RESULT_SUCCESS)
