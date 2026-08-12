@@ -31,11 +31,12 @@ int main()
     Game* game = new Game(900, 600, "", scenes);
     game->hasScriptEngine = false;
 
-    Application::Instance().Run(
-        game->width, 
-        game->height,
-        "Native Game", 
-        openGL,
-        game,
-        {});
+    ApplicationOptions applicationOptions = {};
+    applicationOptions.renderType = RenderType::openGL;
+    applicationOptions.windowConfiguration.width = game->width;
+    applicationOptions.windowConfiguration.height = game->height;
+    applicationOptions.windowConfiguration.title = "Native Game";
+    applicationOptions.windowConfiguration.mode = WindowMode::Fullscreen;
+
+    Application::Instance().Run(game, applicationOptions);
 }

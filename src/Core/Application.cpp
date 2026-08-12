@@ -23,17 +23,17 @@ Application& Application::Instance()
     return application;
 }
 
-void Application::Run(int width, int height, const std::string& name, const RenderType renderType, Game* game, ApplicationOptions options)
+void Application::Run(Game* game, ApplicationOptions& options)
 {
     try
     {
-        SetRenderAPI(renderType);
+        SetRenderAPI(options.renderType);
 
         if (m_renderAPI == nullptr)
             throw std::exception("Render is null!");
 
         GLFWInit();
-        InitializeWindow(width, height, name);
+        InitializeWindow(options);
 
         glfwMakeContextCurrent(m_window);
 
@@ -44,7 +44,7 @@ void Application::Run(int width, int height, const std::string& name, const Rend
             m_scriptEngine = new ScriptEngine();
 
         m_game = game;
-        m_renderPipeline->Initialize(m_renderAPI, m_window, width, height, options.DefaultRenderMask);
+        m_renderPipeline->Initialize(m_renderAPI, m_window, options.windowConfiguration.width, options.windowConfiguration.height, options.defaultRenderMask);
 
         // TODO: Load the assets(ResourceManager) by the first scene file
         // TODO: Initialize entities from the first scene file
@@ -58,10 +58,10 @@ void Application::Run(int width, int height, const std::string& name, const Rend
                 break;
 
              // update window size
-            glfwGetWindowSize(m_window, &width, &height);
+            glfwGetWindowSize(m_window, &options.windowConfiguration.width, &options.windowConfiguration.height);
 
-            m_game->width = width;
-            m_game->height = height;
+            m_game->width = options.windowConfiguration.width;
+            m_game->height = options.windowConfiguration.height;
 
             // show cursor
             glfwSetInputMode(m_window, GLFW_CURSOR, m_game->GetActiveScene()->GetShowCursor() ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
@@ -122,13 +122,13 @@ void Application::Close() const
     glfwSetWindowShouldClose(m_window, GLFW_TRUE);
 }
 
-void Application::Run(const int width, const int height, const std::string& name, RenderType renderType)
-{
-    // TODO: get from embeded dll
-    Game* game = nullptr;
-
-    Run(width, height, name, renderType, game, {});
-}
+//void Application::Run(const int width, const int height, const std::string& name, RenderType renderType)
+//{
+//    // TODO: get from embeded dll
+//    Game* game = nullptr;
+//
+//    Run(width, height, name, renderType, game, {});
+//}
 
 void Application::SetRenderAPI(const RenderType renderType)
 {
@@ -160,9 +160,9 @@ void Application::GLFWInit()
 #endif
 }
 
-void Application::InitializeWindow(const int width, const int height, const std::string& name)
+void Application::InitializeWindow(const ApplicationOptions& options)
 {
-    m_window = glfwCreateWindow(width, height, name.data(), nullptr, nullptr);
+    m_window = glfwCreateWindow(options.windowConfiguration.width, options.windowConfiguration.height, options.windowConfiguration.title.data(), nullptr, nullptr);
 
     if (m_window == nullptr)
         throw std::exception("Window is null");
@@ -178,6 +178,34 @@ void Application::InitializeWindow(const int width, const int height, const std:
     glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glfwPollEvents();
+
+    switch (options.windowConfiguration.mode)
+    {
+        case WindowMode::Windowed:
+        {
+            glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
+            glfwSetWindowMonitor(m_window, nullptr, 0, 0, options.windowConfiguration.width, options.windowConfiguration.height, 0);
+            break;
+        }
+        case WindowMode::Borderless:
+        {
+            glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+            glfwSetWindowMonitor(m_window, nullptr, 0, 0, options.windowConfiguration.width, options.windowConfiguration.height, 0);
+            break;
+        }
+        case WindowMode::Fullscreen:
+        {
+            glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+
+            GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+            const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+            glfwSetWindowMonitor(m_window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+            break;
+        }
+        default:
+            throw std::exception("Window mode not implemented");
+    }
 }
 
 bool Application::GetIsFocused() const

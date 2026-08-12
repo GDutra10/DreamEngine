@@ -4,6 +4,8 @@
 #include "CoreExport.h"
 #include <string>
 #include "Render/RenderView.h"
+#include "Render/RenderType.h"
+#include <WindowConfiguration.h>
 
 namespace DreamEngine::Core
 {
@@ -13,7 +15,9 @@ using namespace DreamEngine::Core::Render;
 class CORE_API ApplicationOptions
 {
    public:
-    uint32_t DefaultRenderMask = RenderMask::World | RenderMask::UI;
+    uint32_t defaultRenderMask = RenderMask::World | RenderMask::UI;
+    RenderType renderType = RenderType::openGL;
+    WindowConfiguration windowConfiguration;
 };
 }  // namespace DreamEngine::Core
 #endif
