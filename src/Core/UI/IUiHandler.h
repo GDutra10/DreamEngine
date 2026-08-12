@@ -18,6 +18,8 @@ class IUiHandler
     virtual void Initialize(GLFWwindow* window, int width, int height) = 0;
     virtual UiInstance* Create(const UiContent* content) = 0;
     virtual void Destroy(UiInstance* instance) = 0;
+    virtual void Show(UiInstance* instance) = 0;
+    virtual void Hide(UiInstance* instance) = 0;
     virtual void Update() = 0;
     virtual void RemoveContents() = 0;
     virtual void BeginRender(const int width, const int height) = 0;

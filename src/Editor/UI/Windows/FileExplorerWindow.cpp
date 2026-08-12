@@ -112,37 +112,15 @@ void FileExplorerWindow::DrawContent()
         {
             if (ImGui::MenuItem("Reload"))
             {
-                const UiContent* content = ResourceController::LoadUiContent(m_sRightClickFile.string());
-                const std::string resourceId = FileHelper::GetRelativePathByProject(m_sRightClickFile).string();
-                const map<string, UiContent*>& contents = ResourceManager::Instance().GetUiContents();
-
-                if (const auto it = contents.find(resourceId); it != contents.end() && it->second != nullptr)
-                {
-                    it->second->text = content->text;
-
-                    for (Entity* entity : EditorSingleton::Instance().GetEntityManager()->GetEntities())
-                    {
-                        if (entity->HasComponent<UiComponent>())
-                        {
-                            UiComponent& uiComponent = entity->GetComponent<UiComponent>();
-
-                            if (uiComponent.content->resourceId != resourceId)
-                                continue;
-                            
-                            if (uiComponent.instance == nullptr)
-                                continue;
-
-                            UiManager::Destroy(uiComponent.instance);
-                            uiComponent.instance = nullptr;
-                        }
-                    }
-                }
+                EditorSingleton::Instance().ReloadUiComponent(m_sRightClickFile);
 
                 m_sRightClickFile.clear();
                 ImGui::CloseCurrentPopup();
-                delete content;
             }
         }
+
+        if (ImGui::MenuItem("Edit"))
+            EditorSingleton::Instance().SetFileTextEditorPath(m_sRightClickFile);
 
         ImGui::EndPopup();
     }

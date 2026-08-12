@@ -119,6 +119,8 @@ add_executable(Editor
     UI/Windows/ResourceManagerWindow.cpp
     UI/Windows/MaterialWindow.h
     UI/Windows/MaterialWindow.cpp
+    UI/Windows/TextEditorWindow.h
+    UI/Windows/TextEditorWindow.cpp
 
     Vendors/stb_image.h
     Vendors/stb_image.cpp
@@ -150,7 +152,7 @@ add_executable(Editor
     Vendors/imgui/imgui_impl_opengl3_loader.h
     Vendors/imgui/imgui_impl_glfw.cpp
     Vendors/imgui/imgui_impl_glfw.h
-  )
+    Vendors/ImGuiColorTextEdit/TextEditor.cpp)
 
 # Link dependencies
 target_link_libraries(Editor PRIVATE

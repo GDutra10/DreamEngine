@@ -13,6 +13,7 @@ internal static class EntitySynchronizer
     // without ref, c# pass it a copy of that struct
     public static void SynchronizeFromTo(Entity entity, ref EntityData entityData)
     {
+        entityData.active = entity.Active;
         entityData.parentId = entity.Parent?.Id ?? 0;
 
         entityData.transformPositionX = entity.Transform.Position.X;
@@ -64,6 +65,7 @@ internal static class EntitySynchronizer
     public static void SynchronizeFromTo(ref EntityData entityData, Entity entity)
     {
         entity.Id = entityData.id;
+        entity.Active = entityData.active;
 
         if (entityData.parentId != 0)
             entity.Parent = Game.Scene.GetEntity(entityData.parentId);

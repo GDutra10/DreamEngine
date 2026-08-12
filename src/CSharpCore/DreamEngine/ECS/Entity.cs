@@ -8,6 +8,7 @@ using Component = DreamEngine.ECS.Components.Component;
 namespace DreamEngine.ECS;
 public class Entity
 {
+    public bool Active { get; set; }
     public Transform Transform { get; init; }
     public Script? Script { get; internal set; }
     public Entity? Parent

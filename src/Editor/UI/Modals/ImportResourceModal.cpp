@@ -84,6 +84,18 @@ void ImportResourceModal::DrawContent()
             return true;
         });
 
+    // Add UI
+    ImGui::Text("UI");
+    if (ImGui::Button("Add##import.resource.add.ui", buttonSize))
+        m_getNamePopup.Open("Material File Name", [this](const std::string& name) {
+            Result result = EditorSingleton::Instance().GetResourceController().CreateUIFile(name);
+
+            if (result.isOk)
+                Close();
+
+            return result;
+        });
+
     ImGui::EndGroup();
 }
 

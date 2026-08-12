@@ -21,6 +21,8 @@ class RmlHandler final : public IUiHandler
    public:
     void Initialize(GLFWwindow* window, int width, int height) override;
     UiInstance* Create(const UiContent* content) override;
+    void Show(UiInstance* instance) override;
+    void Hide(UiInstance* instance) override;
     void Destroy(UiInstance* instance) override;
     void Update() override;
     void RemoveContents() override;

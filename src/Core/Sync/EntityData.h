@@ -9,6 +9,7 @@ struct EntityData
 {
     unsigned int id;
     unsigned int parentId;
+    bool active;
     // components
     float transformPositionX;
     float transformPositionY;

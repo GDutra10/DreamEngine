@@ -2,15 +2,18 @@
 #include "../EditorDefine.h"
 #include "../../Core/Application.h"
 #include "../../Core/ECS/Components/ChildrenComponent.h"
+#include "../../Core/ECS/Components/UiComponent.h"
 #include "../../Core/Loggers/LoggerSingleton.h"
 #include "../../Core/Resources/ResourceManager.h"
 #include "Render/RenderViewProvider.h"
+#include "../Helpers/FileHelper.h"
 
 using namespace DreamEngine::Core;
 using namespace DreamEngine::Core::ECS::Components;
 using namespace DreamEngine::Core::Resources;
 using namespace DreamEngine::Core::Loggers;
 using namespace DreamEngine::Editor;
+using namespace DreamEngine::Editor::Helpers;
 using namespace DreamEngine::Editor::Singletons;
 
 EditorSingleton* EditorSingleton::m_sEditorSingleton = nullptr;
@@ -54,6 +57,11 @@ path EditorSingleton::GetSelectedScenePath() const
 path EditorSingleton::GetSelectedMaterialPath() const
 {
     return m_selectedMaterialPath;
+}
+
+path DreamEngine::Editor::Singletons::EditorSingleton::GetFileTextEditorPath() const
+{
+    return m_selectedFileTextEditorPath;
 }
 
 EntityManager* EditorSingleton::GetEntityManager() const
@@ -144,6 +152,37 @@ void EditorSingleton::SetGameRenderView(RenderView* renderView)
 {
     m_pGameRenderView = renderView;
     RenderViewProvider::Add(m_pGameRenderView);
+}
+
+void EditorSingleton::ReloadUiComponent(path uiFile)
+{
+    const UiContent* content = ResourceController::LoadUiContent(uiFile.string());
+    const std::string resourceId = FileHelper::GetRelativePathByProject(uiFile).string();
+    const map<string, UiContent*>& contents = ResourceManager::Instance().GetUiContents();
+
+    if (const auto it = contents.find(resourceId); it != contents.end() && it->second != nullptr)
+    {
+        it->second->text = content->text;
+
+        for (Entity* entity : EditorSingleton::Instance().GetEntityManager()->GetEntities())
+        {
+            if (entity->HasComponent<UiComponent>())
+            {
+                UiComponent& uiComponent = entity->GetComponent<UiComponent>();
+
+                if (uiComponent.content->resourceId != resourceId)
+                    continue;
+
+                if (uiComponent.instance == nullptr)
+                    continue;
+
+                UiManager::Destroy(uiComponent.instance);
+                uiComponent.instance = nullptr;
+            }
+        }
+    }
+
+    delete content;
 }
 
 EditorSingleton::EditorSingleton(ProjectConfiguration& projectConfig, EditorConfiguration& editorConfig, Scene* pEditorScene)

@@ -35,6 +35,7 @@ class EditorSingleton final
     [[nodiscard]] std::string GetSelectedPathByProject() const;
     [[nodiscard]] path GetSelectedScenePath() const;
     [[nodiscard]] path GetSelectedMaterialPath() const;
+    [[nodiscard]] path GetFileTextEditorPath() const;
     [[nodiscard]] EntityManager* GetEntityManager() const;
     [[nodiscard]] Entity* GetSelectedEntity() const;
     [[nodiscard]] Scene* GetEditorScene() const;
@@ -49,12 +50,14 @@ class EditorSingleton final
     void SetSelectedPath(const path& path);
     void SetSelectedScenePath(const path& scene) { m_selectedScenePath = scene; }
     void SetSelectedMaterialPath(const path& material) { m_selectedMaterialPath = material; }
+    void SetFileTextEditorPath(const path& codeFilePath) { m_selectedFileTextEditorPath = codeFilePath; };
     void SetEntityManager(EntityManager* entityManager);
     void SetSelectedEntity(Entity* entity);
     void SetIsViewSceneData(bool value) { m_isViewSceneData = value; }
     void SetProjectConfiguration(const ProjectConfiguration& projectConfig) const;
     void SetSceneRenderView(RenderView* renderView);
     void SetGameRenderView(RenderView* renderView);
+    void ReloadUiComponent(path uiFile);
    private:
     EditorSingleton(ProjectConfiguration& projectConfig, EditorConfiguration& editorConfig, Scene* pEditorScene);
     static EditorSingleton* m_sEditorSingleton;
@@ -64,6 +67,7 @@ class EditorSingleton final
     path m_selectedPath;
     path m_selectedScenePath;
     path m_selectedMaterialPath;
+    path m_selectedFileTextEditorPath;
     EntityManager* m_pEntityManager;
     Entity* m_pSelectedEntity = nullptr;
     Scene* m_pEditorScene;

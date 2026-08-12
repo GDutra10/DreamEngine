@@ -11,7 +11,7 @@ int DotNetCliController::Build(const std::string& projectPath, const std::string
 
 int DotNetCliController::NewClassLib(const std::string& projectPath, const std::string& projectName)
 {
-    std::string command = "dotnet new classlib --name " + projectName + " --output " + projectPath;
+    std::string command = "dotnet new classlib -f net9.0 --name " + projectName + " --output " + projectPath;
 
     const int result = std::system(command.c_str());
 
@@ -21,7 +21,7 @@ int DotNetCliController::NewClassLib(const std::string& projectPath, const std::
 
 int DotNetCliController::NewSolution(const std::string& solutionPath, const std::string& solutionName)
 {
-    std::string command = "dotnet new sln --name " + solutionName + " --output " + solutionPath;
+    std::string command = "dotnet new sln --format sln --name " + solutionName + " --output " + solutionPath;
 
     return std::system(command.c_str());
 }

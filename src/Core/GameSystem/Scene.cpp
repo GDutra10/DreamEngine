@@ -48,7 +48,17 @@ void Scene::Update(const float deltaTime)
     for (Entity* entity : m_entityManager->GetEntities())
     {
         if (!entity->GetIsActive())
+        {
+            UiComponent& uiComponent = entity->GetComponent<UiComponent>();
+
+            if (uiComponent.has && uiComponent.content != nullptr)
+            {
+                if (uiComponent.instance != nullptr)
+                    UiManager::Hide(uiComponent.instance);
+            }
+
             continue;
+        }
 
         // UI update
         UiComponent& uiComponent = entity->GetComponent<UiComponent>();
@@ -57,6 +67,8 @@ void Scene::Update(const float deltaTime)
         {
             if (uiComponent.instance == nullptr)
                 uiComponent.instance = UiManager::Create(uiComponent.content);
+            else
+                UiManager::Show(uiComponent.instance);
         }
 
         // native script

@@ -19,6 +19,7 @@ void EntitySynchronizer::SynchronizeToData(Entity* entity)
     const glm::vec3 scale = transformComponent.GetScale();
 
     entity->entityData.id = entity->GetId();
+    entity->entityData.active = entity->GetIsActive();
     entity->entityData.transformPositionX = position.x;
     entity->entityData.transformPositionY = position.y;
     entity->entityData.transformPositionZ = position.z;
@@ -84,6 +85,8 @@ void EntitySynchronizer::SynchronizeToData(Entity* entity)
 
 void EntitySynchronizer::SynchronizeFromData(Entity* entity)
 {
+    entity->SetActive(entity->entityData.active);
+
     TransformComponent& transformComponent = entity->GetComponent<TransformComponent>();
 
     // parent id component

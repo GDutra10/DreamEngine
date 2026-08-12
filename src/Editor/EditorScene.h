@@ -18,6 +18,7 @@
 #include "UI/Windows/FileExplorerWindow.h"
 #include "UI/Windows/ResourceManagerWindow.h"
 #include "UI/Windows/MaterialWindow.h"
+#include "UI/Windows/TextEditorWindow.h"
 
 namespace DreamEngine::Editor
 {
@@ -55,6 +56,7 @@ public:
     ResourceManagerWindow m_resourceManagerWindow;
     MaterialWindow m_materialWindow;
     OpenProjectModal m_openProjectModal;
+    TextEditorWindow m_textEditorWindow;
     ProjectConfiguration& GetProjectConfiguration() const;
     void InitializeImGui();
     void DrawMenuBar();
