@@ -216,9 +216,33 @@ void EditorScene::DrawMenuBar()
 
     // Create a menu bar
     bool mustOpenProjectModal = false;
+    const float titleBarHeight = 30.0f;
+    GLFWwindow* window = Core::Application::Instance().GetWindow();
 
     if (ImGui::BeginMainMenuBar())
     {
+        // Draggable logic
+        if (!m_isCustomMaximized)
+        {
+            // Check if the user clicked and is dragging inside the main menu bar bounds
+            if (ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows) && ImGui::IsMouseDragging(ImGuiMouseButton_Left))
+            {
+
+                // Get how much the mouse moved since the last frame
+                ImVec2 delta = ImGui::GetIO().MouseDelta;
+
+                if (delta.x != 0.0f || delta.y != 0.0f)
+                {
+                    int currentX, currentY;
+                    glfwGetWindowPos(window, &currentX, &currentY);
+
+                    // Displace the OS window based on ImGui mouse movement
+                    glfwSetWindowPos(window, currentX + (int)delta.x, currentY + (int)delta.y);
+                }
+            }
+        }
+
+        // menus
         if (ImGui::BeginMenu("File"))
         {
             if (ImGui::MenuItem("Open Project", "Ctrl+O"))
@@ -295,6 +319,74 @@ void EditorScene::DrawMenuBar()
             }
             ImGui::EndMenu();
         }
+
+        // project name
+        ImGui::AlignTextToFramePadding();
+
+        if (projectConfiguration.isLoaded)
+        {
+            ImGui::SameLine(ImGui::GetWindowWidth() - 600.0f);
+            ImGui::Text("Project: %s", projectConfiguration.projectName.c_str());
+        }
+
+        // window controls
+        float buttonWidth = 40.0f;
+        ImGui::SameLine(ImGui::GetWindowWidth() - (buttonWidth * 3) - 16);
+
+        // Minimize Button
+        if (ImGui::Button("-", ImVec2(buttonWidth, titleBarHeight - 5)))
+        {
+            glfwIconifyWindow(window);
+        }
+
+        ImGui::SameLine();
+        // Maximize/Restore Button
+        bool isMaximized = glfwGetWindowAttrib(window, GLFW_MAXIMIZED);
+        if (ImGui::Button(m_isCustomMaximized ? "[=]" : "[ ]", ImVec2(buttonWidth, titleBarHeight - 5)))
+        {
+            if (m_isCustomMaximized)
+            {
+                // RESTORE: Put the window back to its previous position and dimensions
+                glfwSetWindowPos(window, m_savedX, m_savedY);
+                glfwSetWindowSize(window, m_savedWidth, m_savedHeight);
+                glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_FALSE);
+                m_isCustomMaximized = false;
+            }
+            else
+            {
+                // MAXIMIZE: Save current layout first so we can return to it later
+                glfwGetWindowPos(window, &m_savedX, &m_savedY);
+                glfwGetWindowSize(window, &m_savedWidth, &m_savedHeight);
+
+                // Get the active monitor work area (excludes taskbar/dock)
+                GLFWmonitor* monitor = glfwGetWindowMonitor(window);
+                if (!monitor)
+                {
+                    monitor = glfwGetPrimaryMonitor();
+                }
+
+                if (monitor)
+                {
+                    int workX, workY, workWidth, workHeight;
+                    glfwGetMonitorWorkarea(monitor, &workX, &workY, &workWidth, &workHeight);
+
+                    // Resize borderless window to fill the work area safely
+                    glfwSetWindowPos(window, workX, workY);
+                    glfwSetWindowSize(window, workWidth, workHeight);
+                    m_isCustomMaximized = true;
+                }
+            }
+        }
+
+        ImGui::SameLine();
+        // Close Button
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.1f, 0.1f, 1.0f));  // Red close button
+        if (ImGui::Button("X", ImVec2(buttonWidth, titleBarHeight - 5)))
+        {
+            glfwSetWindowShouldClose(window, GLFW_TRUE);
+        }
+        ImGui::PopStyleColor();
+
         ImGui::EndMainMenuBar();
     }
 

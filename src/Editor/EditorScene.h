@@ -45,6 +45,12 @@ public:
 
    private:
     bool m_imGuiInitialized = false;
+    // Window state tracking variables
+    bool m_isCustomMaximized = false;
+    int m_savedX = 100;
+    int m_savedY = 100;
+    int m_savedWidth = 1280;
+    int m_savedHeight = 720;
     ImGuiIO* m_io = nullptr;
     GameWindow m_gameWindow;
     HierarchyWindow m_hierarchyWindow;

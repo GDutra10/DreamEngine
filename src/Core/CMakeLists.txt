@@ -144,6 +144,8 @@ add_library (Core SHARED
 	"UI/RmlUI/RmlUiInstance.h"
 	"UI/UiInstance.h"
 	"UI/RmlUI/RmlClickListener.h"
+
+	"WindowConfiguration.h"
  )
 
 	

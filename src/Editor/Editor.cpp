@@ -70,16 +70,16 @@ int main()
                                     scenes);
 
     auto options = ApplicationOptions{};
-    options.DefaultRenderMask = RenderMask::None;
+    options.defaultRenderMask = RenderMask::None;
+    options.renderType = RenderType::openGL;
+    options.windowConfiguration = {};
+    options.windowConfiguration.height = editorConfiguration.windowSize.y;
+    options.windowConfiguration.width = editorConfiguration.windowSize.x;
+    options.windowConfiguration.title = "DreamEngine Editor - " + projectConfiguration.projectName;
+    options.windowConfiguration.mode = WindowMode::Borderless;
 
     // run application
-    Application::Instance().Run(
-        editorConfiguration.windowSize.x, 
-        editorConfiguration.windowSize.y,
-        "DreamEngine Editor - " + projectConfiguration.projectName, 
-        openGL,
-        gameEditor,
-        options);
+    Application::Instance().Run(gameEditor, options);
 
 	return 0;
 }

@@ -28,8 +28,8 @@ class CORE_API Application
 {
    public:
     static Application& Instance();
-    void Run(const int width, const int height, const std::string& name, RenderType renderType);
-    void Run(const int width, const int height, const std::string& name, RenderType renderType, Game* game, ApplicationOptions options);
+    //void Run(const int width, const int height, const std::string& name, RenderType renderType);
+    void Run(Game* game, ApplicationOptions& options);
     [[nodiscard]] GLFWwindow* GetWindow() const;
     [[nodiscard]] RenderAPI* GetRenderAPI() const { return m_renderAPI; }
     [[nodiscard]] RenderType GetRenderType() const { return m_renderType; }
@@ -52,8 +52,8 @@ class CORE_API Application
     ScriptEngine* m_scriptEngine = nullptr;
     GameData* m_gameData = new GameData();
     void SetRenderAPI(const RenderType renderType);
-    static void GLFWInit();
-    void InitializeWindow(const int width, const int height, const std::string& name);
+    void GLFWInit();
+    void InitializeWindow(const ApplicationOptions& options);
 
     static bool m_sFirstMouseCallback;
     static float m_sMouseLastX;
