@@ -1,15 +1,15 @@
 #include "ImportResourceModal.h"
 
 #include "../../../Core/Loggers/LoggerSingleton.h"
-#include "../../Singletons/EditorSingleton.h"
 #include "../../Vendors/imgui/imgui.h"
 
 using namespace DreamEngine::Editor::UI::Modals;
-using namespace DreamEngine::Editor::Singletons;
 
-ImportResourceModal::ImportResourceModal(std::string title) : BaseModal(std::move(title)),
-    m_getNamePopup("File Name"),
-    m_fileDialog("Select File")
+ImportResourceModal::ImportResourceModal(std::string title, EditorContext& editorContext, ResourceController& resourceController) 
+    : BaseModal(std::move(title), editorContext),
+    m_getNamePopup("File Name", editorContext),
+    m_fileDialog("Select File", editorContext),
+    m_resourceController(resourceController)
 {
     minWidth = 700.0f;
     maxWidth = 700.0f;
@@ -28,7 +28,7 @@ void ImportResourceModal::DrawContent()
     ImGui::Text("Add or Import Resource to the engine");
     ImGui::Text("You are add/import the resource in: ");
     ImGui::SameLine();
-    string selectedPathByProject = "..\\" + EditorSingleton::Instance().GetSelectedPathByProject();
+    string selectedPathByProject = "..\\" + m_editorContext.GetSelectedPathByProject();
     ImGui::Text(selectedPathByProject.c_str());
 
     ImGui::Separator();
@@ -42,7 +42,7 @@ void ImportResourceModal::DrawContent()
     ImGui::Text("Scene");
     if (ImGui::Button("Add##import.resource.add.scene", buttonSize))
         m_getNamePopup.Open("Scene File Name", [this](const std::string& name) {
-            Result result = EditorSingleton::Instance().GetResourceController().CreateSceneFile(name);
+            Result result = m_resourceController.CreateSceneFile(name);
 
             if (result.isOk)
                 Close();
@@ -54,7 +54,7 @@ void ImportResourceModal::DrawContent()
     ImGui::Text("Material");
     if (ImGui::Button("Add##import.resource.add.material", buttonSize))
         m_getNamePopup.Open("Material File Name", [this](const std::string& name) {
-            Result result = EditorSingleton::Instance().GetResourceController().CreateMaterialFile(name);
+            Result result = m_resourceController.CreateMaterialFile(name);
 
             if (result.isOk)
                 Close();
@@ -88,7 +88,7 @@ void ImportResourceModal::DrawContent()
     ImGui::Text("UI");
     if (ImGui::Button("Add##import.resource.add.ui", buttonSize))
         m_getNamePopup.Open("Material File Name", [this](const std::string& name) {
-            Result result = EditorSingleton::Instance().GetResourceController().CreateUIFile(name);
+            Result result = m_resourceController.CreateUIFile(name);
 
             if (result.isOk)
                 Close();
@@ -101,7 +101,7 @@ void ImportResourceModal::DrawContent()
 
 void ImportResourceModal::CreateMeshesFromFile(const std::string& filePath)
 {
-    Result result = EditorSingleton::Instance().GetResourceController().CreateMeshFileFromModelFile(filePath);
+    Result result = m_resourceController.CreateMeshFileFromModelFile(filePath);
 
     if (result.isOk)
         Close();

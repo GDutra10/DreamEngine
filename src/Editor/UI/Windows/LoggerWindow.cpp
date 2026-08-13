@@ -1,20 +1,19 @@
 #include "LoggerWindow.h"
 #include "../../Vendors/imgui/imgui.h"
 #include "../../Loggers/EditorLogger.h"
-#include "../../Singletons/EditorSingleton.h"
 #include "../Views/LogView.h"    
 
 using namespace DreamEngine::Core::Loggers;
 using namespace DreamEngine::Editor::Loggers;
 using namespace DreamEngine::Editor::UI::Views; 
 using namespace DreamEngine::Editor::UI::Windows;
-using namespace DreamEngine::Editor::Singletons;
 
-LoggerWindow::LoggerWindow(const std::string& title) : BaseWindow(title) {}
+LoggerWindow::LoggerWindow(const std::string& title, EditorContext& editorContext) : BaseWindow(title, editorContext) {}
 
 void LoggerWindow::DrawContent()
 {
-    vector<Log>& logsFromEditorLogger = EditorSingleton::Instance().GetEditorLogger()->GetLogs();
+    EditorLogger* editorLogger = m_editorContext.GetEditorLogger();
+    vector<Log>& logsFromEditorLogger = editorLogger->GetLogs();
     bool mustScrollDown = false;
     const bool hasDifferentSize = m_logs.size() != logsFromEditorLogger.size();
     const bool hasDifferentDateTime = !hasDifferentSize
@@ -26,7 +25,7 @@ void LoggerWindow::DrawContent()
     {
         mustScrollDown = true;
         m_mustApplyFilter = true;
-        m_logs = EditorSingleton::Instance().GetEditorLogger()->GetLogs();
+        m_logs = editorLogger->GetLogs();
     }
 
     ImGui::SameLine();
@@ -68,7 +67,7 @@ void LoggerWindow::DrawContent()
 
     ImGui::SameLine();
     if (ImGui::Button("    Clear    "))
-        EditorSingleton::Instance().GetEditorLogger()->Clear();
+        editorLogger->Clear();
 
     ApplyFilter();
 

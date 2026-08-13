@@ -5,7 +5,6 @@
 #include "../../Controllers/EntityController.h"
 #include "../../Vendors/imgui/imgui.h"
 #include "../../Helpers/ImGuiHelper.h"
-#include "../../Singletons/EditorSingleton.h"
 #include "../../UI/Views/ColorView.h"
 #include "../../UI/Views/MaterialView.h"
 #include "../../../Core/Application.h"
@@ -29,16 +28,17 @@ using namespace DreamEngine::Core::Render::Factories;
 using namespace DreamEngine::Editor::Controllers;
 using namespace DreamEngine::Editor::Helpers;
 using namespace DreamEngine::Editor::UI::Windows;
-using namespace DreamEngine::Editor::Singletons;
 using namespace DreamEngine::Editor::UI::Views;
 
-PropertyWindow::PropertyWindow(const std::string& title) : BaseWindow(title) {}
+PropertyWindow::PropertyWindow(const std::string& title, EditorContext& editorContext, EntityController& entityController) 
+    : BaseWindow(title, editorContext)
+    , m_entityController(entityController) {}
 
 void PropertyWindow::DrawContent()
 {
-    const auto selectedEntity = EditorSingleton::Instance().GetSelectedEntity();
+    const auto selectedEntity = m_editorContext.GetSelectedEntity();
 
-    if (EditorSingleton::Instance().IsViewSceneData())
+    if (m_editorContext.IsViewSceneData())
         DrawSceneData();
     else if (selectedEntity != nullptr)
     {
@@ -61,7 +61,7 @@ void PropertyWindow::DrawContent()
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.7f, 0.1f, 0.1f, 1.0f));   // Active red
 
         if (ImGui::Button("  X  "))
-            EntityController::DeleteEntity(selectedEntity);
+            m_entityController.DeleteEntity(selectedEntity);
 
         ImGui::PopStyleColor(3);
 
@@ -341,7 +341,7 @@ void PropertyWindow::DrawMaterialComponent(Entity* selectedEntity)
 
      m_materialView.Draw(*materialComponent.material, [this](Material* mat)
      {
-         MaterialComponent& materialComponent = EditorSingleton::Instance().GetSelectedEntity()->GetComponent<MaterialComponent>();
+         MaterialComponent& materialComponent = m_editorContext.GetSelectedEntity()->GetComponent<MaterialComponent>();
 
          if (materialComponent.has)
              materialComponent.material = mat;
@@ -416,15 +416,15 @@ void PropertyWindow::DrawCameraComponent(Entity* selectedEntity)
 
             ImGuiHelper::PrepareRow("Main Camera");
 
-            if (EditorSingleton::Instance().GetEditorScene()->GetMainCameraEntity() != nullptr &&
-                EditorSingleton::Instance().GetEditorScene()->GetMainCameraEntity()->GetIdentifier() == selectedEntity->GetIdentifier())
+            if (m_editorContext.GetEditorScene()->GetMainCameraEntity() != nullptr &&
+                m_editorContext.GetEditorScene()->GetMainCameraEntity()->GetIdentifier() == selectedEntity->GetIdentifier())
             {
                 ImGui::TextColored(ImGuiHelper::GetImVec4Green(), "Yes");
             }
             else
             {
                 if (ImGui::Button("   Set Scene Camera   ", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
-                    EditorSingleton::Instance().GetEditorScene()->SetMainCameraEntity(selectedEntity);
+                    m_editorContext.GetEditorScene()->SetMainCameraEntity(selectedEntity);
             }
 
             ImGui::EndTable();

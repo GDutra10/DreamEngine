@@ -15,7 +15,7 @@ using namespace DreamEngine::Core::Resources;
 class ResourceManagerWindow : public BaseWindow
 {
    public:
-    ResourceManagerWindow(const string& title);
+    ResourceManagerWindow(const string& title, EditorContext& editorContext);
 
    protected:
     void DrawContent() override;

@@ -14,7 +14,7 @@ class FileDialogModal final : public BaseModal
    public:
     std::string selectedFile;
     std::string currentPath;
-    FileDialogModal(const std::string& title);
+    FileDialogModal(const std::string& title, EditorContext& editorContext);
     void Open(const std::function<bool(std::string)>& callbackOk, const FileDialogConfig& config = {});
 
    protected:

@@ -1,13 +1,11 @@
 #include "GameWindow.h"
 
-#include "../../Singletons/EditorSingleton.h"
 #include "../../Vendors/imgui/imgui.h"
 #include "Loggers/LoggerSingleton.h"
 
 using namespace DreamEngine::Editor::UI::Windows;
-using namespace DreamEngine::Editor::Singletons;
 
-GameWindow::GameWindow(const string& title) : BaseWindow(title) {}
+GameWindow::GameWindow(const string& title, EditorContext& editorContext) : BaseWindow(title, editorContext) {}
 
 void GameWindow::DrawContent()
 {
@@ -23,7 +21,7 @@ void GameWindow::DrawContent()
         int desiredW = std::max(1, (int)size.x);
         int desiredH = std::max(1, (int)size.y);
 
-        RenderView* gameRenderView = EditorSingleton::Instance().GetGameRenderView();
+        RenderView* gameRenderView = m_editorContext.GetGameRenderView();
         gameRenderView->width = desiredW;
         gameRenderView->height = desiredH;
         gameRenderView->frameBuffer->Rescale(desiredW, desiredH);

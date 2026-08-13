@@ -10,7 +10,7 @@ using namespace DreamEngine::Core::Loggers;
 class LoggerWindow : public BaseWindow
 {
    public:
-    LoggerWindow(const std::string& title);
+    LoggerWindow(const std::string& title, EditorContext& editorContext);
 
    protected:
     void DrawContent() override;

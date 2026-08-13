@@ -12,7 +12,7 @@ using namespace DreamEngine::Editor::Controllers;
 class GetNameModal final : public BaseModal
 {
    public:
-    explicit GetNameModal(std::string title);
+    explicit GetNameModal(std::string title, EditorContext& editorContext);
     void Open(std::string title, const std::function<Result(std::string name)>& callbackOk);
 
    protected:
@@ -20,7 +20,6 @@ class GetNameModal final : public BaseModal
     char m_name[128] = "";
     std::string m_errorMessage;
     std::function<Result(std::string name)> m_callbackOk;
-    ResourceController m_resourceController;
 };
 
 }  // namespace DreamEngine::Editor::UI::Modals

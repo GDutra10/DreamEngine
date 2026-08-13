@@ -2,26 +2,25 @@
 
 #include "../Views/ColorView.h"
 #include "../../Helpers/ImGuiHelper.h"
-#include "../../Singletons/EditorSingleton.h"
 #include "../../Vendors/imgui/imgui.h"
 #include "../../../Core/Resources/ResourceManager.h"
 
 using namespace DreamEngine::Editor::UI::Windows;
 using namespace DreamEngine::Editor::UI::Views;
 using namespace DreamEngine::Editor::Helpers;
-using namespace DreamEngine::Editor::Singletons;
 using namespace DreamEngine::Core::Resources;
 
-MaterialWindow::MaterialWindow(const std::string& title) : BaseWindow(title)
+MaterialWindow::MaterialWindow(const std::string& title, EditorContext& editorContext, ResourceController& resourceController) : BaseWindow(title, editorContext)
+    , m_resourceController(resourceController)
     , m_pMaterial(nullptr)
     , m_originalMaterial(nullptr)
 {}
 
 void MaterialWindow::DrawContent()
 {
-    if (m_sSelectedMaterialPath != EditorSingleton::Instance().GetSelectedMaterialPath())
+    if (m_sSelectedMaterialPath != m_editorContext.GetSelectedMaterialPath())
     {
-        m_sSelectedMaterialPath = EditorSingleton::Instance().GetSelectedMaterialPath();
+        m_sSelectedMaterialPath = m_editorContext.GetSelectedMaterialPath();
 
         if (!m_sSelectedMaterialPath.empty())
         {
@@ -62,11 +61,9 @@ void MaterialWindow::DrawContent()
 
     if (ImGui::Button("    Save    "))
     {
-        EditorSingleton::Instance()
-            .GetResourceController()
-            .SaveMaterialFile(m_pMaterial, m_sSelectedMaterialPath.string());
+        m_resourceController.SaveMaterialFile(m_pMaterial, m_sSelectedMaterialPath.string());
 
-       LoadMaterialFromFile();
+        LoadMaterialFromFile();
     }
 
     ImGui::SameLine();
@@ -82,6 +79,6 @@ void MaterialWindow::DrawContent()
 
 void MaterialWindow::LoadMaterialFromFile()
 {
-    m_originalMaterial = EditorSingleton::Instance().GetResourceController().LoadMaterial(m_sSelectedMaterialPath.string());
+    m_originalMaterial = m_resourceController.LoadMaterial(m_sSelectedMaterialPath.string());
 }
 

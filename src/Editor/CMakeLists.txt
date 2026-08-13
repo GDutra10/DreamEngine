@@ -7,6 +7,8 @@ project(Editor)
 add_executable(Editor
     Editor.cpp
     Editor.h
+    EditorContext.h
+    EditorContext.cpp
     EditorDefine.h
     EditorScene.h
     EditorScene.cpp
@@ -77,9 +79,6 @@ add_executable(Editor
     Serializers/ShaderSerializer.h
     Serializers/UiContentSerializer.h
     Serializers/UiContentSerializer.cpp
-
-    Singletons/EditorSingleton.h
-    Singletons/EditorSingleton.cpp
 
     UI/Modals/BaseModal.h
     UI/Modals/BaseModal.cpp

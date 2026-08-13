@@ -6,7 +6,6 @@
 #include "../../Helpers/FileHelper.h"
 #include "../../Helpers/TextureHelper.h"
 #include "../../Serializers/ModelSerializer.h"
-#include "../../Singletons/EditorSingleton.h"
 #include "../../Vendors/imgui/imgui.h"
 #include "ECS/Components/MaterialComponent.h"
 #include "ECS/Components/UiComponent.h"
@@ -15,12 +14,14 @@
 using namespace std;
 using namespace std::filesystem;
 using namespace DreamEngine::Editor::Helpers;
+using namespace DreamEngine::Editor::Controllers;
 using namespace DreamEngine::Editor::UI::Windows;
-using namespace DreamEngine::Editor::Singletons;
 using namespace DreamEngine::Editor::Serializers;
 
 
-FileExplorerWindow::FileExplorerWindow(const std::string& title) : BaseWindow(title) {}
+FileExplorerWindow::FileExplorerWindow(const std::string& title, EditorContext& editorContext, ResourceController& resourceController) 
+    : BaseWindow(title, editorContext)
+    , m_resourceController(resourceController) {}
 
 void FileExplorerWindow::DrawContent()
 {
@@ -35,10 +36,10 @@ void FileExplorerWindow::DrawContent()
         m_wasInitialized = true;
     }
 
-    if (EditorSingleton::Instance().GetSelectedPath().empty())
+    if (m_editorContext.GetSelectedPath().empty())
         return;
 
-    DrawBreadcrumbNavigation(EditorSingleton::Instance().GetSelectedPath());
+    DrawBreadcrumbNavigation(m_editorContext.GetSelectedPath());
     FileSystemBrowser();
 
     // Print all collected files
@@ -64,7 +65,7 @@ void FileExplorerWindow::DrawContent()
         if (ImGui::MenuItem("Delete"))
         {
             if (m_sRightClickFile.extension() == EDITOR_DEFAULT_MATERIAL_FILE_EXTENSION)
-                EditorSingleton::Instance().GetResourceController().DeleteMaterialFile(m_sRightClickFile.string());
+                m_resourceController.DeleteMaterialFile(m_sRightClickFile.string());
             else
                 LoggerSingleton::Instance().LogWarning("FileExplorerWindow::DrawContent -> File type not supported");
 
@@ -82,7 +83,7 @@ void FileExplorerWindow::DrawContent()
 
                 std::ifstream stream(m_sRightClickFile);
                 Model& model = ModelSerializer::Deserialize(stream);
-                EntityManager* entityManager = EditorSingleton::Instance().GetEntityManager();
+                EntityManager* entityManager = m_editorContext.GetEntityManager();
                 Entity* entity = entityManager->AddEntity("entity");
                 entity->GetName() = m_sRightClickFile.filename().string();
 
@@ -112,7 +113,7 @@ void FileExplorerWindow::DrawContent()
         {
             if (ImGui::MenuItem("Reload"))
             {
-                EditorSingleton::Instance().ReloadUiComponent(m_sRightClickFile);
+                m_resourceController.ReloadUiComponent(m_sRightClickFile);
 
                 m_sRightClickFile.clear();
                 ImGui::CloseCurrentPopup();
@@ -120,24 +121,24 @@ void FileExplorerWindow::DrawContent()
         }
 
         if (ImGui::MenuItem("Edit"))
-            EditorSingleton::Instance().SetFileTextEditorPath(m_sRightClickFile);
+            m_editorContext.SetFileTextEditorPath(m_sRightClickFile);
 
         ImGui::EndPopup();
     }
 
     // Check if the selected file is a scene file
-    if (m_sSelectedFile.extension() == EDITOR_DEFAULT_SCENE_FILE_EXTENSION && m_sSelectedFile != EditorSingleton::Instance().GetSelectedScenePath())
-        EditorSingleton::Instance().SetSelectedScenePath(m_sSelectedFile);
+    if (m_sSelectedFile.extension() == EDITOR_DEFAULT_SCENE_FILE_EXTENSION && m_sSelectedFile != m_editorContext.GetSelectedScenePath())
+        m_editorContext.SetSelectedScenePath(m_sSelectedFile);
 
     // Check if the selected file is a material file
-    if (m_sSelectedFile.extension()== EDITOR_DEFAULT_MATERIAL_FILE_EXTENSION && m_sSelectedFile != EditorSingleton::Instance().GetSelectedMaterialPath())
-        EditorSingleton::Instance().SetSelectedMaterialPath(m_sSelectedFile);
+    if (m_sSelectedFile.extension()== EDITOR_DEFAULT_MATERIAL_FILE_EXTENSION && m_sSelectedFile != m_editorContext.GetSelectedMaterialPath())
+        m_editorContext.SetSelectedMaterialPath(m_sSelectedFile);
 }
 
 void FileExplorerWindow::DrawBreadcrumbNavigation(const path& currentPath)
 {
     path current = "/";
-    const std::string projectName = EditorSingleton::Instance().GetProjectConfiguration().projectName;
+    const std::string projectName = m_editorContext.GetProjectConfiguration().projectName;
     bool foundProjectName = false;
 
     for (const auto& part : currentPath)
@@ -153,7 +154,7 @@ void FileExplorerWindow::DrawBreadcrumbNavigation(const path& currentPath)
         }
 
         if (ImGui::Button(part.string().c_str()))
-            EditorSingleton::Instance().SetSelectedPath(current);
+            m_editorContext.SetSelectedPath(current);
 
         ImGui::SameLine();
         ImGui::Text("/");
@@ -179,7 +180,7 @@ void FileExplorerWindow::FileSystemBrowser()
     ImGui::Columns(columns, nullptr, false);
 
     // Right panel: File list
-    for (const auto& entry : directory_iterator(EditorSingleton::Instance().GetSelectedPath()))
+    for (const auto& entry : directory_iterator(m_editorContext.GetSelectedPath()))
     {
         bool isFolder = entry.is_directory();
         std::string name = entry.path().filename().string();
@@ -190,7 +191,7 @@ void FileExplorerWindow::FileSystemBrowser()
         // Draw file/folder entry
         DrawFileEntry(name, icon, m_sSelectedFile == entry.path().string(), [&]() {
             if (isFolder) {
-                EditorSingleton::Instance().SetSelectedPath(entry.path().string());
+                m_editorContext.SetSelectedPath(entry.path().string());
             } else {
                 m_sSelectedFile = entry.path().string();
             }

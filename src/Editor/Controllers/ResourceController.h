@@ -7,6 +7,7 @@
 #include "../../Core/Render/Material.h"
 #include "../../Core/Scripting/ScriptInfo.h"
 #include "UI/UiContent.h"
+#include "../EditorContext.h"
 
 namespace DreamEngine::Editor::Controllers
 {
@@ -19,31 +20,33 @@ using namespace DreamEngine::Editor::Importers;
 class ResourceController
 {
    public:
-    ResourceController() = default;
-    static Result CreateMaterialFile(const std::string& filename);
-    static Result CreateTextureFile(const std::string& filename);
-    static Result CreateMeshFileFromModelFile(const std::string& filename);
-    static Result CreateSceneFile(const std::string& filename);
-    static Result CreateUIFile(const std::string& filename);
-    static void SaveMaterialFile(const Material* material, const std::string& pathAndFilename);
-    static void DeleteMaterialFile(const std::string& pathAndFilename);
-    static Material* LoadMaterial(const std::string pathAndFilename);
-    static Texture* LoadTexture(const std::string pathAndFilename);
-    static Model& LoadModel(const std::string pathAndFilename);
-    static UiContent* LoadUiContent(const std::string pathAndFilename);
-    static void LoadMaterials(const std::vector<std::string>& materialFiles);
-    static void LoadTextures(const std::vector<std::string>& textureFiles);
-    static void LoadModels(const std::vector<std::string>& modelFiles);
-    static void LoadUiContents(const std::vector<std::string>& uiFiles);
-    static void AddScripts(const std::vector<ScriptInfo>& scriptInfos);
-    static void UnloadAllResources();
+    ResourceController(EditorContext& editorContext);
+    Result CreateMaterialFile(const std::string& filename);
+    Result CreateTextureFile(const std::string& filename);
+    Result CreateMeshFileFromModelFile(const std::string& filename);
+    Result CreateSceneFile(const std::string& filename);
+    Result CreateUIFile(const std::string& filename);
+    void SaveMaterialFile(const Material* material, const std::string& pathAndFilename);
+    void DeleteMaterialFile(const std::string& pathAndFilename);
+    Material* LoadMaterial(const std::string pathAndFilename);
+    Texture* LoadTexture(const std::string pathAndFilename);
+    Model& LoadModel(const std::string pathAndFilename);
+    UiContent* LoadUiContent(const std::string pathAndFilename);
+    void LoadMaterials(const std::vector<std::string>& materialFiles);
+    void LoadTextures(const std::vector<std::string>& textureFiles);
+    void LoadModels(const std::vector<std::string>& modelFiles);
+    void LoadUiContents(const std::vector<std::string>& uiFiles);
+    void AddScripts(const std::vector<ScriptInfo>& scriptInfos);
+    void UnloadAllResources();
+    void ReloadUiComponent(const path uiFile);
    private:
-    static BaseModelImporter* m_modelImporter;
-    static void DeleteMaterialFromResourceManager(const Material* material);
-    static Result TryAddToResourceManager(Material* material, const bool mustGenerateResourceId);
-    static Result TryAddToResourceManager(Texture* texture, const bool mustGenerateResourceId);
-    static Result TryAddToResourceManager(Mesh* mesh, const bool mustGenerateResourceId);
-    static Result TryAddToResourceManager(UiContent* mesh, const bool mustGenerateResourceId);
+    EditorContext& m_editorContext;
+    BaseModelImporter* m_modelImporter;
+    void DeleteMaterialFromResourceManager(const Material* material);
+    Result TryAddToResourceManager(Material* material, const bool mustGenerateResourceId);
+    Result TryAddToResourceManager(Texture* texture, const bool mustGenerateResourceId);
+    Result TryAddToResourceManager(Mesh* mesh, const bool mustGenerateResourceId);
+    Result TryAddToResourceManager(UiContent* mesh, const bool mustGenerateResourceId);
 };
 
 }  // namespace DreamEngine::Editor::Controllers

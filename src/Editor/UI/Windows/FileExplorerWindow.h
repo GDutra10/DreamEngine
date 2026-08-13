@@ -9,21 +9,24 @@
 
 #include "BaseWindow.h"
 #include "../../Models/FileIcon.h"
+#include "../../Controllers/ResourceController.h"
 
 namespace DreamEngine::Editor::UI::Windows
 {
 using namespace std;
 using namespace std::filesystem;
+using namespace DreamEngine::Editor::Controllers;
 using namespace DreamEngine::Editor::Models;
 class FileExplorerWindow final : public BaseWindow
 {
    public:
-    FileExplorerWindow(const std::string& title);
+    FileExplorerWindow(const std::string& title, EditorContext& editorContext, ResourceController& resourceController);
 
    protected:
     void DrawContent() override;
 
    private:
+    ResourceController& m_resourceController;
     path m_sSelectedFile;
     path m_sRightClickFile;
     bool m_wasInitialized = false;

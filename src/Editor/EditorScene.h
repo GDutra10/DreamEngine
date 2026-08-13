@@ -5,6 +5,9 @@
 #include "../Core/GameSystem/Game.h"
 #include "../Core/GameSystem/Scene.h"
 #include "Controllers/CameraEditorController.h"
+#include "Controllers/ProjectController.h"
+#include "Controllers/ResourceController.h"
+#include "Controllers/ScriptController.h"
 #include "Vendors/imgui/imgui.h"
 #include "Models/ProjectConfiguration.h"
 #include "Models/EditorConfiguration.h"
@@ -43,15 +46,30 @@ public:
     Camera& GetCamera() override;
     bool ChangeScene(std::string sceneName) override;
 
-   private:
-    bool m_imGuiInitialized = false;
+   private:    
     // Window state tracking variables
     bool m_isCustomMaximized = false;
     int m_savedX = 100;
     int m_savedY = 100;
     int m_savedWidth = 1280;
     int m_savedHeight = 720;
+
+    // ImGUI
+    bool m_imGuiInitialized = false;
     ImGuiIO* m_io = nullptr;
+
+    // Core shared state FIRST
+    EditorContext m_editorContext;
+
+    // controllers SECOND
+    ResourceController m_resourceController;
+    ScriptController m_scriptController;
+    ProjectController m_projectController;
+    CameraEditorController m_cameraEditorController;
+    SceneController m_sceneController;
+    EntityController m_entityController;
+
+    // UI depending on the above THIRD
     GameWindow m_gameWindow;
     HierarchyWindow m_hierarchyWindow;
     LoggerWindow m_loggerWindow;
@@ -63,6 +81,8 @@ public:
     MaterialWindow m_materialWindow;
     OpenProjectModal m_openProjectModal;
     TextEditorWindow m_textEditorWindow;
+    
+    // Methods
     ProjectConfiguration& GetProjectConfiguration() const;
     void InitializeImGui();
     void DrawMenuBar();
@@ -77,5 +97,5 @@ public:
     void RenderDebugPass(Scene& scene, RenderView& renderView, RenderAPI* pRenderer);
 };
 
-}  // namespace DreamEngine::Editor::Loggers
+}  // namespace DreamEngine::Editor
 #endif

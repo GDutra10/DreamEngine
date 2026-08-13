@@ -4,13 +4,12 @@
 #include <string>
 
 #include "../../Helpers/ImGuiHelper.h"
-#include "../../Singletons/EditorSingleton.h"
 #include "../../Vendors/imgui/imgui.h"
 
 using namespace DreamEngine::Editor::UI::Modals;
-using namespace DreamEngine::Editor::Singletons;
 
-FileDialogModal::FileDialogModal(const std::string& title) : BaseModal(title) {}
+FileDialogModal::FileDialogModal(const std::string& title, EditorContext& editorContext) 
+    : BaseModal(title, editorContext) {}
 
 void FileDialogModal::Open(const std::function<bool(std::string)>& callbackOk, const FileDialogConfig& config)
 {
@@ -20,7 +19,7 @@ void FileDialogModal::Open(const std::function<bool(std::string)>& callbackOk, c
     m_config.shouldRenderOnlyTheCurrentPath = config.shouldRenderOnlyTheCurrentPath;
     m_config.shouldRenderOnlyFolder = config.shouldRenderOnlyFolder;
     currentPath = config.shouldUseCurrentPath
-        ? EditorSingleton::Instance().GetSelectedPath().string()
+        ? m_editorContext.GetSelectedPath().string()
         : current_path().root_path().string();
 
     BaseModal::Open();
