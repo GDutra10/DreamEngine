@@ -14,7 +14,6 @@
 #include "Loggers/EditorLogger.h"
 #include "Models/EditorConfiguration.h"
 #include "Models/ProjectConfiguration.h"
-#include "Singletons/EditorSingleton.h"
 
 
 using namespace std;
@@ -23,7 +22,6 @@ using namespace DreamEngine::Core::Loggers;
 using namespace DreamEngine::Editor;
 using namespace DreamEngine::Editor::Models;
 using namespace DreamEngine::Editor::Loggers;
-using namespace DreamEngine::Editor::Singletons;
 
 //void some_function()
 //{

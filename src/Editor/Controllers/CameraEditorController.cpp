@@ -1,19 +1,16 @@
 #include "CameraEditorController.h"
-#include "../Singletons/EditorSingleton.h"
 #include "../../Core/Application.h"
 #include "../../Core/Inputs/Input.h"
+#include "../EditorContext.h"
 
+using namespace DreamEngine::Editor;
 using namespace DreamEngine::Editor::Controllers;
-using namespace DreamEngine::Editor::Singletons;
 using namespace DreamEngine::Core;
 using namespace DreamEngine::Core::Inputs;
 
-glm::vec2 CameraEditorController::m_sLastMousePositionWhenRightClick;
-
-CameraEditorController::CameraEditorController()
-{
-    m_pCamera = new Camera();
-}
+CameraEditorController::CameraEditorController(EditorContext& editorContext) 
+    : m_editorContext(editorContext)
+    , m_pCamera(new Camera()) {}
 
 CameraEditorController::~CameraEditorController()
 {
@@ -74,7 +71,7 @@ void CameraEditorController::Move(const float deltaTime) const
 
 void CameraEditorController::Rotate()
 {
-    Scene* editorScene = EditorSingleton::Instance().GetEditorScene();
+    Scene* editorScene = m_editorContext.GetEditorScene();
 
     if (Input::IsPressed(MouseButton::MOUSE_BUTTON_RIGHT))
     {
@@ -83,10 +80,10 @@ void CameraEditorController::Rotate()
 
         const glm::vec2 currentMousePosition = Input::GetMousePosition();
 
-        if (m_sLastMousePositionWhenRightClick == currentMousePosition)
+        if (m_lastMousePositionWhenRightClick == currentMousePosition)
             return;
 
-        m_sLastMousePositionWhenRightClick = currentMousePosition;
+        m_lastMousePositionWhenRightClick = currentMousePosition;
 
         const float xOffset = currentMousePosition.x * mouseSensitivity;
         const float yOffset = currentMousePosition.y * mouseSensitivity;

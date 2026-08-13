@@ -10,7 +10,7 @@ using namespace std;
 class GameWindow : public BaseWindow
 {
    public:
-    GameWindow(const string& title);
+    GameWindow(const string& title, EditorContext& editorContext);
 
    protected:
     void DrawContent() override;

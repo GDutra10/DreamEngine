@@ -4,7 +4,7 @@
 
 using namespace DreamEngine::Editor::UI::Modals;
 
-GetNameModal::GetNameModal(std::string title) : BaseModal(std::move(title)){}
+GetNameModal::GetNameModal(std::string title, EditorContext& editorContext) : BaseModal(std::move(title), editorContext) {}
 
 void GetNameModal::Open(std::string title, const std::function<Result(std::string name)>& callbackOk)
 {

@@ -3,7 +3,7 @@
 
 using namespace DreamEngine::Editor::UI::Modals;
 
-BaseModal::BaseModal(std::string title) : m_title(std::move(title)){}
+BaseModal::BaseModal(std::string title, EditorContext& editorContext) : m_title(std::move(title)), m_editorContext(editorContext) {}
 
 void BaseModal::Open()
 {

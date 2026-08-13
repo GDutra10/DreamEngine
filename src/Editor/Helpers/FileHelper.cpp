@@ -6,11 +6,10 @@
 #include <vector>
 #include <iterator>
 #include <string>
-
-#include "../Singletons/EditorSingleton.h"
+#include "../Models/ProjectConfiguration.h"
+using namespace DreamEngine::Editor::Models;
 
 using namespace DreamEngine::Editor::Helpers;
-using namespace DreamEngine::Editor::Singletons;
 
 vector<string> FileHelper::GetFilesWithExtension(const path& directory, const string& extension)
 {
@@ -43,9 +42,9 @@ vector<path> FileHelper::GetAllFilesInCurrentDirectory(const path& directoryPath
     return files;
 }
 
-path FileHelper::GetRelativePathByProject(const path& filePath)
+path FileHelper::GetRelativePathByProject(const path& filePath, const ProjectConfiguration& projectConfig)
 {
-    return relative(filePath, EditorSingleton::Instance().GetProjectConfiguration().projectPath);
+    return relative(filePath, projectConfig.projectPath);
 }
 
 std::vector<unsigned char> FileHelper::LoadFileIntoVector(const std::string& filename)

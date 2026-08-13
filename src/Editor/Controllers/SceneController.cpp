@@ -4,7 +4,6 @@
 #include <regex>
 #include <ranges>
 
-#include "../Singletons/EditorSingleton.h"
 #include "../../Core/Application.h"
 #include "../../Core/Loggers/LoggerSingleton.h"
 #include "../Serializers/SceneDataSerializer.h"
@@ -15,45 +14,47 @@
 #include "ECS/Components/CameraComponent.h"
 #include "ECS/Components/UiComponent.h"
 #include "Resources/ResourceManager.h"
+#include "../EditorContext.h"
 
 using namespace DreamEngine::Core;
 using namespace DreamEngine::Core::ECS::Components;
 using namespace DreamEngine::Core::Loggers;
 using namespace DreamEngine::Editor::Controllers;
-using namespace DreamEngine::Editor::Singletons;
 using namespace DreamEngine::Editor::Models::Datas;
 
-Datas::SceneData* SceneController::m_pOriginalSceneData = nullptr;
+SceneController::SceneController(EditorContext& editorContext) 
+    : m_editorContext(editorContext)
+    , m_pOriginalSceneData(nullptr){}
 
 bool SceneController::ShouldLoadSceneData(path& path)
 {
     // Check if path is scene
-    return path != EditorSingleton::Instance().GetSelectedScenePath();
+    return path != m_editorContext.GetSelectedScenePath();
 }
 
-void SceneController::LoadSceneData(path& path, EntityManager* entityManager, bool isByChangeScene)
+void SceneController::LoadSceneData(path& path, bool isByChangeScene)
 {
     LoggerSingleton::Instance().LogTrace("SceneController::LoadSceneData -> Start");
 
     std::ifstream file(path.string());
 
     if (isByChangeScene && m_pOriginalSceneData == nullptr)
-        m_pOriginalSceneData = EditorSingleton::Instance().sceneData;
+        m_pOriginalSceneData = m_editorContext.GetSceneData();
 
     SceneData* sceneData = &Serializers::SceneDataSerializer::Deserialize(file);
     sceneData->path = path;
 
-    EditorSingleton::Instance().sceneData = sceneData;
+    m_editorContext.SetSceneData(sceneData);
 
-    LoadScene(entityManager);
+    LoadScene();
     LoggerSingleton::Instance().LogTrace("SceneController::LoadSceneData -> Finish");
 }
 
-bool SceneController::SaveSceneData(EntityManager* entityManager)
+bool SceneController::SaveSceneData()
 {
     LoggerSingleton::Instance().LogTrace("SceneController::SaveSceneData -> Start");
 
-    SceneData* sceneData = EditorSingleton::Instance().sceneData;
+    SceneData* sceneData = m_editorContext.GetSceneData();
 
     if (sceneData == nullptr)
     {
@@ -100,7 +101,7 @@ bool SceneController::SaveSceneData(EntityManager* entityManager)
 
     sceneData->entities.clear();
 
-    for (Entity* entity : entityManager->GetEntities())
+    for (Entity* entity : m_editorContext.GetEntityManager()->GetEntities())
     {
         EntityConfigData entityConfig;
         TransformComponent& transform = entity->GetComponent<TransformComponent>();
@@ -181,35 +182,35 @@ bool SceneController::SaveSceneData(EntityManager* entityManager)
     return true;
 }
 
-void SceneController::Play(EntityManager* entityManager)
+void SceneController::Play()
 {
     LoggerSingleton::Instance().LogTrace("SceneController::Play -> Start");
 
-    if (SaveSceneData(entityManager))
-        EditorSingleton::Instance().GetEditorScene()->SetMustRunScriptComponents(true);
+    if (SaveSceneData())
+        m_editorContext.GetEditorScene()->SetMustRunScriptComponents(true);
 }
 
-void SceneController::Stop(EntityManager* entityManager)
+void SceneController::Stop()
 {
     LoggerSingleton::Instance().LogTrace("SceneController::Stop -> Start");
 
-    EditorSingleton::Instance().GetEditorScene()->SetMustRunScriptComponents(false);
+    m_editorContext.GetEditorScene()->SetMustRunScriptComponents(false);
 
     if (m_pOriginalSceneData != nullptr)
     {
-        EditorSingleton::Instance().sceneData = m_pOriginalSceneData;
+        m_editorContext.SetSceneData(m_pOriginalSceneData);
         m_pOriginalSceneData = nullptr;
     }
 
-    LoadScene(entityManager);
+    LoadScene();
 }
 
-void SceneController::LoadScene(EntityManager* entityManager)
+void SceneController::LoadScene()
 {
     LoggerSingleton::Instance().LogTrace("SceneController::LoadScene -> Start");
 
     Scene* scene = Application::Instance().GetGame()->GetActiveScene();
-    SceneData* sceneData = EditorSingleton::Instance().sceneData;
+    SceneData* sceneData = m_editorContext.GetSceneData();
 
     if (scene == nullptr)
     {
@@ -217,11 +218,11 @@ void SceneController::LoadScene(EntityManager* entityManager)
         return;
     }
 
-    EditorSingleton::Instance().GetEditorScene()->SetMainCameraEntity(nullptr);
-    EditorSingleton::Instance().SetSelectedEntity(nullptr);
-    EditorSingleton::Instance().SetIsViewSceneData(false);
+    m_editorContext.GetEditorScene()->SetMainCameraEntity(nullptr);
+    m_editorContext.SetSelectedEntity(nullptr);
+    m_editorContext.SetIsViewSceneData(false);
 
-    entityManager->Reset();
+    m_editorContext.GetEntityManager()->Reset();
 
     Color* backgroundColor = scene->GetBackgroundColor();
     backgroundColor->blue = sceneData->backgroundColor.blue;
@@ -259,9 +260,9 @@ void SceneController::LoadScene(EntityManager* entityManager)
     globalLight->directionalLight.influence = sceneData->globalLight.directionalLight.influence;
 
     Entity* mainCameraEntity = nullptr;
-    vector<Entity*> entities = CreateEntities(entityManager, sceneData);
+    vector<Entity*> entities = CreateEntities();
 
-    SetParentAndChildren(sceneData, mainCameraEntity, entities);
+    SetParentAndChildren(mainCameraEntity, entities);
 
     if (mainCameraEntity != nullptr)
         scene->SetMainCameraEntity(mainCameraEntity);
@@ -269,13 +270,13 @@ void SceneController::LoadScene(EntityManager* entityManager)
     LoggerSingleton::Instance().LogTrace("SceneController::LoadScene -> Finish");
 }
 
-vector<Entity*> SceneController::CreateEntities(EntityManager* entityManager, DreamEngine::Editor::Models::Datas::SceneData* sceneData)
+vector<Entity*> SceneController::CreateEntities()
 {
     vector<Entity*> entities;
 
-    for (auto& entityConfig : sceneData->entities)
+    for (auto& entityConfig : m_editorContext.GetSceneData()->entities)
     {
-        Entity* entity = entityManager->AddEntity(entityConfig.tag);
+        Entity* entity = m_editorContext.GetEntityManager()->AddEntity(entityConfig.tag);
         entity->SetActive(entityConfig.isActive);
         entity->GetName() = entityConfig.name;
         entity->SetIdentifier(entityConfig.identifier);
@@ -334,8 +335,10 @@ vector<Entity*> SceneController::CreateEntities(EntityManager* entityManager, Dr
     return entities;
 }
 
-void SceneController::SetParentAndChildren(const DreamEngine::Editor::Models::Datas::SceneData* sceneData, Entity*& mainCameraEntity, vector<Entity*> entities)
+void SceneController::SetParentAndChildren(Entity*& mainCameraEntity, vector<Entity*> entities)
 {
+    SceneData* sceneData = m_editorContext.GetSceneData();
+
     for (auto& entityConfig : sceneData->entities)
     {
         const vector<std::string>& childIds = entityConfig.components.children.childIdentifiers;

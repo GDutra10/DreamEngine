@@ -2,12 +2,10 @@
 
 #include "../../../Core/Resources/ResourceManager.h"
 #include "../../Helpers/ImGuiHelper.h"
-#include "../../Singletons/EditorSingleton.h"
 #include "../../Vendors/imgui/imgui.h"
 
 using namespace DreamEngine::Editor::UI::Views;
 using namespace DreamEngine::Editor::Helpers;
-using namespace DreamEngine::Editor::Singletons;
 
 void MaterialView::Draw(Material& material, const function<void(Material*)>& callbackChange)
 {

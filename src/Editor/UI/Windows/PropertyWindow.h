@@ -2,24 +2,26 @@
 #define EDITOR_UI_WINDOWS_PROPERTY_WINDOW_H_
 
 #include "BaseWindow.h"
-#include "../../Singletons/EditorSingleton.h"
 #include "../Views/MaterialView.h"
+#include "../../Controllers/EntityController.h"
 
 namespace DreamEngine::Editor::UI::Windows
 {
 using namespace DreamEngine::Core::ECS;
 using namespace DreamEngine::Editor::Models;
 using namespace DreamEngine::Editor::UI::Views;
+using namespace DreamEngine::Editor::Controllers;
 
 class PropertyWindow : public BaseWindow
 {
    public:
-    PropertyWindow(const std::string& title);
+    PropertyWindow(const std::string& title, EditorContext& editorContext, EntityController& entityController);
 
    protected:
     void DrawContent() override;
 
     private:
+    EntityController& m_entityController;
     MaterialView m_materialView;
     static void DrawSceneData();
     // Draw components

@@ -5,24 +5,25 @@
 #include <string>
 
 #include "../../EditorDefine.h"
-#include "../../Singletons/EditorSingleton.h"
 #include "../../Helpers/FileHelper.h"
 #include "../../Core/Loggers/LoggerSingleton.h"
 
 using namespace DreamEngine::Core::Loggers;
 using namespace DreamEngine::Editor::UI::Windows;
 using namespace DreamEngine::Editor::Helpers;
-using namespace DreamEngine::Editor::Singletons;
+using namespace DreamEngine::Editor::Controllers;
 
-TextEditorWindow::TextEditorWindow(const string& title) : BaseWindow(title) {}
+TextEditorWindow::TextEditorWindow(const string& title, EditorContext& editorContext, ResourceController& resourceController) 
+    : BaseWindow(title, editorContext)
+    , m_resourceController(resourceController) {}
 
 void TextEditorWindow::DrawContent() 
 {
     auto fileExtension = m_filePath.extension();
 
-    if (m_filePath != EditorSingleton::Instance().GetFileTextEditorPath())
+    if (m_filePath != m_editorContext.GetFileTextEditorPath())
     {
-        m_filePath = EditorSingleton::Instance().GetFileTextEditorPath();
+        m_filePath = m_editorContext.GetFileTextEditorPath();
         
         const auto& languageDef = fileExtension == EDITOR_DEFAULT_UI_FILE_EXTENSION       
             ? TextEditor::LanguageDefinition::HTML()
@@ -59,7 +60,7 @@ void TextEditorWindow::DrawContent()
         }
 
         if (fileExtension == EDITOR_DEFAULT_UI_FILE_EXTENSION)
-            EditorSingleton::Instance().ReloadUiComponent(m_filePath);
+            m_resourceController.ReloadUiComponent(m_filePath);
 
         m_savedFile = true;
     }

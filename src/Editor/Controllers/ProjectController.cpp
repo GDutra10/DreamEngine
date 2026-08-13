@@ -10,7 +10,6 @@
 #include "../EditorDefine.h"
 #include "../Helpers/FileHelper.h"
 #include "../Serializers/ProjectConfigurationSerializer.h"
-#include "../Singletons/EditorSingleton.h"
 
 #include "../Vendors/assimp/contrib/pugixml/src/pugixml.hpp"
 #include "IO/File.h"
@@ -22,6 +21,11 @@
 using namespace DreamEngine::Editor::Controllers;
 using namespace DreamEngine::Editor::Helpers;
 using namespace DreamEngine::Editor::Serializers;
+
+ProjectController::ProjectController(EditorContext& editorContext, ResourceController& resourceController, ScriptController& scriptController) 
+    : m_editorContext(editorContext)
+    , m_resourceController(resourceController)
+    , m_scriptController(scriptController) {}
 
 ResultWithData<ProjectConfiguration> ProjectController::CreateProjectConfiguration(std::filesystem::path selectedPah, std::string projectName)
 {
@@ -117,7 +121,7 @@ ResultWithData<ProjectConfiguration> ProjectController::CreateProjectConfigurati
 
 void ProjectController::LoadProjectConfiguration()
 {
-    ProjectConfiguration& projectConfiguration = Singletons::EditorSingleton::Instance().GetProjectConfiguration();
+    ProjectConfiguration& projectConfiguration = m_editorContext.GetProjectConfiguration();
 
     if (projectConfiguration.isLoaded && !projectConfiguration.projectName.empty())
         LoadProjectConfiguration(projectConfiguration);
@@ -130,13 +134,13 @@ void ProjectController::LoadProjectConfiguration(ProjectConfiguration& projectCo
     Loggers::LoggerSingleton::Instance().LogTrace("ProjectController::LoadProjectConfiguration -> Loading project configuration -> Start");
 
     // reset entities
-    Singletons::EditorSingleton::Instance().GetEntityManager()->Reset();
+    m_editorContext.GetEntityManager()->Reset();
 
     // Unload all resources from previous project
-    ResourceController::UnloadAllResources();
+    m_resourceController.UnloadAllResources();
 
     projectConfiguration.isLoaded = true;
-    Singletons::EditorSingleton::Instance().SetProjectConfiguration(projectConfiguration);
+    m_editorContext.SetProjectConfiguration(projectConfiguration);
 
     // Load Resources
     LoadDefaultResources();
@@ -209,16 +213,16 @@ void ProjectController::LoadResourcesFromProject(const ProjectConfiguration& pro
 {
     // TODO: load all resources from the project
 
-    Singletons::EditorSingleton::Instance().GetScriptController().ReloadScripts();
+    m_scriptController.ReloadScripts();
 
     std::vector<std::string> materialFiles = Helpers::FileHelper::GetFilesWithExtension(projectConfiguration.projectPath, EDITOR_DEFAULT_MATERIAL_FILE_EXTENSION);
-    ResourceController::LoadMaterials(materialFiles);
+    m_resourceController.LoadMaterials(materialFiles);
 
     std::vector<std::string> modelFiles = Helpers::FileHelper::GetFilesWithExtension(projectConfiguration.projectPath, EDITOR_DEFAULT_MODEL_FILE_EXTENSION);
-    ResourceController::LoadModels(modelFiles);
+    m_resourceController.LoadModels(modelFiles);
 
     std::vector<std::string> uiFiles = Helpers::FileHelper::GetFilesWithExtension(projectConfiguration.projectPath, EDITOR_DEFAULT_UI_FILE_EXTENSION);
-    ResourceController::LoadUiContents(uiFiles);
+    m_resourceController.LoadUiContents(uiFiles);
 }
 
 bool ProjectController::TryAddDreamEngineReferenceInCsproj(const std::string& projectPath, const std::string& projectName)

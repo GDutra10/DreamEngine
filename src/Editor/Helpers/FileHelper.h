@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <filesystem>
+#include "../Models/ProjectConfiguration.h"
 
 #define MAX_PATH 260
 
@@ -20,13 +21,14 @@ namespace DreamEngine::Editor::Helpers
 {
     using namespace std;
     using namespace std::filesystem;
+    using namespace DreamEngine::Editor::Models;
 class FileHelper
 {
    public:
     static vector<string> GetFilesWithExtension(const path& directory, const string& extension);
     static vector<path> GetAllFilesInCurrentDirectory(const path& directoryPath);
     static path GetExecutablePath();
-    static path GetRelativePathByProject(const path& filePath);
+    static path GetRelativePathByProject(const path& filePath, const ProjectConfiguration& projectConfig);
     static std::vector<unsigned char> LoadFileIntoVector(const std::string& filename);
 
    private:

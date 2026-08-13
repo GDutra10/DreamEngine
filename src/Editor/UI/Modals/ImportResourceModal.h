@@ -11,9 +11,10 @@ using namespace DreamEngine::Editor::Controllers;
 class ImportResourceModal final : public BaseModal
 {
    public:
-    ImportResourceModal(std::string title);
+    ImportResourceModal(std::string title, EditorContext& editorContext, ResourceController& pResourceController);
 
    protected:
+    ResourceController& m_resourceController;
     GetNameModal m_getNamePopup;
     FileDialogModal m_fileDialog;
     void DrawContent() override;

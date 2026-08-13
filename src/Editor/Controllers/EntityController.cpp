@@ -1,18 +1,20 @@
 #include "EntityController.h"
 
-#include "../Singletons/EditorSingleton.h"
 #include "Loggers/LoggerSingleton.h"
 #include "../Models/Datas/EntityConfigData.h"
+#include "../../Core/Loggers/LoggerSingleton.h"
 
+using namespace DreamEngine::Core::Loggers;
 using namespace DreamEngine::Editor::Models::Datas;
 using namespace DreamEngine::Editor::Controllers;
-using namespace DreamEngine::Editor::Singletons;
+
+EntityController::EntityController(EditorContext& editorContext) : m_editorContext(editorContext) {}
 
 void EntityController::AddEntity()
 {
     LoggerSingleton::Instance().LogInfo("Add new Entity");
 
-    EntityManager* entityManager = EditorSingleton::Instance().GetEntityManager();
+    EntityManager* entityManager = m_editorContext.GetEntityManager();
     Entity* entity = entityManager->AddEntity("entity");
     EntityConfigData entityConfig;
 
@@ -36,21 +38,21 @@ void EntityController::AddEntity()
     entityConfig.transform.rotation.y = rotation.y;
     entityConfig.transform.rotation.z = rotation.z;
 
-    EditorSingleton::Instance().sceneData->entities.push_back(entityConfig);
+    m_editorContext.GetSceneData()->entities.push_back(entityConfig);
 }
 
 void EntityController::DeleteEntity(Entity* entity)
 {
-    std::vector<EntityConfigData> entities = EditorSingleton::Instance().sceneData->entities;
+    std::vector<EntityConfigData> entities = m_editorContext.GetSceneData()->entities;
 
     std::erase_if(entities, [entity](const EntityConfigData& e)
     {
         return e.identifier == entity->GetIdentifier();
     });
 
-    if (entity->GetIdentifier() == EditorSingleton::Instance().GetEditorScene()->GetMainCameraEntity()->GetIdentifier())
-        EditorSingleton::Instance().GetEditorScene()->SetMainCameraEntity(nullptr);
+    if (entity->GetIdentifier() == m_editorContext.GetEditorScene()->GetMainCameraEntity()->GetIdentifier())
+        m_editorContext.GetEditorScene()->SetMainCameraEntity(nullptr);
 
-    EditorSingleton::Instance().SetSelectedEntity(nullptr);
-    EditorSingleton::Instance().GetEntityManager()->RemoveEntity(entity);
+    m_editorContext.SetSelectedEntity(nullptr);
+    m_editorContext.GetEntityManager()->RemoveEntity(entity);
 }

@@ -6,6 +6,7 @@
 #include "BaseWindow.h"
 #include "../../Models/Datas/SceneData.h"
 #include "../../Controllers/SceneController.h"
+#include "../../Controllers/EntityController.h"
 
 namespace DreamEngine::Editor::UI::Windows
 {
@@ -16,12 +17,14 @@ namespace DreamEngine::Editor::UI::Windows
 class HierarchyWindow final : public BaseWindow
 {
    public:
-    HierarchyWindow(const std::string& title);
+    HierarchyWindow(const std::string& title, EditorContext& editorContext, SceneController& sceneController, EntityController& entityController);
 
 protected:
     void DrawContent() override;
 
 private:
+    SceneController& m_sceneController;
+    EntityController& m_entityController;
     path m_selectedScenePath;
     void AddEntityTreeNode(Entity* entity);
 };

@@ -8,7 +8,6 @@
 #include "../../Core/EngineDefine.h"
 #include "../../Core/Loggers/LoggerSingleton.h"
 #include "../../Core/Resources/ResourceManager.h"
-#include "../Singletons/EditorSingleton.h"
 #include "../Serializers/MaterialSerializer.h"
 #include "../Serializers/ModelSerializer.h"
 #include "../Serializers/TextureSerializer.h"
@@ -17,15 +16,17 @@
 #include "../Importers/AssimpModelImporter.h"
 #include "../Serializers/SceneDataSerializer.h"
 #include "../Helpers/FileHelper.h"
+#include <ECS/Components/UiComponent.h>
 
 using namespace DreamEngine::Core::Loggers;
 using namespace DreamEngine::Core::ECS::Components;
 using namespace DreamEngine::Editor::Controllers;
-using namespace DreamEngine::Editor::Singletons;
 using namespace DreamEngine::Editor::Serializers;
 using namespace DreamEngine::Editor::Helpers;
 
-BaseModelImporter* ResourceController::m_modelImporter = new AssimpModelImporter();
+ResourceController::ResourceController(EditorContext& editorContext) 
+    : m_editorContext(editorContext)
+    , m_modelImporter(new AssimpModelImporter()) {}
 
 Result ResourceController::CreateMaterialFile(const std::string& filename)
 {
@@ -33,7 +34,7 @@ Result ResourceController::CreateMaterialFile(const std::string& filename)
 
     Material* newMaterial = nullptr;
     Result result = { "", true };
-    string pathAndFileName = EditorSingleton::Instance().GetSelectedPath().string() + "\\" + filename + EDITOR_DEFAULT_MATERIAL_FILE_EXTENSION;
+    string pathAndFileName = m_editorContext.GetSelectedPath().string() + "\\" + filename + EDITOR_DEFAULT_MATERIAL_FILE_EXTENSION;
 
     // validations
     if (filename.empty())
@@ -167,7 +168,7 @@ Result ResourceController::CreateSceneFile(const std::string& filename)
 {
     LoggerSingleton::Instance().LogTrace("ResourceController::CreateSceneFile -> Start");
     Result result = {"", true};
-    string pathAndFileName = EditorSingleton::Instance().GetSelectedPath().string() + "\\" + filename + EDITOR_DEFAULT_SCENE_FILE_EXTENSION;
+    string pathAndFileName = m_editorContext.GetSelectedPath().string() + "\\" + filename + EDITOR_DEFAULT_SCENE_FILE_EXTENSION;
 
     // validations
     if (filename.empty())
@@ -226,7 +227,7 @@ Result DreamEngine::Editor::Controllers::ResourceController::CreateUIFile(const 
     LoggerSingleton::Instance().LogTrace("ResourceController::CreateUIFile -> Start");
 
     Result result = {"", true};
-    string pathAndFileName = EditorSingleton::Instance().GetSelectedPath().string() + "\\" + filename + EDITOR_DEFAULT_UI_FILE_EXTENSION;
+    string pathAndFileName = m_editorContext.GetSelectedPath().string() + "\\" + filename + EDITOR_DEFAULT_UI_FILE_EXTENSION;
 
     // validations
     if (filename.empty())
@@ -487,8 +488,9 @@ void ResourceController::LoadUiContents(const std::vector<std::string>& uiFiles)
         UiContent* uiContent = LoadUiContent(uiFile);
         
         const path p = path(uiFile);
+        const ProjectConfiguration& projectConfig = m_editorContext.GetProjectConfiguration();
         uiContent->name = p.filename().string();
-        uiContent->resourceId = FileHelper::GetRelativePathByProject(uiFile).string();  
+        uiContent->resourceId = FileHelper::GetRelativePathByProject(uiFile, projectConfig).string();  
 
         TryAddToResourceManager(uiContent, false);
     }
@@ -556,6 +558,38 @@ void ResourceController::AddScripts(const std::vector<ScriptInfo>& scriptInfos)
 void ResourceController::UnloadAllResources()
 {
     ResourceManager::Instance().Clear();
+}
+
+void ResourceController::ReloadUiComponent(const path uiFile) 
+{
+    const UiContent* content = ResourceController::LoadUiContent(uiFile.string());
+    const ProjectConfiguration& projectConfig = m_editorContext.GetProjectConfiguration();
+    const std::string resourceId = FileHelper::GetRelativePathByProject(uiFile, projectConfig).string();
+    const map<string, UiContent*>& contents = ResourceManager::Instance().GetUiContents();
+
+    if (const auto it = contents.find(resourceId); it != contents.end() && it->second != nullptr)
+    {
+        it->second->text = content->text;
+
+        for (Entity* entity : m_editorContext.GetEntityManager()->GetEntities())
+        {
+            if (entity->HasComponent<UiComponent>())
+            {
+                UiComponent& uiComponent = entity->GetComponent<UiComponent>();
+
+                if (uiComponent.content->resourceId != resourceId)
+                    continue;
+
+                if (uiComponent.instance == nullptr)
+                    continue;
+
+                UiManager::Destroy(uiComponent.instance);
+                uiComponent.instance = nullptr;
+            }
+        }
+    }
+
+    delete content;
 }
 
 Result ResourceController::TryAddToResourceManager(Material* material, const bool mustGenerateResourceId)

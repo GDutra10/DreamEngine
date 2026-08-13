@@ -1,7 +1,6 @@
 #include "ProjectWindow.h"
 
 #include "../../Helpers/ImGuiHelper.h"
-#include "../../Singletons/EditorSingleton.h"
 #include "../../Vendors/imgui/imgui.h"
 
 #include <string>
@@ -10,21 +9,21 @@
 using namespace std::filesystem;
 using namespace DreamEngine::Editor::Helpers;
 using namespace DreamEngine::Editor::UI::Windows;
-using namespace DreamEngine::Editor::Singletons;
 
-ProjectWindow::ProjectWindow(const std::string& title) : BaseWindow(title),
-m_importResourcePopup(new ImportResourceModal("Import Resource"))
-{
-    m_fileDialogConfig = {true, true, true};
-}
+ProjectWindow::ProjectWindow(const std::string& title, EditorContext& editorContext, ResourceController& resourceController) 
+    : BaseWindow(title, editorContext)
+    , m_importResourcePopup(new ImportResourceModal("Import Resource", editorContext, resourceController))    
+    {
+        m_fileDialogConfig = {true, true, true};
+    }
 
 void ProjectWindow::DrawContent()
 {
     ImGuiTreeNodeFlags flag = ImGuiTreeNodeFlags_DefaultOpen;
 
-    string projectName = EditorSingleton::Instance().GetProjectConfiguration().projectName;
-    string projectPath = EditorSingleton::Instance().GetProjectConfiguration().projectPath;
-    string selectedPath = EditorSingleton::Instance().GetSelectedPath().string();
+    string projectName = m_editorContext.GetProjectConfiguration().projectName;
+    string projectPath = m_editorContext.GetProjectConfiguration().projectPath;
+    string selectedPath = m_editorContext.GetSelectedPath().string();
 
     if (ImGui::Button("   Add   "))
         m_importResourcePopup->Open();
@@ -34,7 +33,7 @@ void ProjectWindow::DrawContent()
     ImGuiHelper::DrawDirectoryTree(
         projectPath, 
         selectedPath, 
-        [this](const path& path) { EditorSingleton::Instance().SetSelectedPath(path); }, 
+        [this](const path& path) { m_editorContext.SetSelectedPath(path); }, 
         m_fileDialogConfig
     );
 }

@@ -41,7 +41,7 @@ vector<string> ResourceManagerWindow::m_sResourcesNames = {
     COMBO_RESOURCE_UI
 };
 
-ResourceManagerWindow::ResourceManagerWindow(const string& title) : BaseWindow(std::move(title))
+ResourceManagerWindow::ResourceManagerWindow(const string& title, EditorContext& editorContext) : BaseWindow(std::move(title), editorContext)
 {
     m_resourceSelected = COMBO_RESOURCE_MATERIAL;
 }

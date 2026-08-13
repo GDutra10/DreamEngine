@@ -3,7 +3,6 @@
 #include "EditorDefine.h"
 #include "Helpers/FileHelper.h"
 #include "Serializers/MaterialSerializer.h"
-#include "Singletons/EditorSingleton.h"
 #include "Vendors/imgui/imgui.h"
 #include "Vendors/imgui/imgui_impl_glfw.h"
 #include "Vendors/imgui/imgui_impl_opengl3.h"
@@ -24,7 +23,6 @@
 
 using namespace DreamEngine::Editor;
 using namespace DreamEngine::Editor::Serializers;
-using namespace DreamEngine::Editor::Singletons;
 using namespace DreamEngine::Core;
 using namespace DreamEngine::Core::IO;
 using namespace DreamEngine::Core::Resources;
@@ -40,20 +38,25 @@ EditorScene::EditorScene(
     ProjectConfiguration& projectConfig,
     EditorConfiguration& editorConfig)
     : Scene(std::move(name))
-      , m_gameWindow(GameWindow("Game"))
-      , m_hierarchyWindow(HierarchyWindow("Hierarchy"))
-      , m_loggerWindow(LoggerWindow("Output"))
-      , m_propertyWindow(PropertyWindow("Property"))
-      , m_projectWindow(ProjectWindow("Project"))
-      , m_sceneWindow(SceneWindow("Scene"))
-      , m_fileExplorerWindow(FileExplorerWindow("File Explorer"))
-      , m_resourceManagerWindow(ResourceManagerWindow("Resource Manager"))
-      , m_materialWindow(MaterialWindow("Material"))
-      , m_openProjectModal(OpenProjectModal("Open Project"))
-      , m_textEditorWindow(TextEditorWindow("Text Editor"))
-{
-    EditorSingleton::Initialize(projectConfig, editorConfig, this);
-}
+      , m_editorContext(EditorContext(projectConfig, editorConfig, this))
+      , m_resourceController(ResourceController(m_editorContext))
+      , m_scriptController(ScriptController(m_editorContext, m_resourceController))
+      , m_projectController(ProjectController(m_editorContext, m_resourceController, m_scriptController))
+      , m_cameraEditorController(CameraEditorController(m_editorContext))
+      , m_sceneController(SceneController(m_editorContext))
+      , m_entityController(EntityController(m_editorContext))
+      , m_gameWindow(GameWindow("Game", m_editorContext))
+      , m_hierarchyWindow(HierarchyWindow("Hierarchy", m_editorContext, m_sceneController, m_entityController))
+      , m_loggerWindow(LoggerWindow("Output", m_editorContext))
+      , m_propertyWindow(PropertyWindow("Property", m_editorContext, m_entityController))
+      , m_projectWindow(ProjectWindow("Project", m_editorContext, m_resourceController))
+      , m_sceneWindow(SceneWindow("Scene", m_editorContext, m_cameraEditorController))
+      , m_fileExplorerWindow(FileExplorerWindow("File Explorer", m_editorContext, m_resourceController))
+      , m_resourceManagerWindow(ResourceManagerWindow("Resource Manager", m_editorContext))
+      , m_materialWindow(MaterialWindow("Material", m_editorContext, m_resourceController))
+      , m_openProjectModal(OpenProjectModal("Open Project", m_editorContext, m_projectController))
+      , m_textEditorWindow(TextEditorWindow("Text Editor", m_editorContext, m_resourceController)) 
+{ }
 
 void EditorScene::Initialize()
 {
@@ -64,7 +67,7 @@ void EditorScene::Initialize()
     Application::Instance().GetRenderAPI()->AddBeforeRenderEntitiesCallbacks([this](RenderView& renderView) { StartImGuiFrame(renderView); });
     Application::Instance().GetRenderAPI()->AddAfterRenderEntitiesCallbacks([this](RenderView& renderView) { FinishImGuiFrame(renderView); });
     
-    EditorSingleton::Instance().SetEntityManager(m_entityManager);
+    m_editorContext.SetEntityManager(m_entityManager);
     
     Game* game = Application::Instance().GetGame();
     
@@ -80,7 +83,7 @@ void EditorScene::Initialize()
     viewportRenderView->mask = RenderMask::World | RenderMask::Debug;
     viewportRenderView->frameBuffer = viewportFbo;
     
-    EditorSingleton::Instance().SetSceneRenderView(viewportRenderView);
+    m_editorContext.SetSceneRenderView(viewportRenderView);
 
     // add game viewport
     FrameBuffer* gameViewportFbo = Application::Instance().GetRenderAPI()->CreateFrameBuffer(game->width, game->height);
@@ -88,7 +91,7 @@ void EditorScene::Initialize()
     gameViewportRenderView->mask = RenderMask::World | RenderMask::UI;
     gameViewportRenderView->frameBuffer = gameViewportFbo;
 
-    EditorSingleton::Instance().SetGameRenderView(gameViewportRenderView);
+    m_editorContext.SetGameRenderView(gameViewportRenderView);
 
     // initialize scripts without running them
     m_mustRunScriptComponents = false;
@@ -96,7 +99,7 @@ void EditorScene::Initialize()
     // configure stb_image to flip loaded texture's on the y-axis
     stbi_set_flip_vertically_on_load(true);
 
-    EditorSingleton::Instance().GetProjectController().LoadProjectConfiguration();
+    m_projectController.LoadProjectConfiguration();
 
     // add debug pass in render pipeline
     Application::Instance().GetRenderPass()->RegisterDebugPass([this](Scene& scene, RenderView& renderView, RenderAPI* renderer) { 
@@ -114,7 +117,7 @@ void EditorScene::Unload()
 void EditorScene::Update(const float deltaTime)
 {
     Scene::Update(deltaTime);
-    EditorSingleton::Instance().GetCameraEditorController().Update(m_sceneWindow.IsFocused());
+    m_cameraEditorController.Update(m_sceneWindow.IsFocused());
 }
 
 bool EditorScene::GetIsFocused() const
@@ -124,17 +127,17 @@ bool EditorScene::GetIsFocused() const
 
 Camera& EditorScene::GetCamera()
 {
-    RenderView* sceneRenderView= EditorSingleton::Instance().GetSceneRenderView();
+    RenderView* sceneRenderView= m_editorContext.GetSceneRenderView();
 
     if (sceneRenderView->frameBuffer->GetIsActive())
-        return *EditorSingleton::Instance().GetCameraEditorController().GetCamera();
+        return *m_cameraEditorController.GetCamera();
 
     return Scene::GetCamera();
 }
 
 bool EditorScene::ChangeScene(const std::string sceneName)
 {
-    if (EditorSingleton::Instance().sceneData->path.stem().string() == sceneName)
+    if (m_editorContext.GetSceneData()->path.stem().string() == sceneName)
     {
         LoggerSingleton::Instance().LogWarning("The scene '" + sceneName + "' is already loaded.");
 
@@ -143,7 +146,7 @@ bool EditorScene::ChangeScene(const std::string sceneName)
 
     LoggerSingleton::Instance().LogTrace("EditorScene::ChangeScene -> Changing scene to '" + sceneName + "'.");
 
-    const path currentDirectory = EditorSingleton::Instance().GetProjectConfiguration().projectPath;
+    const path currentDirectory = m_editorContext.GetProjectConfiguration().projectPath;
     const vector<std::string> sceneFiles = Helpers::FileHelper::GetFilesWithExtension(currentDirectory, EDITOR_DEFAULT_SCENE_FILE_EXTENSION);
     path sceneFilePath;
 
@@ -165,7 +168,7 @@ bool EditorScene::ChangeScene(const std::string sceneName)
             entityManager->RemoveEntity(entity); */   
         //entityManager->Reset();
 
-        SceneController::LoadSceneData(sceneFilePath, this->m_entityManager, true);
+        m_sceneController.LoadSceneData(sceneFilePath, true);
 
         return true;
     }
@@ -177,7 +180,7 @@ bool EditorScene::ChangeScene(const std::string sceneName)
 
 ProjectConfiguration& EditorScene::GetProjectConfiguration() const
 {
-    return EditorSingleton::Instance().GetProjectConfiguration();
+    return m_editorContext.GetProjectConfiguration();
 }
 
 void EditorScene::InitializeImGui()
@@ -251,7 +254,7 @@ void EditorScene::DrawMenuBar()
             }
             if (ImGui::MenuItem("Save Scene", "Ctrl+S", false, projectConfiguration.isLoaded))
             {
-                SceneController::SaveSceneData(m_entityManager);
+                m_sceneController.SaveSceneData();
             }
             if (ImGui::MenuItem("Exit", "Alt+F4"))
             {
@@ -274,7 +277,7 @@ void EditorScene::DrawMenuBar()
         if (ImGui::BeginMenu("Assets", projectConfiguration.isLoaded))
         {
             if (ImGui::MenuItem("Recompile Scripts"))
-                EditorSingleton::Instance().GetScriptController().ReloadScripts();
+                m_scriptController.ReloadScripts();
 
             //if (ImGui::MenuItem("Recompile UIs"))
             //{
@@ -399,7 +402,7 @@ void EditorScene::DrawMenuBar()
 
 void EditorScene::DrawTopBar()
 {
-    const bool mustRunScriptComponents = EditorSingleton::Instance().GetEditorScene()->GetMustRunScriptComponents();
+    const bool mustRunScriptComponents = GetMustRunScriptComponents();
     const char* label = mustRunScriptComponents ? " Stop " : " Play ";
     const ImGuiStyle& style = ImGui::GetStyle();
     const ImVec4 base = mustRunScriptComponents ? ImVec4(0.957f, 0.263f, 0.212f, 1.0f) : ImVec4(0.298f, 0.686f, 0.314f, 1.0f);    // normal
@@ -440,7 +443,7 @@ void EditorScene::DrawTopBar()
         ImGui::SetCursorPos(ImVec2(start.x + offX, start.y + offY));
 
         if (ImGui::Button(label))
-            mustRunScriptComponents ? SceneController::Stop(m_entityManager) : SceneController::Play(m_entityManager);
+            mustRunScriptComponents ? m_sceneController.Stop() : m_sceneController.Play();
     }
     ImGui::End();
 
@@ -502,7 +505,7 @@ void EditorScene::UpdateBackgroundColor(const RenderView& renderView) const
     if (!renderView.IsDefault())
         return;
 
-    if (const auto sceneData = EditorSingleton::Instance().sceneData; sceneData != nullptr)
+    if (const auto sceneData = m_editorContext.GetSceneData(); sceneData != nullptr)
     {
         const auto backgroundColor = this->GetBackgroundColor();
         backgroundColor->red = backgroundColor->red;
@@ -814,7 +817,7 @@ void DreamEngine::Editor::EditorScene::RenderDebugPass(Scene& scene, RenderView&
         std::vector<Entity*>::iterator it = std::find(outlinedChildren.begin(), outlinedChildren.end(), entity);
         glm::mat4 transform = entity->GetTransform(); 
 
-        if (entity == EditorSingleton::Instance().GetSelectedEntity() || it != outlinedChildren.end())
+        if (entity == m_editorContext.GetSelectedEntity() || it != outlinedChildren.end())
         {
             const ChildrenComponent& childrenComponent = entity->GetComponent<ChildrenComponent>();
 

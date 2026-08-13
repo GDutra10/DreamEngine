@@ -4,6 +4,9 @@
 #include "../Models/ProjectConfiguration.h"
 #include "../Models/Result.h"
 #include <filesystem>
+#include "../EditorContext.h"
+#include "ResourceController.h"
+#include "ScriptController.h"
 
 namespace DreamEngine::Editor::Controllers
 {
@@ -11,14 +14,17 @@ namespace DreamEngine::Editor::Controllers
 class ProjectController
 {
    public:
-    ProjectController() = default;
-    ResultWithData<ProjectConfiguration> CreateProjectConfiguration(std::filesystem::path selectedPah, std::string projectName);
+    ProjectController(EditorContext& editorContext, ResourceController& resourceController, ScriptController& scriptController);
+    ResultWithData<ProjectConfiguration> CreateProjectConfiguration(std::filesystem::path selectedPath, std::string projectName);
     void LoadProjectConfiguration();
     void LoadProjectConfiguration(ProjectConfiguration& projectConfiguration);
    private:
-    static void LoadDefaultResources();
-    static void LoadResourcesFromProject(const ProjectConfiguration& projectConfiguration);
-    static bool TryAddDreamEngineReferenceInCsproj(const std::string& projectPath, const std::string& projectName);
+    EditorContext& m_editorContext;
+    ResourceController& m_resourceController;
+    ScriptController& m_scriptController;
+    void LoadDefaultResources();
+    void LoadResourcesFromProject(const ProjectConfiguration& projectConfiguration);
+    bool TryAddDreamEngineReferenceInCsproj(const std::string& projectPath, const std::string& projectName);
 
 };
 

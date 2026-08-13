@@ -3,10 +3,9 @@
 
 using namespace DreamEngine::Editor::UI::Windows;
 
-BaseWindow::BaseWindow(const std::string& title)
-{
-    m_title = title;
-}
+BaseWindow::BaseWindow(const std::string& title, EditorContext& editorContext)
+    : m_title(title), m_editorContext(editorContext)
+{ }
 
 void BaseWindow::Draw()
 {

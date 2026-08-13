@@ -1,6 +1,5 @@
 #include "SceneWindow.h"
 
-#include "../../Singletons/EditorSingleton.h"
 #include "../../Core/Application.h"
 #include "../../Core/Loggers/LoggerSingleton.h"
 #include "../../Core/Math/Math.h"
@@ -12,9 +11,11 @@
 
 using namespace DreamEngine::Core;
 using namespace DreamEngine::Editor::UI::Windows;
-using namespace DreamEngine::Editor::Singletons;
+using namespace DreamEngine::Editor::Controllers;
 
-SceneWindow::SceneWindow(const std::string& title) : BaseWindow(title){}
+SceneWindow::SceneWindow(const std::string& title, EditorContext& editorContext, CameraEditorController& cameraEditorController) 
+    : BaseWindow(title, editorContext)
+    , m_cameraEditorController(cameraEditorController) {}
 
 void SceneWindow::DrawContent()
 {
@@ -42,7 +43,7 @@ void SceneWindow::DrawContent()
         int desiredW = std::max(1, (int)size.x);
         int desiredH = std::max(1, (int)size.y);
 
-        RenderView* sceneRenderView = EditorSingleton::Instance().GetSceneRenderView();
+        RenderView* sceneRenderView = m_editorContext.GetSceneRenderView();
         sceneRenderView->width = desiredW;
         sceneRenderView->height = desiredH;
         sceneRenderView->frameBuffer->Rescale(desiredW, desiredH);
@@ -80,13 +81,13 @@ void SceneWindow::DrawContent()
 
 void SceneWindow::ImGizmoRender()
 {
-    Entity* selectedEntity = EditorSingleton::Instance().GetSelectedEntity();
+    Entity* selectedEntity = m_editorContext.GetSelectedEntity();
 
     if (selectedEntity == nullptr || m_currentGizmoOperation == -1)
         return;
 
     Game* game = Application::Instance().GetGame();
-    Camera camera = *EditorSingleton::Instance().GetCameraEditorController().GetCamera();
+    Camera camera = *m_cameraEditorController.GetCamera();
     TransformComponent& transformComponent = selectedEntity->GetComponent<TransformComponent>();
     ParentComponent& parentComponent = selectedEntity->GetComponent<ParentComponent>();
 
