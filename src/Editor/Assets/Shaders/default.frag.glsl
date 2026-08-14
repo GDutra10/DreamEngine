@@ -27,16 +27,25 @@ uniform sampler2D texture_diffuse1;
 
 void main()
 {
-    // ambient
-    vec3 ambient = light.ambient * material.ambient;
+    // 1. Displays the submitted texture
+    vec4 texElement = texture(texture_diffuse1, TexCoords);
+    
+    // 2. If the texture is the neutral white one (or if the model lacks an actual diffuse texture),
+    // multiplying by material.diffuse preserves the editor color.
+    // If it is an actual colored texture, it will blend with the material's base color.
+    vec3 baseDiffuse = material.diffuse * texElement.rgb;
+    vec3 baseAmbient = material.ambient * texElement.rgb;
+
+    // ambient (Illuminates the calculated color with ambient light)
+    vec3 ambient = light.ambient * baseAmbient;
   	
-    // diffuse 
+    // diffuse (Applies diffuse light to the combined color)
     vec3 norm = normalize(Normal);
     vec3 lightDir = normalize(light.position - FragPos);
     float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = light.diffuse * (diff * material.diffuse);
+    vec3 diffuse = light.diffuse * (diff * baseDiffuse);
     
-    // specular
+    // specular (Retains the material's original sheen)
     vec3 viewDir = normalize(viewPos - FragPos);
     vec3 reflectDir = reflect(-lightDir, norm);  
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
@@ -44,6 +53,4 @@ void main()
         
     vec3 result = ambient + diffuse + specular;
     FragColor = vec4(result, 1.0);
-
-    //FragColor = texture(texture_diffuse1, TexCoords);
 } 
