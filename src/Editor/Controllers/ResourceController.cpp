@@ -17,12 +17,14 @@
 #include "../Serializers/SceneDataSerializer.h"
 #include "../Helpers/FileHelper.h"
 #include <ECS/Components/UiComponent.h>
+#include "../Importers/TextureImporter.h"
 
 using namespace DreamEngine::Core::Loggers;
 using namespace DreamEngine::Core::ECS::Components;
 using namespace DreamEngine::Editor::Controllers;
 using namespace DreamEngine::Editor::Serializers;
 using namespace DreamEngine::Editor::Helpers;
+using namespace DreamEngine::Editor::Importers;
 
 ResourceController::ResourceController(EditorContext& editorContext) 
     : m_editorContext(editorContext)
@@ -459,7 +461,8 @@ void ResourceController::LoadModels(const std::vector<std::string>& modelFiles)
 
                 if (textureFromResourceManager == nullptr)
                 {
-                    textureFromResourceManager = new Texture(*texture);
+                    textureFromResourceManager = TextureImporter::Import(texture->path, texture->name.c_str(), texture->type);
+                    textureFromResourceManager->resourceId = texture->resourceId;
                     TryAddToResourceManager(textureFromResourceManager, false);
                 }
 

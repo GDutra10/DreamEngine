@@ -38,6 +38,8 @@ add_executable(Editor
     Importers/BaseModelImporter.h
     Importers/AssimpModelImporter.h
     Importers/AssimpModelImporter.cpp
+    Importers/TextureImporter.h
+    Importers/TextureImporter.cpp
 
     Loggers/EditorLogger.h
     Loggers/EditorLogger.cpp

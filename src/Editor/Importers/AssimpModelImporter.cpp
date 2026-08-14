@@ -12,6 +12,7 @@
 #include "../Vendors/stb_image.h"
 #include "Loggers/LoggerSingleton.h"
 #include "Render/OpenGL/OpenGLMesh.h"
+#include "TextureImporter.h"
 
 using namespace DreamEngine::Editor::Importers;
 using namespace DreamEngine::Core;
@@ -170,20 +171,13 @@ std::vector<Texture*> AssimpModelImporter::LoadMaterialTextures(aiMaterial* mat,
         if (std::ranges::find(m_texturePaths, path) != m_texturePaths.end())
             continue;
 
-        int width, height, nrComponents;
-        unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrComponents, 0);
+        Texture* texture = TextureImporter::Import(path, pathFromAssimp.C_Str(), textureType);
 
-        if (data != nullptr)
+        if (texture != nullptr)
         {
-            Texture* texture = Application::Instance().GetRenderAPI()->CreateTexture(data, width, height, nrComponents);
-            texture->type = textureType;
-            texture->name = pathFromAssimp.C_Str();
-            texture->path = path;
             textures.push_back(texture);
             m_model.textures.push_back(texture);
             m_texturePaths.emplace_back(path);
-
-            stbi_image_free(data);
         }
         else
             LoggerSingleton::Instance().LogWarning("AssimpModelImporter::LoadMaterialTextures -> Failed to load texture from path: " + m_path +
