@@ -92,7 +92,7 @@ void EditorScene::Initialize()
     m_editorContext.SetGameRenderView(gameViewportRenderView);
 
     // initialize scripts without running them
-    m_mustRunScriptComponents = false;
+    m_mustRunManagedScripts = false;
 
     // configure stb_image to flip loaded texture's on the y-axis
     stbi_set_flip_vertically_on_load(true);

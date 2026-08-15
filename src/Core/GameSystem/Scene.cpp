@@ -82,7 +82,7 @@ void Scene::Update(const float deltaTime)
         }
     }
 
-    if (m_mustRunScriptComponents)
+    if (m_mustRunManagedScripts)
     {
         ScriptEventHandler::Process();
         GameData* pGameData = GameSynchronizer::Synchronize(this->GetIsFocused());
@@ -108,6 +108,7 @@ void Scene::Update(const float deltaTime)
     }
 
     m_pPhysicsSystem->Update(*m_pEntityManager, deltaTime);
+    ScriptEventHandler::ProcessCollisionEvents(*m_pEntityManager, m_mustRunManagedScripts);
 
     UiManager::Update();
     m_mustRecreateEntitiesInScriptEngine = false;
@@ -192,7 +193,7 @@ Camera& Scene::GetCamera()
 
 bool Scene::GetMustRunScriptComponents() const
 {
-    return m_mustRunScriptComponents;
+    return m_mustRunManagedScripts;
 }
 
 bool Scene::GetIsFocused() const
@@ -202,8 +203,8 @@ bool Scene::GetIsFocused() const
 
 void Scene::SetMustRunScriptComponents(const bool val)
 {
-    if (m_mustRunScriptComponents == false && val == true)
+    if (m_mustRunManagedScripts == false && val == true)
         m_mustRecreateEntitiesInScriptEngine = true;
 
-    m_mustRunScriptComponents = val;
+    m_mustRunManagedScripts = val;
 }

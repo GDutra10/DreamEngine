@@ -29,6 +29,7 @@ getScriptInfoDelegate ScriptEngine::m_spGetScriptInfoDelegate = nullptr;
 releaseScriptInfoDelegate ScriptEngine::m_spReleaseScriptInfoDelegate = nullptr;
 updateGameDelegate ScriptEngine::m_spUpdateGameDelegate = nullptr;
 processEventDelegate ScriptEngine::m_spProcessEventDelegate = nullptr;
+processCollisionEventDelegate ScriptEngine::m_spProcessCollisionEventDelegate = nullptr;
 // assembly delegate
 assemblyInitializeDelegate ScriptEngine::m_spAssemblyInitializeDelegate = nullptr;
 assembliesUnloadDelegate ScriptEngine::m_spAssembliesUnloadDelegate = nullptr;
@@ -156,6 +157,11 @@ void ScriptEngine::UpdateGame(Sync::GameData* gameData, Sync::EntityData* entity
 void ScriptEngine::ProcessEvent(const int eventId)
 {
     m_spProcessEventDelegate(eventId);
+}
+
+void ScriptEngine::ProcessCollisionEvent(unsigned int entityId, unsigned int otherEntityId, unsigned int eventType, bool isTrigger) 
+{
+    m_spProcessCollisionEventDelegate(entityId, otherEntityId, eventType, isTrigger);
 }
 
 std::vector<ScriptInfo> ScriptEngine::GetClassInfoList()
@@ -406,12 +412,27 @@ bool ScriptEngine::CreateCoreCLRDelegates()
         return false;
     }
 
+    const int processCollisionEventStatus = m_spCoreClrCreateDelegate(m_spHostHandle,                         // CoreCLR host handle
+         m_sDomainId,                                   // AppDomain ID
+         SCRIPT_ENGINE_ASSEMBLY_NAME,                   // Assembly name
+         SCRIPT_ENGINE_SCRIPT_MANAGER_NAME,             // Type name (including namespace)
+         "ProcessCollisionEvent",                       // Method name
+         (void**)&m_spProcessCollisionEventDelegate     // Delegate to store the function pointer
+    );
+
+    if (processCollisionEventStatus != 0)
+    {
+        LoggerSingleton::Instance().LogError("Failed to bind ProcessCollisionEvent delegate.");
+        return false;
+    }
+
     return 
         getScriptInfoStatus == 0 &&
         assemblyInitStatus == 0 &&
         assemblyUnloadStatus == 0 && 
         releaseScriptInfoStatus == 0 && 
-        processEventStatus == 0;
+        processEventStatus == 0 &&
+        processCollisionEventStatus == 0;
 }
 
 // Helper functions to load CoreCLR

@@ -76,6 +76,9 @@ add_library (Core SHARED
 	"Math/Math.h"
 	"Math/AABB.h"
 
+	"Physics/CollisionEvent.h"
+	"Physics/CollisionEventType.h"
+	"Physics/CollisionPair.h"
 	"Physics/PhysicsCollider.h"
 
 	"Render/RenderAPI.cpp" 

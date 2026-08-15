@@ -65,7 +65,7 @@ class CORE_API Scene
     SceneData* m_pSceneData = new SceneData();
     PhysicsSystem* m_pPhysicsSystem = nullptr;
     bool m_showCursor;
-    bool m_mustRunScriptComponents = true;
+    bool m_mustRunManagedScripts = true;
     bool m_mustRecreateEntitiesInScriptEngine = false;
    private:
     std::string m_name;

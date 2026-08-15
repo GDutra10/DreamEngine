@@ -33,6 +33,7 @@ typedef void* (*getScriptInfoDelegate)(int*);
 typedef void (*releaseScriptInfoDelegate)(void*, int*);
 typedef void (*updateGameDelegate)(Sync::GameData*, Sync::EntityData*, int);
 typedef void (*processEventDelegate)(int);
+typedef void (*processCollisionEventDelegate)(unsigned int entityId, unsigned int otherEntityId, unsigned int eventType, bool isTrigger);
 
 // assembly manager
 typedef void (*assemblyInitializeDelegate)(const char*);
@@ -51,6 +52,7 @@ class CORE_API ScriptEngine
 
     static void UpdateGame(Sync::GameData* gameData, Sync::EntityData* entityDataArray, int entityCount);
     static void ProcessEvent(int eventId);
+    static void ProcessCollisionEvent(unsigned int entityId, unsigned int otherEntityId, unsigned int eventType, bool isTrigger);
     std::vector<ScriptInfo> GetClassInfoList();
 
    private:
@@ -69,6 +71,7 @@ class CORE_API ScriptEngine
     static releaseScriptInfoDelegate m_spReleaseScriptInfoDelegate;
     static updateGameDelegate m_spUpdateGameDelegate;
     static processEventDelegate m_spProcessEventDelegate;
+    static processCollisionEventDelegate m_spProcessCollisionEventDelegate;
     // assembly delegate
     static assemblyInitializeDelegate m_spAssemblyInitializeDelegate;
     static assembliesUnloadDelegate m_spAssembliesUnloadDelegate;

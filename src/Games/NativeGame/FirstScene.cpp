@@ -35,7 +35,7 @@ void FirstScene::Initialize()
 {
     Scene::Initialize();
 
-    m_mustRunScriptComponents = false;
+    m_mustRunManagedScripts = false;
 
     stbi_set_flip_vertically_on_load(true);
 

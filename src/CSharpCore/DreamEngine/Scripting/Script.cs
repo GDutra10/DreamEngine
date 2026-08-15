@@ -27,8 +27,16 @@ public class Script
 
     public virtual void Update()
     {
-        Console.WriteLine("Hello from .NET!");
     }
+
+    // events
+    public virtual void OnTriggerEnter(Entity other) { }
+    public virtual void OnTriggerStay(Entity other) { }
+    public virtual void OnTriggerExit(Entity other) { }
+
+    public virtual void OnCollisionEnter(Entity other) { }
+    public virtual void OnCollisionStay(Entity other) { }
+    public virtual void OnCollisionExit(Entity other) { }
 
     protected Entity CreateEntity(string tag = "default", string name = "") 
         => Game.Scene.CreateEntity(tag, name);

@@ -3,6 +3,8 @@
 
 #include <vector>
 #include "../ECS/EntityManager.h"
+#include "../Physics/CollisionEvent.h"
+#include "../Physics/CollisionPair.h"
 #include "../Physics/PhysicsCollider.h"
 
 namespace DreamEngine::Core::Systems
@@ -16,8 +18,12 @@ class PhysicsSystem
 
    private:
     std::vector<PhysicsCollider> m_colliders;
+    std::vector<CollisionPair> m_previousCollisions;
+    std::vector<CollisionPair> m_currentCollisions;
+    std::vector<CollisionEvent> m_collisionEvents;
     void UpdateColliders(EntityManager& entityManager);
     void DetectCollisions();
+    void ProcessCollisionEvents();
 };
 }  // namespace DreamEngine::Core::Systems
 #endif

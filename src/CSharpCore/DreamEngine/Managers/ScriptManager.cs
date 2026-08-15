@@ -1,12 +1,14 @@
-﻿using DreamEngine.Core;
+﻿using DreamEngine.Commands;
+using DreamEngine.Core;
+using DreamEngine.ECS;
 using DreamEngine.Exceptions;
+using DreamEngine.Physics;
 using DreamEngine.Scripting;
 using DreamEngine.Sync;
+using DreamEngine.Sync.Data;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Loader;
-using DreamEngine.Sync.Data;
-using DreamEngine.Commands;
 
 namespace DreamEngine.Managers;
 
@@ -161,6 +163,55 @@ internal static class ScriptManager
         catch (Exception e)
         {
             Logger.LogError(e.ToString());
+        }
+    }
+
+    public static void ProcessCollisionEvent(uint entityId, uint otherEntityId, uint eventType, bool isTrigger)
+    {
+        if (!Game.Scene.Entities.TryGetValue(entityId, out var entity))
+            return;
+
+        if (entity.Script == null)
+            return;
+
+        if (!Game.Scene.Entities.TryGetValue(otherEntityId, out var other))
+            return;
+
+        var type = (CollisionEventType)eventType;
+
+        if (isTrigger)
+        {
+            switch (type)
+            {
+                case CollisionEventType.Enter:
+                    entity.Script.OnTriggerEnter(other);
+                    break;
+
+                case CollisionEventType.Stay:
+                    entity.Script.OnTriggerStay(other);
+                    break;
+
+                case CollisionEventType.Exit:
+                    entity.Script.OnTriggerExit(other);
+                    break;
+            }
+
+            return;
+        }
+
+        switch (type)
+        {
+            case CollisionEventType.Enter:
+                entity.Script.OnCollisionEnter(other);
+                break;
+
+            case CollisionEventType.Stay:
+                entity.Script.OnCollisionStay(other);
+                break;
+
+            case CollisionEventType.Exit:
+                entity.Script.OnCollisionExit(other);
+                break;
         }
     }
 
