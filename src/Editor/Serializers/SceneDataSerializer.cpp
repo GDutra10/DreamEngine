@@ -162,6 +162,17 @@ Datas::SceneData& SceneDataSerializer::Deserialize(std::ifstream& stream)
                 jsonComponent["ui"]["zOrder"].get_to(e.components.ui.zOrder);
                 jsonComponent["ui"]["resourceId"].get_to(e.components.ui.resourceId);
             }
+
+            if (auto itCollider = jsonComponent.find("collider"); itCollider != jsonComponent.end())
+            {
+                const json& t = *itCollider;
+
+                e.components.collider.has = true;
+                jsonComponent["collider"]["enabled"].get_to(e.components.collider.enabled);
+                jsonComponent["collider"]["isTrigger"].get_to(e.components.collider.isTrigger);
+                e.components.collider.center = DeserializeVec3(t, "center");
+                e.components.collider.size = DeserializeVec3(t, "size");
+            }
         }
 
         sceneData->entities.push_back(std::move(e));
@@ -229,6 +240,23 @@ json SceneDataSerializer::Serialize(EntityConfigData& entityConfig)
     {
         jsonEntity["components"]["ui"]["zOrder"] = entityConfig.components.ui.zOrder;
         jsonEntity["components"]["ui"]["resourceId"] = entityConfig.components.ui.resourceId;
+    }
+
+    // collider
+    if (entityConfig.components.collider.has)
+    {
+        jsonEntity["components"]["collider"]["enabled"] = entityConfig.components.collider.enabled;
+        jsonEntity["components"]["collider"]["isTrigger"] = entityConfig.components.collider.isTrigger;
+        jsonEntity["components"]["collider"]["center"] = {
+            entityConfig.components.collider.center.x,
+            entityConfig.components.collider.center.y,
+            entityConfig.components.collider.center.z,
+        };
+        jsonEntity["components"]["collider"]["size"] = {
+            entityConfig.components.collider.size.x,
+            entityConfig.components.collider.size.y,
+            entityConfig.components.collider.size.z,
+        };
     }
 
     // children

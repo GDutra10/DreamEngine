@@ -15,6 +15,11 @@ class CORE_API MaterialComponent : public Component
 
     explicit MaterialComponent() = default;
     MaterialComponent(Material* material) : material(material) {}
+
+    void Reset() override
+    { 
+        material = nullptr;
+    }
 };
 }  // namespace DreamEngine::Core::ECS::Components
 #endif

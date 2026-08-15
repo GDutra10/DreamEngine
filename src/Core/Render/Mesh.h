@@ -6,11 +6,14 @@
 #include "Vertex.h"
 #include "Texture.h"
 #include "Shader.h"
+#include "PrimitiveTopology.h"
+#include "../Math/AABB.h"
 
 #include "CoreExport.h"
 
 namespace DreamEngine::Core::Render
 {
+    using namespace DreamEngine::Core::Math;
 class CORE_API Mesh : public Resource
 {
    public:
@@ -18,6 +21,7 @@ class CORE_API Mesh : public Resource
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
     std::vector<Texture*> textures;
+    PrimitiveTopology topology = PrimitiveTopology::Triangles;
     unsigned int VAO;
 
     Mesh(const std::vector<Vertex>& vertices,
@@ -31,10 +35,32 @@ class CORE_API Mesh : public Resource
           m_EBO(0) {}
     virtual ~Mesh() = default;
     virtual void Draw(Shader& shader) = 0;
+    const AABB& GetBounds() 
+    { 
+        if (m_bounds != nullptr)
+            return *m_bounds;
+
+        glm::vec3 min(std::numeric_limits<float>::max());
+        glm::vec3 max(std::numeric_limits<float>::lowest());
+
+        for (const Vertex& vertex : vertices)
+        {
+            min = glm::min(min, vertex.position);
+            max = glm::max(max, vertex.position);
+        }
+
+        m_bounds = new AABB();
+        m_bounds->min = min;
+        m_bounds->max = max;
+
+        return *m_bounds;
+    };
 
    protected:
     //  render data
     unsigned int m_VBO, m_EBO;
+    // AABB
+    AABB* m_bounds = nullptr;
 
     virtual void SetupMesh() = 0;
 };

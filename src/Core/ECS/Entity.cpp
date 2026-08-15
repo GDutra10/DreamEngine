@@ -44,13 +44,13 @@ void Entity::SetActive(const bool value)
     m_shouldIgnore = !value;
 }
 
-glm::mat4 Entity::GetTransform()
+glm::mat4 Entity::GetWorldTransform()
 {
     const TransformComponent& transformComponent = GetComponent<TransformComponent>();
     const ParentComponent& parentComponent = GetComponent<ParentComponent>();
 
     if (parentComponent.has && parentComponent.parent != nullptr)
-        return parentComponent.parent->GetTransform() * transformComponent.transform;
+        return parentComponent.parent->GetWorldTransform() * transformComponent.transform;
 
     return transformComponent.transform;
 }
@@ -78,6 +78,7 @@ template CORE_API ParentComponent& Entity::GetComponent<ParentComponent>();
 template CORE_API NativeScriptComponent& Entity::GetComponent<NativeScriptComponent>();
 template CORE_API CameraComponent& Entity::GetComponent<CameraComponent>();
 template CORE_API UiComponent& Entity::GetComponent<UiComponent>();
+template CORE_API ColliderComponent& Entity::GetComponent<ColliderComponent>();
 template CORE_API bool Entity::HasComponent<TransformComponent>() const;
 template CORE_API bool Entity::HasComponent<MeshComponent>() const;
 template CORE_API bool Entity::HasComponent<DirectionalLightComponent>() const;
@@ -88,4 +89,5 @@ template CORE_API bool Entity::HasComponent<ParentComponent>() const;
 template CORE_API bool Entity::HasComponent<NativeScriptComponent>() const;
 template CORE_API bool Entity::HasComponent<CameraComponent>() const;
 template CORE_API bool Entity::HasComponent<UiComponent>() const;
+template CORE_API bool Entity::HasComponent<ColliderComponent>() const;
 

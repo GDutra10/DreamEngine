@@ -28,6 +28,7 @@ add_library (Core SHARED
 	"ECS/EntityMemoryPool.h"
 	"ECS/EntityMemoryPool.cpp"
 	"ECS/Components/Component.h"
+	"ECS/Components/ColliderComponent.h"
 	"ECS/Components/TransformComponent.h"
 	"ECS/Components/TransformComponent.cpp" 
 	"ECS/Components/MeshComponent.h"
@@ -72,7 +73,10 @@ add_library (Core SHARED
 	"Loggers/LoggerExternal.h"
 	"Loggers/LoggerExternal.cpp"
 
-	"Math/Math.h" 
+	"Math/Math.h"
+	"Math/AABB.h"
+
+	"Physics/PhysicsCollider.h"
 
 	"Render/RenderAPI.cpp" 
 	"Render/Vertex.h"
@@ -97,6 +101,7 @@ add_library (Core SHARED
 	"Render/Factories/MeshFactory.h" 
 	"Render/Factories/MeshFactory.cpp" 
 	"Render/Helpers/RenderTypeHelper.h"
+	"Render/PrimitiveTopology.h" 
 	"Render/RenderView.h" 
 	"Render/RenderPipeline.h"
 	"Render/RenderPipeline.cpp"
@@ -120,7 +125,6 @@ add_library (Core SHARED
 	"Scripting/ScriptEventHandler.h"
 	"Scripting/ScriptEventHandler.cpp"
 	
-	
 	"Sync/EntitySynchronizer.h" 
 	"Sync/EntityData.h" 
 	"Sync/EntitySynchronizer.cpp"
@@ -131,6 +135,9 @@ add_library (Core SHARED
 	"Sync/GameSynchronizer.h"
 	"Sync/GameSynchronizer.cpp"
 	"Sync/SceneData.h"	
+
+	"Systems/PhysicsSystem.h"
+	"Systems/PhysicsSystem.cpp"
 
 	"UI/UiContent.h"
 	"UI/UiManager.h"

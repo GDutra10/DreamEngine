@@ -10,6 +10,8 @@ class CORE_API Component
 {
    public:
     bool has = false;
+
+    virtual void Reset() {}
 };
 
 template <typename T>

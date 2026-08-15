@@ -10,6 +10,8 @@
 #include "glm/gtx/matrix_decompose.hpp"
 #include "glm/gtx/quaternion.hpp"
 
+#include "AABB.h"
+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846f
 #endif
@@ -174,6 +176,18 @@ namespace DreamEngine::Core::Math
         }  // End if <= 0
 
         return true;
+    }
+
+    inline CORE_API AABB TransformAABB(const AABB& localBounds, const glm::mat4& worldTransform)
+    {
+        const glm::vec3 center = (localBounds.min + localBounds.max) * 0.5f;
+        const glm::vec3 extents = (localBounds.max - localBounds.min) * 0.5f;
+        const glm::vec3 worldCenter = glm::vec3(worldTransform * glm::vec4(center, 1.0f));
+        const glm::mat3 linear = glm::mat3(worldTransform);
+        const glm::mat3 absLinear(glm::abs(linear[0]), glm::abs(linear[1]), glm::abs(linear[2]));
+        const glm::vec3 worldExtents = absLinear * extents;
+
+        return AABB{worldCenter - worldExtents, worldCenter + worldExtents};
     }
 
 }  // namespace DreamEngine::Core::Math

@@ -22,6 +22,7 @@
 #include "UI/Windows/ResourceManagerWindow.h"
 #include "UI/Windows/MaterialWindow.h"
 #include "UI/Windows/TextEditorWindow.h"
+#include "DebugRenderer.h"
 
 namespace DreamEngine::Editor
 {
@@ -53,6 +54,7 @@ public:
     int m_savedY = 100;
     int m_savedWidth = 1280;
     int m_savedHeight = 720;
+    DebugRenderer m_debugRenderer;
 
     // ImGUI
     bool m_imGuiInitialized = false;
@@ -94,7 +96,6 @@ public:
     void SetStyleUnreal();
     void SetStyleUnreal2();
     void SetStyleEngine();
-    void RenderDebugPass(Scene& scene, RenderView& renderView, RenderAPI* pRenderer);
 };
 
 }  // namespace DreamEngine::Editor

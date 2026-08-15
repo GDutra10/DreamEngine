@@ -163,6 +163,19 @@ bool SceneController::SaveSceneData()
             entityConfig.components.ui.resourceId = uiComponent.content->resourceId;
         }
 
+        if (const ColliderComponent& colliderComponent = entity->GetComponent<ColliderComponent>(); colliderComponent.has)
+        {
+            entityConfig.components.collider.has = true;
+            entityConfig.components.collider.enabled = colliderComponent.enabled;
+            entityConfig.components.collider.isTrigger = colliderComponent.isTrigger;
+            entityConfig.components.collider.center.x = colliderComponent.center.x;
+            entityConfig.components.collider.center.y = colliderComponent.center.y;
+            entityConfig.components.collider.center.z = colliderComponent.center.z;
+            entityConfig.components.collider.size.x = colliderComponent.size.x;
+            entityConfig.components.collider.size.y = colliderComponent.size.y;
+            entityConfig.components.collider.size.z = colliderComponent.size.z;
+        }
+
         sceneData->entities.push_back(entityConfig);
     }
 
@@ -327,6 +340,20 @@ vector<Entity*> SceneController::CreateEntities()
             uiComponent.has = true;
             uiComponent.zOrder = entityConfig.components.ui.zOrder;
             uiComponent.content = ResourceManager::Instance().GetUiContent(entityConfig.components.ui.resourceId);
+        }
+
+        if (entityConfig.components.collider.has)
+        {
+            ColliderComponent& colliderComponent = entity->GetComponent<ColliderComponent>();
+            colliderComponent.has = true;
+            colliderComponent.enabled = entityConfig.components.collider.enabled;
+            colliderComponent.isTrigger = entityConfig.components.collider.isTrigger;
+            colliderComponent.center.x = entityConfig.components.collider.center.x;
+            colliderComponent.center.y = entityConfig.components.collider.center.y;
+            colliderComponent.center.z = entityConfig.components.collider.center.z;
+            colliderComponent.size.x = entityConfig.components.collider.size.x;
+            colliderComponent.size.y = entityConfig.components.collider.size.y;
+            colliderComponent.size.z = entityConfig.components.collider.size.z;
         }
 
         entities.push_back(entity);

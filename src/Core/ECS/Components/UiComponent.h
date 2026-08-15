@@ -13,6 +13,12 @@ class CORE_API UiComponent : public Component
     int zOrder = 0;
     UI::UiContent* content;
     UI::UiInstance* instance = nullptr;
+
+    void Reset() override 
+    {
+        content = nullptr;
+        zOrder = 0;
+    }
 };
 }  // namespace DreamEngine::Core::ECS::Components
 #endif

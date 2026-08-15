@@ -13,6 +13,9 @@ add_executable(Editor
     EditorScene.h
     EditorScene.cpp
 
+    DebugRenderer.h
+    DebugRenderer.cpp
+
     Controllers/CameraEditorController.h
     Controllers/CameraEditorController.cpp
     Controllers/EntityController.h
@@ -65,6 +68,7 @@ add_executable(Editor
     Models/Datas/Components/ChildrenComponentData.h
     Models/Datas/Components/MaterialComponentData.h
     Models/Datas/Components/UiComponentData.h
+    Models/Datas/Components/ColliderComponentData.h
 
     Serializers/MaterialSerializer.h
     Serializers/MaterialSerializer.cpp

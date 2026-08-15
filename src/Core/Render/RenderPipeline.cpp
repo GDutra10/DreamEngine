@@ -114,7 +114,7 @@ void RenderPipeline::RenderSceneEntities(RenderView& renderView, Scene* scene) c
         shader->SetMat4("view", view);
 
         // calculate the model matrix for each object and pass it to shader before drawing
-        glm::mat4 transform = entity->GetTransform();
+        glm::mat4 transform = entity->GetWorldTransform();
         shader->SetMat4("model", transform);
 
         meshComponent.mesh->Draw(*shader);

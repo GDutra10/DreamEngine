@@ -13,6 +13,8 @@ enum CORE_API Shape
     Capsule,
     Cylinder,
     Plane,
+
+    WireCube,
 };
 }  // namespace DreamEngine::Core::Render
 #endif

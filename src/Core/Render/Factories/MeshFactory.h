@@ -3,6 +3,7 @@
 
 #include "../Mesh.h"
 #include "../Shape.h"
+#include "../PrimitiveTopology.h"
 
 #include "CoreExport.h"
 
@@ -13,7 +14,7 @@ namespace DreamEngine::Core::Render::Factories
 class CORE_API MeshFactory
     {
 public:
-    static Mesh* CreateMesh(Shape shape);
+   static Mesh* CreateMesh(Shape shape, PrimitiveTopology topology = PrimitiveTopology::Triangles);
 
    private:
     static Mesh* GetMesh();
@@ -22,6 +23,7 @@ public:
     static void SetCapsuleMesh(Mesh* mesh, float radius, float height, int segments);
     static void SetCylinderMesh(Mesh* mesh, int segments = 32, float radius = 0.5f, float height = 1.0f);
     static void SetPlaneMesh(Mesh* mesh);
-};
+    static void SetWireCubeMesh(Mesh* mesh);
+    };
 }  // namespace DreamEngine::Core::Render
 #endif

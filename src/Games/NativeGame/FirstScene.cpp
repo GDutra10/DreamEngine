@@ -40,9 +40,9 @@ void FirstScene::Initialize()
     stbi_set_flip_vertically_on_load(true);
 
     // set global light
-    this->m_globalLight->directionalLight.color = {255, 255, 255};
-    this->m_globalLight->directionalLight.influence = 0.5f;
-    this->m_globalLight->directionalLight.specular = {255, 100, 100};
+    this->m_pGlobalLight->directionalLight.color = {255, 255, 255};
+    this->m_pGlobalLight->directionalLight.influence = 0.5f;
+    this->m_pGlobalLight->directionalLight.specular = {255, 100, 100};
 
     LoadResources();
     CreateEntities();
@@ -111,7 +111,7 @@ void FirstScene::LoadResources()
 void FirstScene::CreateEntities()
 {
     // add box
-    Entity* entity = this->m_entityManager->AddEntity("box");
+    Entity* entity = this->m_pEntityManager->AddEntity("box");
     TransformComponent& transformComponent = entity->GetComponent<TransformComponent>();
     transformComponent.has = true;
     transformComponent.SetPosition({0.0f, 0, -10.0f});
@@ -129,7 +129,7 @@ void FirstScene::CreateEntities()
     nativeScriptComponent.script = new BoxScript();
 
     // add camera
-    Entity* cameraEntity = this->m_entityManager->AddEntity("main_camera");
+    Entity* cameraEntity = this->m_pEntityManager->AddEntity("main_camera");
     CameraComponent& cameraComponent = cameraEntity->GetComponent<CameraComponent>();
     cameraComponent.has = true;
 
@@ -140,7 +140,7 @@ void FirstScene::CreateEntities()
     this->SetMainCameraEntity(cameraEntity);
 
     // add ui
-    Entity* uiEntity = this->m_entityManager->AddEntity("ui_canvas");
+    Entity* uiEntity = this->m_pEntityManager->AddEntity("ui_canvas");
     UiComponent& uiComponent = uiEntity->GetComponent<UiComponent>();
     uiComponent.has = true;
     uiComponent.content = ResourceManager::Instance().GetUiContent("hud_ui_content");

@@ -15,6 +15,8 @@ class CORE_API NativeScriptComponent : public Component
 
     explicit NativeScriptComponent() = default;
     NativeScriptComponent(NativeScript* script) : script(script) {}
+
+    void Reset() override { script = nullptr; }
 };
 }  // namespace DreamEngine::Core::ECS::Components
 #endif
