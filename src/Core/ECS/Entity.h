@@ -29,7 +29,7 @@ class CORE_API Entity
     void SetIdentifier(const std::string& identifier);
     void SetActive(const bool value);
     // get the transform by propagation when need it
-    glm::mat4 GetTransform();
+    glm::mat4 GetWorldTransform();
 
     template <IsComponent T>
     T& GetComponent();

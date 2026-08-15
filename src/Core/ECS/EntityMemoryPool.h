@@ -13,6 +13,7 @@
 #include "Components/NativeScriptComponent.h"
 #include "Components/CameraComponent.h"
 #include "Components/UiComponent.h"
+#include "Components/ColliderComponent.h"
 
 namespace DreamEngine::Core::ECS
 {
@@ -28,7 +29,8 @@ typedef std::tuple<std::vector<TransformComponent>,
                    std::vector<ParentComponent>,
                    std::vector<NativeScriptComponent>,
                    std::vector<CameraComponent>,
-                   std::vector<UiComponent>
+                   std::vector<UiComponent>,
+                   std::vector<ColliderComponent>
    > EntityComponentVectorTuple;
 
 class CORE_API EntityMemoryPool

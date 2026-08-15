@@ -15,6 +15,8 @@ class CORE_API MeshComponent : public Component
 
     explicit MeshComponent() = default;
     MeshComponent(Mesh* mesh) : mesh(mesh)  {}
+
+    void Reset() override { mesh = nullptr; }
 };
 }  // namespace DreamEngine::Core::ECS::Components
 #endif

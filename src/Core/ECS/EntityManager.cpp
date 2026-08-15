@@ -152,41 +152,23 @@ void EntityManager::Reset()
         entity->GetTag() = "";
 
         // reset components
-        TransformComponent& transformComponent = entity->GetComponent<TransformComponent>();
-        transformComponent.transform = glm::mat4(1.0f);
-
+        entity->GetComponent<TransformComponent>().Reset();
+        entity->GetComponent<CameraComponent>().Reset();
+        entity->GetComponent<DirectionalLightComponent>().Reset();
+        entity->GetComponent<MaterialComponent>().Reset();
+        entity->GetComponent<MeshComponent>().Reset();
+        entity->GetComponent<NativeScriptComponent>().Reset();
+        entity->GetComponent<ScriptComponent>().Reset();
+        entity->GetComponent<ColliderComponent>().Reset();
         UiComponent& uiComponent = entity->GetComponent<UiComponent>();
-        uiComponent.content = nullptr;
-        uiComponent.zOrder = 0;
+
+        uiComponent.Reset();
 
         if (uiComponent.instance != nullptr)
         {
             UiManager::Destroy(uiComponent.instance);
             uiComponent.instance = nullptr;
         }
-
-        CameraComponent& cameraComponent = entity->GetComponent<CameraComponent>();
-        cameraComponent.far = 100.0f;
-        cameraComponent.near = 0.1f;
-        cameraComponent.fovDegree = 45.0f;
-        
-        DirectionalLightComponent& directionalLightComponent = entity->GetComponent<DirectionalLightComponent>();
-        directionalLightComponent.specular = {0, 0, 0};
-        directionalLightComponent.color = {};
-        directionalLightComponent.influence = 0.0f;
-
-        MaterialComponent& materialComponent = entity->GetComponent<MaterialComponent>();
-        materialComponent.material = nullptr;
-
-        MeshComponent& meshComponent = entity->GetComponent<MeshComponent>();
-        meshComponent.mesh = nullptr;
-
-        NativeScriptComponent& nativeScriptComponent = entity->GetComponent<NativeScriptComponent>();
-        nativeScriptComponent.script = nullptr;
-
-        ScriptComponent& scriptCompoennt = entity->GetComponent<ScriptComponent>();
-        scriptCompoennt.instance = nullptr;
-        scriptCompoennt.script = nullptr;
 
         RemoveEntity(entity);
     }

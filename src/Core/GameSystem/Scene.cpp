@@ -18,7 +18,7 @@ using namespace DreamEngine::Core::ECS::Components;
 
 Color* Scene::GetBackgroundColor() const
 {
-    return m_backgroundColor;
+    return m_pBackgroundColor;
 }
 
 bool Scene::GetShowCursor() const
@@ -43,9 +43,9 @@ bool Scene::ChangeScene(const std::string sceneName)
 
 void Scene::Update(const float deltaTime)
 {
-    m_entityManager->Update();
+    m_pEntityManager->Update();
 
-    for (Entity* entity : m_entityManager->GetEntities())
+    for (Entity* entity : m_pEntityManager->GetEntities())
     {
         if (!entity->GetIsActive())
         {
@@ -82,14 +82,14 @@ void Scene::Update(const float deltaTime)
         }
     }
 
-    if (m_mustRunScriptComponents)
+    if (m_mustRunManagedScripts)
     {
         ScriptEventHandler::Process();
         GameData* pGameData = GameSynchronizer::Synchronize(this->GetIsFocused());
 
         std::vector<EntityData> entityDataArray;
 
-        for (Entity* entity : m_entityManager->GetEntities())
+        for (Entity* entity : m_pEntityManager->GetEntities())
         {
             EntitySynchronizer::SynchronizeToData(entity);
             entityDataArray.push_back(entity->entityData);
@@ -101,11 +101,14 @@ void Scene::Update(const float deltaTime)
 
         for (size_t i = 0; i < size; i++)
         {
-            Entity* entity = m_entityManager->GetEntityById(entityDataArray[i].id);
+            Entity* entity = m_pEntityManager->GetEntityById(entityDataArray[i].id);
             entity->entityData = pEntityDataList[i];
             EntitySynchronizer::SynchronizeFromData(entity);
         }
     }
+
+    m_pPhysicsSystem->Update(*m_pEntityManager, deltaTime);
+    ScriptEventHandler::ProcessCollisionEvents(*m_pEntityManager, m_mustRunManagedScripts);
 
     UiManager::Update();
     m_mustRecreateEntitiesInScriptEngine = false;
@@ -113,32 +116,33 @@ void Scene::Update(const float deltaTime)
 
 void Scene::Initialize()
 {
-    m_entityManager = new ECS::EntityManager();
-    m_resourceManager = new Resources::ResourceManager();
+    m_pEntityManager = new ECS::EntityManager();
+    m_pResourceManager = new Resources::ResourceManager();
+    m_pPhysicsSystem = new Systems::PhysicsSystem();
 
     // set default global light
-    m_globalLight->transform.SetPosition({0.f, 500.f, 0.f});
-    m_globalLight->directionalLight.color = {1.f, 1.f, 1.f};
-    m_globalLight->directionalLight.specular = {1.f, 1.f, 1.f};
-    m_globalLight->directionalLight.influence = 2.0f;
+    m_pGlobalLight->transform.SetPosition({0.f, 500.f, 0.f});
+    m_pGlobalLight->directionalLight.color = {1.f, 1.f, 1.f};
+    m_pGlobalLight->directionalLight.specular = {1.f, 1.f, 1.f};
+    m_pGlobalLight->directionalLight.influence = 2.0f;
 }
 
 void Scene::Unload()
 {
     UiManager::RemoveContents();
 
-    delete m_entityManager;
-    delete m_resourceManager;
+    delete m_pEntityManager;
+    delete m_pResourceManager;
 }
 
 EntityManager* Scene::GetEntityManager() const
 {
-    return m_entityManager;
+    return m_pEntityManager;
 }
 
 GlobalLight* Scene::GetGlobalLight()
 {
-    return m_globalLight;
+    return m_pGlobalLight;
 }
 
 Entity* Scene::GetMainCameraEntity() const
@@ -151,10 +155,10 @@ SceneData* Scene::GetSceneData() const
     m_pSceneData->mainCameraEntityId = m_pMainCameraEntity != nullptr ? m_pMainCameraEntity->GetId() : 0;
     m_pSceneData->showCursor = m_showCursor ? 1 : 0;
     m_pSceneData->mustRecreateEntities = m_mustRecreateEntitiesInScriptEngine ? 1 : 0;
-    m_pSceneData->globalLightColorR = m_globalLight->directionalLight.color.red;
-    m_pSceneData->globalLightColorG = m_globalLight->directionalLight.color.green;
-    m_pSceneData->globalLightColorB = m_globalLight->directionalLight.color.blue;
-    m_pSceneData->globalLightIntensity = m_globalLight->directionalLight.influence;
+    m_pSceneData->globalLightColorR = m_pGlobalLight->directionalLight.color.red;
+    m_pSceneData->globalLightColorG = m_pGlobalLight->directionalLight.color.green;
+    m_pSceneData->globalLightColorB = m_pGlobalLight->directionalLight.color.blue;
+    m_pSceneData->globalLightIntensity = m_pGlobalLight->directionalLight.influence;
 
     return m_pSceneData;
 }
@@ -189,7 +193,7 @@ Camera& Scene::GetCamera()
 
 bool Scene::GetMustRunScriptComponents() const
 {
-    return m_mustRunScriptComponents;
+    return m_mustRunManagedScripts;
 }
 
 bool Scene::GetIsFocused() const
@@ -199,8 +203,8 @@ bool Scene::GetIsFocused() const
 
 void Scene::SetMustRunScriptComponents(const bool val)
 {
-    if (m_mustRunScriptComponents == false && val == true)
+    if (m_mustRunManagedScripts == false && val == true)
         m_mustRecreateEntitiesInScriptEngine = true;
 
-    m_mustRunScriptComponents = val;
+    m_mustRunManagedScripts = val;
 }

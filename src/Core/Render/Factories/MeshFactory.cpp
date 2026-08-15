@@ -17,10 +17,11 @@ using namespace DreamEngine::Core::Render::OpenGL;
 using namespace DreamEngine::Core::Resources;
 
 
-Mesh* MeshFactory::CreateMesh(const Shape shape)
+Mesh* MeshFactory::CreateMesh(const Shape shape, PrimitiveTopology topology)
 {
     Mesh* mesh = GetMesh();
     mesh->textures.push_back(ResourceManager::Instance().GetTexture(DEFAULT_TEXTURE_NAME));
+    mesh->topology = topology;
 
     switch (shape)
     {
@@ -38,6 +39,9 @@ Mesh* MeshFactory::CreateMesh(const Shape shape)
             break;
         case Plane:
             SetPlaneMesh(mesh);
+            break;
+        case WireCube:
+            SetWireCubeMesh(mesh);
             break;
         //TODO: other shapes
         default:
@@ -392,5 +396,63 @@ void MeshFactory::SetPlaneMesh(Mesh* mesh)
         {{0.5f, 0.0f, 0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},  // Position, normal, UV
         // Top-left
         {{-0.5f, 0.0f, 0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}}  // Position, normal, UV
+    };
+}
+
+void MeshFactory::SetWireCubeMesh(Mesh* mesh)
+{
+    mesh->vertices = {
+        // Back face
+        {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f}},  // Bottom-left-back
+        {{0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {1.0f, 0.0f}},   // Bottom-right-back
+        {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {1.0f, 1.0f}},    // Top-right-back
+        {{-0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {0.0f, 1.0f}},   // Top-left-back
+
+        // Front face
+        {{-0.5f, -0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},  // Bottom-left-front
+        {{0.5f, -0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},   // Bottom-right-front
+        {{0.5f, 0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},    // Top-right-front
+        {{-0.5f, 0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},   // Top-left-front
+
+        // Left face
+        {{-0.5f, -0.5f, -0.5f}, {-1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},  // Bottom-left-back
+        {{-0.5f, 0.5f, -0.5f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},   // Top-left-back
+        {{-0.5f, 0.5f, 0.5f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}},    // Top-left-front
+        {{-0.5f, -0.5f, 0.5f}, {-1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},   // Bottom-left-front
+
+        // Right face
+        {{0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},  // Bottom-right-back
+        {{0.5f, 0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},   // Top-right-back
+        {{0.5f, 0.5f, 0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}},    // Top-right-front
+        {{0.5f, -0.5f, 0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},   // Bottom-right-front
+
+        // Bottom face
+        {{-0.5f, -0.5f, -0.5f}, {0.0f, -1.0f, 0.0f}, {0.0f, 0.0f}},  // Bottom-left-back
+        {{0.5f, -0.5f, -0.5f}, {0.0f, -1.0f, 0.0f}, {1.0f, 0.0f}},   // Bottom-right-back
+        {{0.5f, -0.5f, 0.5f}, {0.0f, -1.0f, 0.0f}, {1.0f, 1.0f}},    // Bottom-right-front
+        {{-0.5f, -0.5f, 0.5f}, {0.0f, -1.0f, 0.0f}, {0.0f, 1.0f}},   // Bottom-left-front
+
+        // Top face
+        {{-0.5f, 0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},  // Top-left-back
+        {{0.5f, 0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},   // Top-right-back
+        {{0.5f, 0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},    // Top-right-front
+        {{-0.5f, 0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}}    // Top-left-front
+    };
+
+    mesh->indices = {
+        0, 1, 
+        1, 2, 
+        2, 3, 
+        3, 0,
+
+        4, 5, 
+        5, 6, 
+        6, 7, 
+        7, 4,
+
+        0, 4,
+        1, 5,
+        2, 6, 
+        3, 7
     };
 }

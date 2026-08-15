@@ -8,21 +8,23 @@
 #include "../ECS/EntityManager.h"
 #include "../Resources/ResourceManager.h"
 #include "../Sync/SceneData.h"
+#include "../Systems/PhysicsSystem.h"
 
 namespace DreamEngine::Core::GameSystem
 {
 
 using namespace DreamEngine::Core::ECS;
 using namespace DreamEngine::Core::Resources;
+using namespace DreamEngine::Core::Systems;
 
 class CORE_API Scene
 {
    public:
     virtual ~Scene() = default;
-    explicit Scene(std::string name) : m_backgroundColor(new Color{0, 0, 0}),
-                                       m_entityManager(nullptr),
-                                       m_resourceManager(nullptr),
-                                       m_globalLight(new GlobalLight()),
+    explicit Scene(std::string name) : m_pBackgroundColor(new Color{0, 0, 0}),
+                                       m_pEntityManager(nullptr),
+                                       m_pResourceManager(nullptr),
+                                       m_pGlobalLight(new GlobalLight()),
                                        m_showCursor(false),
                                        m_name(std::move(name)) {}
 
@@ -54,15 +56,16 @@ class CORE_API Scene
     virtual void Unload();
 
    protected:
-    Color* m_backgroundColor;
+    Color* m_pBackgroundColor;
     Camera m_camera;
-    EntityManager* m_entityManager;
-    ResourceManager* m_resourceManager;
-    GlobalLight* m_globalLight;
+    EntityManager* m_pEntityManager;
+    ResourceManager* m_pResourceManager;
+    GlobalLight* m_pGlobalLight;
     Entity* m_pMainCameraEntity = nullptr;
     SceneData* m_pSceneData = new SceneData();
+    PhysicsSystem* m_pPhysicsSystem = nullptr;
     bool m_showCursor;
-    bool m_mustRunScriptComponents = true;
+    bool m_mustRunManagedScripts = true;
     bool m_mustRecreateEntitiesInScriptEngine = false;
    private:
     std::string m_name;

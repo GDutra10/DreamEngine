@@ -109,7 +109,7 @@ void SceneWindow::ImGizmoRender()
 
     // Define the operation mode (translate, rotate, scale)
     glm::mat4 projection = camera.GetProjection();
-    glm::mat4 transform = selectedEntity->GetTransform();
+    glm::mat4 transform = selectedEntity->GetWorldTransform();
 
     // Flip Y-axis to fix the gizmo orientation
     //projection[1][1] *= -1;
@@ -126,7 +126,7 @@ void SceneWindow::ImGizmoRender()
     {
         if (parentComponent.has && parentComponent.parent != nullptr)
         {
-            glm::mat4 parentTransform = parentComponent.parent->GetTransform();
+            glm::mat4 parentTransform = parentComponent.parent->GetWorldTransform();
             transform = glm::inverse(parentTransform) * transform;
         }
         

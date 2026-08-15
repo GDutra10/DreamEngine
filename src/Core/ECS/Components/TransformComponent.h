@@ -27,6 +27,7 @@ class CORE_API TransformComponent : public Component
     void SetScale(const glm::vec3& scale);
     void SetRotation(const glm::vec3& rotation);
     void SetRotation(const glm::quat& rotation);
+    void Reset() override { transform = glm::mat4(1.0f); }
 
    private:
     void KeepOtherDataAndApplyRotation(const glm::mat4& rotMatrix);

@@ -14,8 +14,6 @@
 #include "../Core/Render/Factories/MeshFactory.h"
 #include "../Core/Inputs/Input.h"
 #include "../Core/IO/File.h"
-#include "Render/RenderViewProvider.h"
-#include "Render/OutlineScope.h"
 #include "Serializers/SceneDataSerializer.h"
 #include "ECS/Components/ChildrenComponent.h"
 #include "ECS/Components/MaterialComponent.h"
@@ -67,7 +65,7 @@ void EditorScene::Initialize()
     Application::Instance().GetRenderAPI()->AddBeforeRenderEntitiesCallbacks([this](RenderView& renderView) { StartImGuiFrame(renderView); });
     Application::Instance().GetRenderAPI()->AddAfterRenderEntitiesCallbacks([this](RenderView& renderView) { FinishImGuiFrame(renderView); });
     
-    m_editorContext.SetEntityManager(m_entityManager);
+    m_editorContext.SetEntityManager(m_pEntityManager);
     
     Game* game = Application::Instance().GetGame();
     
@@ -94,7 +92,7 @@ void EditorScene::Initialize()
     m_editorContext.SetGameRenderView(gameViewportRenderView);
 
     // initialize scripts without running them
-    m_mustRunScriptComponents = false;
+    m_mustRunManagedScripts = false;
 
     // configure stb_image to flip loaded texture's on the y-axis
     stbi_set_flip_vertically_on_load(true);
@@ -103,7 +101,8 @@ void EditorScene::Initialize()
 
     // add debug pass in render pipeline
     Application::Instance().GetRenderPass()->RegisterDebugPass([this](Scene& scene, RenderView& renderView, RenderAPI* renderer) { 
-        this->RenderDebugPass(scene, renderView, renderer); 
+        DebugRenderContext context = {scene, renderView, renderer, m_editorContext.GetSelectedEntity()};
+        m_debugRenderer.Render(context);
     });
 }
 
@@ -796,61 +795,4 @@ void EditorScene::SetStyleEngine()
     style.FramePadding = ImVec2(0.0f, 5.0f);
     style.ItemSpacing = ImVec2(6.0f, 6.0f);
     style.WindowMenuButtonPosition = ImGuiDir_None;
-}
-
-void DreamEngine::Editor::EditorScene::RenderDebugPass(Scene& scene, RenderView& renderView, RenderAPI* pRenderer) 
-{
-    const std::vector<Entity*>& entities = scene.GetEntityManager()->GetEntities();
-
-    Camera& camera = scene.GetCamera();
-    glm::mat4 view = camera.GetView();
-    glm::mat4 projection = camera.GetProjection();
-
-    std::vector<Entity*> outlinedChildren;
-
-    for (Entity* entity : entities)
-    {
-        if (!entity->GetIsActive() || !entity->GetComponent<MeshComponent>().has || !entity->GetComponent<MaterialComponent>().has)
-            continue;
-
-        const MeshComponent& meshComponent = entity->GetComponent<MeshComponent>();
-        std::vector<Entity*>::iterator it = std::find(outlinedChildren.begin(), outlinedChildren.end(), entity);
-        glm::mat4 transform = entity->GetTransform(); 
-
-        if (entity == m_editorContext.GetSelectedEntity() || it != outlinedChildren.end())
-        {
-            const ChildrenComponent& childrenComponent = entity->GetComponent<ChildrenComponent>();
-
-            if (childrenComponent.has)
-            {
-                for (Entity* child : childrenComponent.children)
-                    outlinedChildren.push_back(child);
-            }
-
-            pRenderer->StencilWriteObject();
-
-            // draw where stencil != 1
-            pRenderer->StencilDrawOutlineRegion();
-
-            OutlineOptions opts{};
-            opts.disableDepthTest = false;
-            opts.cullFace = OutlineOptions::CullFace::Front;
-
-            DreamEngine::Core::Render::OutlineScope guard(*pRenderer, opts);
-
-            Shader* outlineShader = ResourceManager::Instance().GetShader(EDITOR_OUTLINE_SHADER_NAME);
-            outlineShader->Use();
-            outlineShader->SetMat4("view", view);
-            outlineShader->SetVec3("viewPos", camera.position);
-            outlineShader->SetMat4("projection", projection);
-            outlineShader->SetMat4("model", transform);
-            outlineShader->SetVec3("outlineColor", {1.f, 1.f, 0});
-            outlineShader->SetFloat("thicknessWS", 0.02f);
-
-            meshComponent.mesh->Draw(*outlineShader);
-
-            // reset stencil behavior
-            pRenderer->StencilDefaultNoWrite();
-        }
-    }
 }

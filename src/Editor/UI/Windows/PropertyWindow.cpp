@@ -13,6 +13,7 @@
 #include "../../../Core/ECS/Components/MaterialComponent.h"
 #include "../../../Core/ECS/Components/ScriptComponent.h"
 #include "../../../Core/ECS/Components/UiComponent.h"
+#include "../../../Core/ECS/Components/ColliderComponent.h"
 #include "../../../Core/Render/Factories/MeshFactory.h"
 #include "../../../Core/Render/OpenGL/OpenGLMesh.h"
 #include "../../../Core/Resources/ResourceManager.h"
@@ -75,6 +76,7 @@ void PropertyWindow::DrawContent()
         // render all components
         DrawTransformComponent(selectedEntity);
         DrawMeshComponent(selectedEntity);
+        DrawColliderComponent(selectedEntity);
         DrawDirectionalLightComponent(selectedEntity);
         DrawScriptComponent(selectedEntity);
         DrawCameraComponent(selectedEntity);
@@ -348,9 +350,69 @@ void PropertyWindow::DrawMaterialComponent(Entity* selectedEntity)
      });
 }
 
+void PropertyWindow::DrawColliderComponent(Entity* selectedEntity) 
+{
+    if (selectedEntity == nullptr)
+        return;
+
+    ColliderComponent& colliderComponent = selectedEntity->GetComponent<ColliderComponent>();
+
+    if (!colliderComponent.has)
+        return;
+
+    if (ImGui::CollapsingHeader("Collider##selected.entity.collider.component", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        if (ImGuiHelper::BeginTable("selected.entity.collider.component.table", 2))
+        {
+            ImGuiHelper::PrepareRow("Enabled");
+            ImGui::Checkbox("##selected.entity.collider.enabled", &colliderComponent.enabled);
+
+            ImGuiHelper::PrepareRow("Is Trigger");            
+            ImGui::Checkbox("##selected.entity.collider.istrigger", &colliderComponent.isTrigger);
+
+            ImGuiHelper::PrepareRow("Center");
+            ImGui::TextColored(ImGuiHelper::GetImVec4Red(), "X");
+            ImGui::SameLine();
+            ImGui::SetNextItemWidth(NEXT_ROW_VECTOR_3_INPUT_WIDTH);
+            ImGui::InputFloat("##selected.entity.collider.center.x", &colliderComponent.center.x, 0, 0, FLOAT_FORMAT);
+
+            ImGui::SameLine();
+            ImGui::TextColored(ImGuiHelper::GetImVec4Green(), "Y");
+            ImGui::SameLine();
+            ImGui::SetNextItemWidth(NEXT_ROW_VECTOR_3_INPUT_WIDTH);
+            ImGui::InputFloat("##selected.entity.collider.center.y", &colliderComponent.center.y, 0, 0, FLOAT_FORMAT);
+
+            ImGui::SameLine();
+            ImGui::TextColored(ImGuiHelper::GetImVec4Blue(), "Z");
+            ImGui::SameLine();
+            ImGui::SetNextItemWidth(NEXT_ROW_VECTOR_3_INPUT_WIDTH);
+            ImGui::InputFloat("##selected.entity.collider.center.z", &colliderComponent.center.z, 0, 0, FLOAT_FORMAT);
+
+            ImGuiHelper::PrepareRow("Size");
+            ImGui::TextColored(ImGuiHelper::GetImVec4Red(), "X");
+            ImGui::SameLine();
+            ImGui::SetNextItemWidth(NEXT_ROW_VECTOR_3_INPUT_WIDTH);
+            ImGui::InputFloat("##selected.entity.collider.size.x", &colliderComponent.size.x, 0, 0, FLOAT_FORMAT);
+
+            ImGui::SameLine();
+            ImGui::TextColored(ImGuiHelper::GetImVec4Green(), "Y");
+            ImGui::SameLine();
+            ImGui::SetNextItemWidth(NEXT_ROW_VECTOR_3_INPUT_WIDTH);
+            ImGui::InputFloat("##selected.entity.collider.size.y", &colliderComponent.size.y, 0, 0, FLOAT_FORMAT);
+
+            ImGui::SameLine();
+            ImGui::TextColored(ImGuiHelper::GetImVec4Blue(), "Z");
+            ImGui::SameLine();
+            ImGui::SetNextItemWidth(NEXT_ROW_VECTOR_3_INPUT_WIDTH);
+            ImGui::InputFloat("##selected.entity.collider.size.z", &colliderComponent.size.z, 0, 0, FLOAT_FORMAT);
+        }
+
+        ImGui::EndTable();
+    }
+}
+
 void PropertyWindow::DrawScriptComponent(Entity* selectedEntity)
 {
-
     if (selectedEntity == nullptr)
         return;
 
@@ -486,6 +548,7 @@ void PropertyWindow::DrawAddComponent(Entity* selectedEntity)
     if (ImGui::BeginPopup("Add Component##selected.entity.add.component.popup", ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking))
     {
         MeshComponent& meshComponent = selectedEntity->GetComponent<MeshComponent>();
+        ColliderComponent& colliderComponent = selectedEntity->GetComponent<ColliderComponent>();
         MaterialComponent& materialComponent = selectedEntity->GetComponent<MaterialComponent>();
         ScriptComponent& scriptComponent = selectedEntity->GetComponent<ScriptComponent>();
         CameraComponent& cameraComponent = selectedEntity->GetComponent<CameraComponent>();
@@ -593,6 +656,15 @@ void PropertyWindow::DrawAddComponent(Entity* selectedEntity)
                 ImGui::EndPopup();
             }
         //    ImGui::CloseCurrentPopup();
+        }
+
+        if (!colliderComponent.has)
+        {
+            if (ImGui::MenuItem("Collider Component##selected.entity.add.collider.component.button"))
+            {
+                colliderComponent.has = true;
+                ImGui::CloseCurrentPopup();
+            }
         }
 
         // script

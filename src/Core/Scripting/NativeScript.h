@@ -15,6 +15,15 @@ class NativeScript
     void Initialize();
     virtual void Update() {};
 
+    // Events
+    virtual void OnTriggerEnter(Entity* other) {}
+    virtual void OnTriggerStay(Entity* other) {}
+    virtual void OnTriggerExit(Entity* other) {}
+
+    virtual void OnCollisionEnter(Entity* other) {}
+    virtual void OnCollisionStay(Entity* other) {}
+    virtual void OnCollisionExit(Entity* other) {}
+
    protected:
     virtual void Start() {}
     

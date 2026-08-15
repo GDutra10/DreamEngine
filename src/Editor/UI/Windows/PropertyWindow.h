@@ -31,6 +31,7 @@ class PropertyWindow : public BaseWindow
     static void DrawTransformComponent(TransformComponent& transform);
     void DrawMeshComponent(Entity* selectedEntity);
     void DrawMaterialComponent(Entity* selectedEntity);
+    void DrawColliderComponent(Entity* selectedEntity);
     void DrawScriptComponent(Entity* selectedEntity);
     void DrawCameraComponent(Entity* selectedEntity);
     void DrawUiComponent(Entity* selectedEntity);

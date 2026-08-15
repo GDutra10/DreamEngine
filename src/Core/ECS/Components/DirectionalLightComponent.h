@@ -17,6 +17,13 @@ class CORE_API DirectionalLightComponent : public Component
     float influence;
 
     explicit DirectionalLightComponent() = default;
+
+    void Reset() override
+    {
+        specular = {0, 0, 0};
+        color = {};
+        influence = 0.0f;
+    }
 };
 }  // namespace DreamEngine::Core::ECS::Components
 #endif

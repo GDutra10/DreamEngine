@@ -16,6 +16,12 @@ class CORE_API ScriptComponent : public Component
 
     explicit ScriptComponent() = default;
     ScriptComponent(Script* script) : script(script) {}
+
+    void Reset() override 
+    { 
+        instance = nullptr;
+        script = nullptr;
+    }
 };
 }  // namespace DreamEngine::Core::ECS::Components
 #endif
