@@ -223,6 +223,9 @@ void ProjectController::LoadResourcesFromProject(const ProjectConfiguration& pro
 
     std::vector<std::string> uiFiles = Helpers::FileHelper::GetFilesWithExtension(projectConfiguration.projectPath, EDITOR_DEFAULT_UI_FILE_EXTENSION);
     m_resourceController.LoadUiContents(uiFiles);
+
+    std::vector<std::string> prefabFiles = Helpers::FileHelper::GetFilesWithExtension(projectConfiguration.projectPath, EDITOR_DEFAULT_PREFAB_FILE_EXTENSION);
+    m_resourceController.LoadPrefabs(prefabFiles);
 }
 
 bool ProjectController::TryAddDreamEngineReferenceInCsproj(const std::string& projectPath, const std::string& projectName)

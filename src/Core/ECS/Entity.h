@@ -7,10 +7,12 @@
 #include "glm/fwd.hpp"
 #include "CoreExport.h"
 #include "Helpers/GUIDHelper.h"
+#include "../GameSystem/Definitions/EntityDefinition.h"
 
 namespace DreamEngine::Core::ECS
 {
 
+using namespace DreamEngine::Core::GameSystem::Definitions;
 using namespace DreamEngine::Core::ECS::Components;
 using namespace DreamEngine::Core::Sync;
 
@@ -30,6 +32,9 @@ class CORE_API Entity
     void SetActive(const bool value);
     // get the transform by propagation when need it
     glm::mat4 GetWorldTransform();
+
+    const EntityDefinition GetDefinition();
+    void ApplyDefinition(const EntityDefinition& definition);
 
     template <IsComponent T>
     T& GetComponent();

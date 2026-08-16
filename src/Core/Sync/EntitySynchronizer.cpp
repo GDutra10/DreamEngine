@@ -34,7 +34,10 @@ void EntitySynchronizer::SynchronizeToData(Entity* entity)
     ParentComponent& parentComponent = entity->GetComponent<ParentComponent>();
 
     if (parentComponent.has && parentComponent.parent != nullptr)
+    {
+        entity->entityData.hasParent = parentComponent.has;
         entity->entityData.parentId = parentComponent.parent->GetId();
+    }
 
     // ui component
     UiComponent& uiComponent = entity->GetComponent<UiComponent>();
@@ -143,10 +146,12 @@ void EntitySynchronizer::SynchronizeFromData(Entity* entity)
 void DreamEngine::Core::Sync::EntitySynchronizer::HandleParentComponent(Entity* entity)
 {
     ParentComponent& parentComponent = entity->GetComponent<ParentComponent>();
-    parentComponent.has = entity->entityData.parentId > 0;
+    parentComponent.has = entity->entityData.hasParent;
 
-    if (parentComponent.parent != nullptr && (parentComponent.parent->GetId() != entity->entityData.parentId || entity->entityData.parentId <= 0) ||
-        parentComponent.parent == nullptr && entity->entityData.parentId > 0)
+    const bool hasParentInComponentAndEntityDataHasAnother = parentComponent.parent != nullptr && parentComponent.parent->GetId() != entity->entityData.parentId;
+    const bool hasNoParentInComponentAndEntityDataHasParent = parentComponent.parent == nullptr && entity->entityData.hasParent;
+
+    if (hasParentInComponentAndEntityDataHasAnother || hasNoParentInComponentAndEntityDataHasParent)
     {
         RemoveEntityFromParent(entity, parentComponent);
         AddEntityToParent(entity, parentComponent);
@@ -172,7 +177,7 @@ void DreamEngine::Core::Sync::EntitySynchronizer::RemoveEntityFromParent(Entity*
 
 void DreamEngine::Core::Sync::EntitySynchronizer::AddEntityToParent(Entity* entity, ParentComponent& parentComponent)
 {
-    if (entity->entityData.parentId <= 0)
+    if (!entity->entityData.hasParent)
     {
         parentComponent.parent = nullptr;
 

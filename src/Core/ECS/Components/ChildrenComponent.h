@@ -2,6 +2,7 @@
 #define CORE_ECS_COMPONENTS_CHILDREN_COMPONENT_H_
 
 #include "Component.h"
+#include <vector>
 
 namespace DreamEngine::Core::ECS::Components
 {

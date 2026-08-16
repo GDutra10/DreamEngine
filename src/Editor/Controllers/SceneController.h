@@ -3,7 +3,7 @@
 
 #include <filesystem>
 #include "../../Core/GameSystem/Camera.h"
-#include "../Models/Datas/SceneData.h"
+#include "../../Core/GameSystem/Definitions/SceneDefinition.h"
 #include "../../Core/ECS/EntityManager.h"
 #include "../EditorContext.h"
 
@@ -12,7 +12,7 @@ namespace DreamEngine::Editor::Controllers
 using namespace std::filesystem;
 using namespace DreamEngine::Core::ECS;
 using namespace DreamEngine::Core::GameSystem;
-using namespace DreamEngine::Editor::Models::Datas;
+using namespace DreamEngine::Core::GameSystem::Definitions;
 
 class SceneController
 {
@@ -26,7 +26,7 @@ class SceneController
 
 private:
     EditorContext& m_editorContext;
-    SceneData* m_pOriginalSceneData;
+    SceneDefinition* m_pOriginalSceneData;
     void LoadScene();
     vector<Entity*> CreateEntities();
     void SetParentAndChildren(Entity*& mainCameraEntity, vector<Entity*> entities);

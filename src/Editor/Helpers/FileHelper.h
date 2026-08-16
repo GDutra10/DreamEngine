@@ -5,6 +5,7 @@
 #include <vector>
 #include <filesystem>
 #include "../Models/ProjectConfiguration.h"
+#include "../Models/Result.h"
 
 #define MAX_PATH 260
 
@@ -30,6 +31,7 @@ class FileHelper
     static path GetExecutablePath();
     static path GetRelativePathByProject(const path& filePath, const ProjectConfiguration& projectConfig);
     static std::vector<unsigned char> LoadFileIntoVector(const std::string& filename);
+    static Result CreateFile(const std::string& directoryPath, const std::string& filename, const std::string& content);
 
    private:
    

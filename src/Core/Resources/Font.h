@@ -1,6 +1,8 @@
 #ifndef CORE_RESOURCES_FONT_H_
 #define CORE_RESOURCES_FONT_H_
 
+#include <vector>
+
 #include "../Resources/Resource.h"
 
 namespace DreamEngine::Core::Resources

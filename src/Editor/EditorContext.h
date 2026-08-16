@@ -5,25 +5,25 @@
 
 #include "../Core/GameSystem/Scene.h"
 #include "../Core/Render/FrameBuffer.h"
+#include "../Core/GameSystem//Definitions/SceneDefinition.h"
 #include "Loggers/EditorLogger.h"
-#include "Models/Datas/SceneData.h"
 #include "Models/EditorConfiguration.h"
 #include "Models/ProjectConfiguration.h"
 
 namespace DreamEngine::Editor
 {
 using namespace DreamEngine::Editor::Models;
-using namespace DreamEngine::Editor::Models::Datas;
 using namespace DreamEngine::Editor::Loggers;
 using namespace DreamEngine::Core::ECS;
 using namespace DreamEngine::Core::Render;
+using namespace DreamEngine::Core::GameSystem::Definitions;
 using namespace std::filesystem;
 
 class EditorContext final
 {
    public:
     EditorContext(ProjectConfiguration& projectConfig, EditorConfiguration& editorConfig, Scene* pEditorScene);
-    [[nodiscard]] SceneData* GetSceneData() const;
+    [[nodiscard]] SceneDefinition* GetSceneData() const;
     [[nodiscard]] ProjectConfiguration& GetProjectConfiguration() const;
     [[nodiscard]] const path& GetSelectedPath() const;
     [[nodiscard]] const std::string& GetSelectedPathByProject() const;
@@ -37,7 +37,7 @@ class EditorContext final
     [[nodiscard]] EditorLogger* GetEditorLogger() const;
     [[nodiscard]] RenderView* GetSceneRenderView() const;
     [[nodiscard]] RenderView* GetGameRenderView() const;
-    void SetSceneData(SceneData* sceneData) { m_sceneData = sceneData; }
+    void SetSceneData(SceneDefinition sceneData) { m_sceneData = std::make_unique<SceneDefinition>(std::move(sceneData)); }
     void SetSelectedPath(const path& path);
     void SetSelectedScenePath(const path& scene) { m_selectedScenePath = scene; }
     void SetSelectedMaterialPath(const path& material) { m_selectedMaterialPath = material; }
@@ -60,7 +60,7 @@ class EditorContext final
     path m_selectedFileTextEditorPath;
 
     // pointers
-    SceneData* m_sceneData = nullptr;
+    std::unique_ptr<SceneDefinition> m_sceneData = nullptr;
     EditorLogger* m_editorLogger = nullptr;
     EntityManager* m_pEntityManager = nullptr;
     Entity* m_pSelectedEntity = nullptr;

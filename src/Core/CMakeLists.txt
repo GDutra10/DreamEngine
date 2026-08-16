@@ -47,6 +47,24 @@ add_library (Core SHARED
 	"GameSystem/Game.cpp"
 	"GameSystem/GlobalLight.h"
 	"GameSystem/Scene.cpp"
+	"GameSystem/Prefab.h"
+	"GameSystem/Definitions/ColorDefinition.h"
+    "GameSystem/Definitions/ComponentsDefinition.h"
+    "GameSystem/Definitions/DirectionalLightDefinition.h"
+    "GameSystem/Definitions/EntityDefinition.h"
+    "GameSystem/Definitions/GlobalLightDefinition.h"
+	"GameSystem/Definitions/PrefabEntityDefinition.h"
+    "GameSystem/Definitions/SceneDefinition.h"
+    "GameSystem/Definitions/TransformDefinition.h"
+    "GameSystem/Definitions/Vector3Definition.h"
+    "GameSystem/Definitions/Components/CameraComponentDefinition.h"
+    "GameSystem/Definitions/Components/ChildrenComponentDefinition.h"
+    "GameSystem/Definitions/Components/ColliderComponentDefinition.h"
+    "GameSystem/Definitions/Components/MaterialComponentDefinition.h"
+    "GameSystem/Definitions/Components/MeshComponentDefinition.h"
+    "GameSystem/Definitions/Components/ParentComponentDefinition.h"
+    "GameSystem/Definitions/Components/ScriptComponentDefinition.h"
+    "GameSystem/Definitions/Components/UiComponentDefinition.h"
 
 	"Helpers/DateHelper.h"
 	"Helpers/DateHelper.cpp"
@@ -128,6 +146,22 @@ add_library (Core SHARED
 	"Scripting/ScriptEventHandler.h"
 	"Scripting/ScriptEventHandler.cpp"
 	
+	"Serializers/EntityDefinitionSerializer.h"
+    "Serializers/EntityDefinitionSerializer.cpp"
+	"Serializers/MaterialSerializer.h"
+    "Serializers/MaterialSerializer.cpp"
+    "Serializers/PrefabEntityDefinitionSerializer.h"
+    "Serializers/PrefabEntityDefinitionSerializer.cpp"
+	"Serializers/SceneDefinitionSerializer.h"
+    "Serializers/SceneDefinitionSerializer.cpp"
+    "Serializers/ShaderSerializer.h"
+    "Serializers/TextureSerializer.h"
+    "Serializers/TextureSerializer.cpp"
+    "Serializers/UiContentSerializer.h"
+    "Serializers/UiContentSerializer.cpp"
+	"Serializers/Vec3Serializer.h"
+    "Serializers/Vec3Serializer.cpp"
+
 	"Sync/EntitySynchronizer.h" 
 	"Sync/EntityData.h" 
 	"Sync/EntitySynchronizer.cpp"
@@ -137,7 +171,7 @@ add_library (Core SHARED
 	"Sync/GameData.h"
 	"Sync/GameSynchronizer.h"
 	"Sync/GameSynchronizer.cpp"
-	"Sync/SceneData.h"	
+	"Sync/SceneData.h"
 
 	"Systems/PhysicsSystem.h"
 	"Systems/PhysicsSystem.cpp"
@@ -189,7 +223,8 @@ target_link_libraries(Core
 	PRIVATE 
 		glfw 
 		glad
-		RmlUi::Core)
+		RmlUi::Core
+		nlohmann_json)
 
 # Include GLFW headers
 #target_include_directories(Core PUBLIC ${CMAKE_SOURCE_DIR}/src/Vendors/glfw/include)

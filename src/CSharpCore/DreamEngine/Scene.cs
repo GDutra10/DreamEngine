@@ -32,6 +32,8 @@ public class Scene
         return entity;
     }
 
+    public bool PrefabInstantiate(string resourceId) => SceneManager.PrefabInstantiate(resourceId);
+
     public void SetShowCursor(bool showCursor)
     {
         if (!SceneManager.SetShowCursor(showCursor))

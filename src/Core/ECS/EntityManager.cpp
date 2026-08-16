@@ -80,7 +80,7 @@ Entity* EntityManager::AddEntity(const std::string& tag, Entity* parent)
 	return entity;
 }
 
-Entity* EntityManager::GetEntityById(size_t id)
+Entity* EntityManager::GetEntityById(size_t id, bool shouldLookEntitiesToAdd)
 {
     auto it = std::find_if(
         m_entities.begin(), 
@@ -91,8 +91,20 @@ Entity* EntityManager::GetEntityById(size_t id)
         });
 
     if (it != m_entities.end())
-    {
         return *it;
+
+    if (shouldLookEntitiesToAdd)
+    {
+        auto it = std::find_if(
+            m_entitiesToAdd.begin(),
+            m_entitiesToAdd.end(), 
+            [id](const Entity* e)
+            { 
+                return e->GetId() == id; 
+            });
+
+        if (it != m_entitiesToAdd.end())
+            return *it;
     }
 
     return nullptr;

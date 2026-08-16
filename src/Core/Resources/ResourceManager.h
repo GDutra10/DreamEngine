@@ -3,13 +3,14 @@
 
 #include <map>
 #include <string>
+#include "CoreExport.h"
+#include "Font.h"
 #include "../Render/Texture.h"
 #include "../Render/Material.h"
 #include "../Render/Mesh.h"
 #include "../Scripting/Script.h"
 #include "../UI/UiContent.h"
-#include "CoreExport.h"
-#include "Font.h"
+#include "../GameSystem/Prefab.h"
 
 namespace DreamEngine::Core::Resources
 {
@@ -17,6 +18,7 @@ namespace DreamEngine::Core::Resources
 using namespace DreamEngine::Core::Render;
 using namespace DreamEngine::Core::Scripting;
 using namespace DreamEngine::Core::UI;
+using namespace DreamEngine::Core::GameSystem;
 
 class CORE_API ResourceManager
 {
@@ -37,10 +39,13 @@ class CORE_API ResourceManager
     void AddUiContent(const std::string& resourceId, UiContent* UiContent);
     void AddFont(Font* font);
     void AddFont(const std::string& resourceId, Font* font);
+    void AddPrefab(Prefab* prefab);
+    void AddPrefab(const std::string& resourceId, Prefab* prefab);
     void Clear();
     void RemoveMaterial(const Material* material);
     void RemoveScript(const Script* script);
-    void RemoveUiContent(const Script* UiContent);
+    void RemoveUiContent(const UiContent* uiContent);
+    void RemovePrefab(const Prefab* prefab);
     Shader* GetShader(const std::string& resourceId);
     Material* GetMaterial(const std::string& resourceId);
     Texture* GetTexture(const std::string& resourceId);
@@ -49,6 +54,7 @@ class CORE_API ResourceManager
     Script* GetScript(const std::string& className, const std::string& assemblyName);
     UiContent* GetUiContent(const std::string& resourceId);
     Font* GetFont(const std::string& resourceId);
+    Prefab* GetPrefab(const std::string& resourceId);
     std::map<std::string, Shader*>& GetShaders();
     std::map<std::string, Material*>& GetMaterials();
     std::map<std::string, Texture*>& GetTextures();
@@ -56,6 +62,7 @@ class CORE_API ResourceManager
     std::map<std::string, Script*>& GetScripts();
     std::map<std::string, UiContent*>& GetUiContents();
     std::map<std::string, Font*>& GetFonts();
+    std::map<std::string, Prefab*>& GetPrefabs();
    protected:
     std::map<std::string, Shader*> m_shaders;
     std::map<std::string, Material*> m_materials;
@@ -64,6 +71,7 @@ class CORE_API ResourceManager
     std::map<std::string, Script*> m_scripts;
     std::map<std::string, UiContent*> m_uiContents;
     std::map<std::string, Font*> m_fonts;
+    std::map<std::string, Prefab*> m_prefabs;
 };
 }  // namespace DreamEngine::Core::Resources
 #endif

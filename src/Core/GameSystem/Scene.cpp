@@ -10,11 +10,16 @@
 #include "Scripting/ScriptEventHandler.h"
 #include "Sync/EntitySynchronizer.h"
 #include "Sync/GameSynchronizer.h"
+#include "PreFab.h"
+#include "Definitions/SceneDefinition.h"
+#include "Loggers/LoggerSingleton.h"
 
 using namespace DreamEngine::Core;
 using namespace DreamEngine::Core::GameSystem;
+using namespace DreamEngine::Core::GameSystem::Definitions;
 using namespace DreamEngine::Core::ECS;
 using namespace DreamEngine::Core::ECS::Components;
+using namespace DreamEngine::Core::Loggers;
 
 Color* Scene::GetBackgroundColor() const
 {
@@ -34,6 +39,41 @@ void Scene::SetShowCursor(const bool showCursor)
 void Scene::SetMainCameraEntity(Entity* entity)
 {
     m_pMainCameraEntity = entity;
+}
+
+int Scene::InstantiatePrefab(const char* resourceId)
+{
+    LoggerSingleton::Instance().LogTrace("Scene::IntantiatePrefab -> Start -> resource id: " + std::string(resourceId));
+    
+    Prefab* prefab = ResourceManager::Instance().GetPrefab(resourceId);
+
+    if (prefab == nullptr)
+    {
+        LoggerSingleton::Instance().LogTrace("Scene::IntantiatePrefab -> Prefab not found");
+        return -1;
+    }
+
+    return InstantiatePrefab(prefab->root, -1);
+}
+
+int Scene::InstantiatePrefab(PrefabEntityDefinition& definition, int parentId)
+{
+    Entity* parent = parentId >= 0 
+        ? m_pEntityManager->GetEntityById(parentId, true)
+        : nullptr;
+    
+    const bool hasParent = parent != nullptr;
+
+    Entity* entity = hasParent
+        ? m_pEntityManager->AddEntity(definition.entity.tag, parent) 
+        : m_pEntityManager->AddEntity(definition.entity.tag);
+
+    entity->ApplyDefinition(definition.entity);
+
+    for (auto& child : definition.children)
+        InstantiatePrefab(child, entity->GetId());
+
+    return entity->GetId();
 }
 
 bool Scene::ChangeScene(const std::string sceneName)

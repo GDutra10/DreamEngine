@@ -54,37 +54,11 @@ add_executable(Editor
     Models/Model.h
     Models/FileIcon.h
     Models/FileDialogConfig.h
-    Models/Datas/ColorData.h
-    Models/Datas/ComponentsData.h
-    Models/Datas/Components/CameraComponentData.h
-    Models/Datas/DirectionalLightData.h
-    Models/Datas/GlobalLightData.h
-    Models/Datas/SceneData.h
-    Models/Datas/TransformData.h
-    Models/Datas/Vector3Data.h
-    Models/Datas/Components/MeshComponentData.h
-    Models/Datas/Components/ScriptComponentData.h
-    Models/Datas/Components/ParentComponentData.h
-    Models/Datas/Components/ChildrenComponentData.h
-    Models/Datas/Components/MaterialComponentData.h
-    Models/Datas/Components/UiComponentData.h
-    Models/Datas/Components/ColliderComponentData.h
-
-    Serializers/MaterialSerializer.h
-    Serializers/MaterialSerializer.cpp
-    Serializers/Vec3Serializer.h
-    Serializers/Vec3Serializer.cpp
-    Serializers/ModelSerializer.h
-    Serializers/ModelSerializer.cpp
-    Serializers/TextureSerializer.h
-    Serializers/TextureSerializer.cpp
+    
     Serializers/ProjectConfigurationSerializer.h
     Serializers/ProjectConfigurationSerializer.cpp
-    Serializers/SceneDataSerializer.h
-    Serializers/SceneDataSerializer.cpp
-    Serializers/ShaderSerializer.h
-    Serializers/UiContentSerializer.h
-    Serializers/UiContentSerializer.cpp
+    Serializers/ModelSerializer.h
+    Serializers/ModelSerializer.cpp
 
     UI/Modals/BaseModal.h
     UI/Modals/BaseModal.cpp

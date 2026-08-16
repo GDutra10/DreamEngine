@@ -39,6 +39,13 @@ internal static class SceneManager
             EntryPoint = "Core_SceneManagerChangeScene")]
         public static extern bool ChangeScene(
             [MarshalAs(UnmanagedType.LPUTF8Str)] string sceneName);
+
+        [DllImport(
+            CoreConstants.DllName,
+            CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "Core_PrefabInstantiate")]
+        public static extern int PrefabInstantiate(
+            [MarshalAs(UnmanagedType.LPUTF8Str)] string resourceId);
     }
 
     internal static Entity CreateEntity(string tag, string name = "")
@@ -49,6 +56,13 @@ internal static class SceneManager
         {
             Id = id
         };
+    }
+
+    internal static bool PrefabInstantiate(string resourceId)
+    {
+        var id = NativeMethods.PrefabInstantiate(resourceId);
+
+        return id >= 0;
     }
 
     internal static bool SetMainCamera(Entity entity) => NativeMethods.SetMainCamera(entity.Id);

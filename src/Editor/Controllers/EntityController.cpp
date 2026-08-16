@@ -1,11 +1,11 @@
 #include "EntityController.h"
 
 #include "Loggers/LoggerSingleton.h"
-#include "../Models/Datas/EntityConfigData.h"
+#include "../../Core/GameSystem/Definitions/EntityDefinition.h"
 #include "../../Core/Loggers/LoggerSingleton.h"
 
 using namespace DreamEngine::Core::Loggers;
-using namespace DreamEngine::Editor::Models::Datas;
+using namespace DreamEngine::Core::GameSystem::Definitions;
 using namespace DreamEngine::Editor::Controllers;
 
 EntityController::EntityController(EditorContext& editorContext) : m_editorContext(editorContext) {}
@@ -16,36 +16,36 @@ void EntityController::AddEntity()
 
     EntityManager* entityManager = m_editorContext.GetEntityManager();
     Entity* entity = entityManager->AddEntity("entity");
-    EntityConfigData entityConfig;
+    EntityDefinition entityDefinition;
 
-    entityConfig.identifier = entity->GetIdentifier();
-    entityConfig.name = entity->GetName();
-    entityConfig.tag = entity->GetTag();
-    entityConfig.isActive = entity->GetIsActive();
+    entityDefinition.identifier = entity->GetIdentifier();
+    entityDefinition.name = entity->GetName();
+    entityDefinition.tag = entity->GetTag();
+    entityDefinition.isActive = entity->GetIsActive();
 
     TransformComponent& transform = entity->GetComponent<TransformComponent>();
     const glm::vec3& position = transform.GetPosition();
     const glm::vec3& scale = transform.GetScale();
     const glm::vec3& rotation = transform.GetRotation();
 
-    entityConfig.transform.position.x = position.x;
-    entityConfig.transform.position.y = position.y;
-    entityConfig.transform.position.z = position.z;
-    entityConfig.transform.scale.x = scale.x;
-    entityConfig.transform.scale.y = scale.y;
-    entityConfig.transform.scale.z = scale.z;
-    entityConfig.transform.rotation.x = rotation.x;
-    entityConfig.transform.rotation.y = rotation.y;
-    entityConfig.transform.rotation.z = rotation.z;
+    entityDefinition.transform.position.x = position.x;
+    entityDefinition.transform.position.y = position.y;
+    entityDefinition.transform.position.z = position.z;
+    entityDefinition.transform.scale.x = scale.x;
+    entityDefinition.transform.scale.y = scale.y;
+    entityDefinition.transform.scale.z = scale.z;
+    entityDefinition.transform.rotation.x = rotation.x;
+    entityDefinition.transform.rotation.y = rotation.y;
+    entityDefinition.transform.rotation.z = rotation.z;
 
-    m_editorContext.GetSceneData()->entities.push_back(entityConfig);
+    m_editorContext.GetSceneData()->entities.push_back(entityDefinition);
 }
 
 void EntityController::DeleteEntity(Entity* entity)
 {
-    std::vector<EntityConfigData> entities = m_editorContext.GetSceneData()->entities;
+    std::vector<EntityDefinition> definitions = m_editorContext.GetSceneData()->entities;
 
-    std::erase_if(entities, [entity](const EntityConfigData& e)
+    std::erase_if(definitions, [entity](const EntityDefinition& e)
     {
         return e.identifier == entity->GetIdentifier();
     });

@@ -7,6 +7,7 @@
 
 namespace DreamEngine::Core::Render
 {
+    using namespace DreamEngine::Core::GameSystem;
 class CORE_API RenderPass
 {
    public:

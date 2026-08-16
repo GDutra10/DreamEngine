@@ -8,7 +8,7 @@ internal unsafe struct EntityData
 {
     public uint id;
     public uint parentId;
-    public bool active;
+    public byte active;
     public float transformPositionX;
     public float transformPositionY;
     public float transformPositionZ;
@@ -29,10 +29,22 @@ internal unsafe struct EntityData
     public float directionalLightColorBlue;
     public float directionalLightColorAlpha;
     public float directionalLightInfluence;
+    public float colliderCenterX;
+    public float colliderCenterY;
+    public float colliderCenterZ;
+    public float colliderSizeX;
+    public float colliderSizeY;
+    public float colliderSizeZ;
+
+    public byte colliderEnabled;
+    public byte colliderIsTrigger;
 
     public byte uiComponentHas;
     public byte cameraComponentHas;
     public byte directionalLightComponentHas;
+    public byte colliderComponentHas;
+    public byte parentHas;
+
     public fixed byte scriptAssemblyName[256];
     public fixed byte scriptClassName[256];
 

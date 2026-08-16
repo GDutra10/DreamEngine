@@ -7,8 +7,10 @@
 #include <iterator>
 #include <string>
 #include "../Models/ProjectConfiguration.h"
-using namespace DreamEngine::Editor::Models;
+#include "../../Core/Loggers/LoggerSingleton.h"
 
+using namespace DreamEngine::Core::Loggers;
+using namespace DreamEngine::Editor::Models;
 using namespace DreamEngine::Editor::Helpers;
 
 vector<string> FileHelper::GetFilesWithExtension(const path& directory, const string& extension)
@@ -75,3 +77,42 @@ path FileHelper::GetExecutablePath()
     return std::filesystem::path(std::string(buffer, (count > 0) ? count : 0)).parent_path();
 }
 #endif
+
+
+Result FileHelper::CreateFile(const std::string& filePath, const std::string& filename, const std::string& content)
+{
+    string pathAndFileName = filePath + "\\" + filename;
+
+    // validations
+    if (filename.empty())
+    {
+        LoggerSingleton::Instance().LogWarning("Filename is empty");
+        return {"File name is empty", false};
+    }
+
+    if (exists(pathAndFileName))
+    {
+        std::string validation = "File already exists in this directory";
+        LoggerSingleton::Instance().LogWarning(validation);
+        return {validation, false};
+    }
+
+    Result result = {"", true};
+    std::ofstream file(pathAndFileName);
+
+    if (file.is_open())
+    {
+        file << content;
+        file.close();
+
+        LoggerSingleton::Instance().LogTrace("FileHelper::CreateFile -> File '" + pathAndFileName + "' saved");
+    }
+    else
+    {
+        LoggerSingleton::Instance().LogError("Failed to open the file");
+        result.errorMessage = "Failed to open the file";
+        result.isOk = false;
+    }
+
+    return result;
+}

@@ -4,11 +4,12 @@
 #include <string>
 #include "Camera.h"
 #include "GlobalLight.h"
+#include "Definitions/PrefabEntityDefinition.h"
 #include "../Color.h"
 #include "../ECS/EntityManager.h"
 #include "../Resources/ResourceManager.h"
-#include "../Sync/SceneData.h"
 #include "../Systems/PhysicsSystem.h"
+#include "../Sync/SceneData.h"
 
 namespace DreamEngine::Core::GameSystem
 {
@@ -16,6 +17,7 @@ namespace DreamEngine::Core::GameSystem
 using namespace DreamEngine::Core::ECS;
 using namespace DreamEngine::Core::Resources;
 using namespace DreamEngine::Core::Systems;
+using namespace DreamEngine::Core::Sync;
 
 class CORE_API Scene
 {
@@ -42,6 +44,10 @@ class CORE_API Scene
     void SetMustRunScriptComponents(bool val);
     void SetShowCursor(bool showCursor);
     void SetMainCameraEntity(Entity* entity);
+    
+    // its ok for now, but must be moved to elsewhere
+    int InstantiatePrefab(const char* resourceId);
+    int InstantiatePrefab(PrefabEntityDefinition& definition, int parentId = -1);
     
     std::string GetName() const { return m_name; }
 
