@@ -4,14 +4,14 @@
 #include <filesystem>
 
 #include "BaseWindow.h"
-#include "../../Models/Datas/SceneData.h"
+#include "../../../Core/GameSystem/Definitions/SceneDefinition.h"
 #include "../../Controllers/SceneController.h"
 #include "../../Controllers/EntityController.h"
 
 namespace DreamEngine::Editor::UI::Windows
 {
     using namespace std::filesystem;
-    using namespace DreamEngine::Editor::Models::Datas;
+    using namespace DreamEngine::Core::GameSystem::Definitions;
     using namespace DreamEngine::Editor::Controllers;
 
 class HierarchyWindow final : public BaseWindow

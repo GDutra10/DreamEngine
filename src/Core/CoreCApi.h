@@ -19,3 +19,6 @@ CORE_API_C bool CORE_CALL Core_SceneManagerSetMainCamera(unsigned int entityId) 
 CORE_API_C bool CORE_CALL Core_SceneManagerSetShowCursor(bool showCursor) noexcept;
 CORE_API_C bool CORE_CALL Core_SceneManagerSetGlobalLight(float r, float g, float b, float intensity) noexcept;
 CORE_API_C bool CORE_CALL Core_SceneManagerChangeScene(const char* sceneName) noexcept;
+
+// resource manager
+CORE_API_C int CORE_CALL Core_PrefabInstantiate(const char* resourceId) noexcept;

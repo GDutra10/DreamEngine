@@ -4,6 +4,7 @@
 #include "BaseWindow.h"
 #include "../Views/MaterialView.h"
 #include "../../Controllers/EntityController.h"
+#include "../../Controllers/ResourceController.h"
 
 namespace DreamEngine::Editor::UI::Windows
 {
@@ -15,13 +16,14 @@ using namespace DreamEngine::Editor::Controllers;
 class PropertyWindow : public BaseWindow
 {
    public:
-    PropertyWindow(const std::string& title, EditorContext& editorContext, EntityController& entityController);
+    PropertyWindow(const std::string& title, EditorContext& editorContext, EntityController& entityController, ResourceController& resourceController);
 
    protected:
     void DrawContent() override;
 
     private:
     EntityController& m_entityController;
+    ResourceController& m_resourceController;
     MaterialView m_materialView;
     static void DrawSceneData();
     // Draw components

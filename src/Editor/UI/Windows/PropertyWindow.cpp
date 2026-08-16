@@ -31,9 +31,11 @@ using namespace DreamEngine::Editor::Helpers;
 using namespace DreamEngine::Editor::UI::Windows;
 using namespace DreamEngine::Editor::UI::Views;
 
-PropertyWindow::PropertyWindow(const std::string& title, EditorContext& editorContext, EntityController& entityController) 
+PropertyWindow::PropertyWindow(const std::string& title, EditorContext& editorContext, EntityController& entityController, ResourceController& resourceController) 
     : BaseWindow(title, editorContext)
-    , m_entityController(entityController) {}
+    , m_entityController(entityController)
+    , m_resourceController(resourceController)
+{}
 
 void PropertyWindow::DrawContent()
 {
@@ -65,6 +67,9 @@ void PropertyWindow::DrawContent()
             m_entityController.DeleteEntity(selectedEntity);
 
         ImGui::PopStyleColor(3);
+
+        if (ImGui::Button("Prefab"))
+            m_resourceController.SavePrefab(selectedEntity);
 
         if (ImGuiHelper::BeginTable("table.selected.entity", 2))
         {

@@ -90,6 +90,17 @@ void ResourceManager::AddFont(const std::string& resourceId, Font* font)
     font->resourceId = resourceId;
 }
 
+void ResourceManager::AddPrefab(Prefab* prefab) 
+{
+    AddPrefab(GUIDHelper::GenerateGUID(), prefab);
+}
+
+void ResourceManager::AddPrefab(const std::string& resourceId, Prefab* prefab) 
+{
+    m_prefabs.try_emplace(resourceId, prefab);
+    prefab->resourceId = resourceId;
+}
+
 void ResourceManager::Clear()
 {
     for (auto& it : m_materials)
@@ -107,11 +118,19 @@ void ResourceManager::Clear()
     for (auto& it : m_textures)
         delete it.second;
 
+    for (auto& it : m_uiContents)
+        delete it.second;
+
+    for (auto& it : m_prefabs)
+        delete it.second;
+
     m_materials.clear();
     m_meshes.clear();
     m_scripts.clear();
     m_shaders.clear();
     m_textures.clear();
+    m_uiContents.clear();
+    m_prefabs.clear();
 }
 
 void ResourceManager::RemoveMaterial(const Material* material)
@@ -126,10 +145,16 @@ void ResourceManager::RemoveScript(const Script* script)
     delete script;
 }
 
-void ResourceManager::RemoveUiContent(const Script* uiContent)
+void ResourceManager::RemoveUiContent(const UiContent* uiContent)
 {
     m_uiContents.erase(uiContent->resourceId);
     delete uiContent;
+}
+
+void ResourceManager::RemovePrefab(const Prefab* prefab)
+{
+    m_prefabs.erase(prefab->resourceId);
+    delete prefab;
 }
 
 Shader* ResourceManager::GetShader(const std::string& resourceId)
@@ -231,6 +256,18 @@ Font* ResourceManager::GetFont(const std::string& resourceId)
     return nullptr;
 }
 
+Prefab* ResourceManager::GetPrefab(const std::string& resourceId) 
+{
+    auto it = m_prefabs.find(resourceId);
+
+    if (it != m_prefabs.end())
+    {
+        return it->second;
+    }
+
+    return nullptr;
+}
+
 std::map<std::string, Shader*>& ResourceManager::GetShaders()
 {
     return m_shaders;
@@ -264,4 +301,9 @@ std::map<std::string, UiContent*>& ResourceManager::GetUiContents()
 std::map<std::string, Font*>& ResourceManager::GetFonts()
 {
     return m_fonts;
+}
+
+std::map<std::string, Prefab*>& ResourceManager::GetPrefabs()
+{
+    return m_prefabs;
 }

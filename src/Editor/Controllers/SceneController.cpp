@@ -6,7 +6,8 @@
 
 #include "../../Core/Application.h"
 #include "../../Core/Loggers/LoggerSingleton.h"
-#include "../Serializers/SceneDataSerializer.h"
+#include "../../Core/Serializers/SceneDefinitionSerializer.h"
+#include "../../Core/GameSystem/Definitions/SceneDefinition.h"
 #include "ECS/Components/ChildrenComponent.h"
 #include "ECS/Components/MaterialComponent.h"
 #include "ECS/Components/ParentComponent.h"
@@ -18,9 +19,10 @@
 
 using namespace DreamEngine::Core;
 using namespace DreamEngine::Core::ECS::Components;
+using namespace DreamEngine::Core::GameSystem::Definitions;
 using namespace DreamEngine::Core::Loggers;
+using namespace DreamEngine::Core::Serializers;
 using namespace DreamEngine::Editor::Controllers;
-using namespace DreamEngine::Editor::Models::Datas;
 
 SceneController::SceneController(EditorContext& editorContext) 
     : m_editorContext(editorContext)
@@ -41,10 +43,10 @@ void SceneController::LoadSceneData(path& path, bool isByChangeScene)
     if (isByChangeScene && m_pOriginalSceneData == nullptr)
         m_pOriginalSceneData = m_editorContext.GetSceneData();
 
-    SceneData* sceneData = &Serializers::SceneDataSerializer::Deserialize(file);
-    sceneData->path = path;
+    SceneDefinition sceneDifinition = Serializers::SceneDefinitionSerializer::Deserialize(file);
+    sceneDifinition.path = path;
 
-    m_editorContext.SetSceneData(sceneData);
+    m_editorContext.SetSceneData(std::move(sceneDifinition));
 
     LoadScene();
     LoggerSingleton::Instance().LogTrace("SceneController::LoadSceneData -> Finish");
@@ -54,9 +56,9 @@ bool SceneController::SaveSceneData()
 {
     LoggerSingleton::Instance().LogTrace("SceneController::SaveSceneData -> Start");
 
-    SceneData* sceneData = m_editorContext.GetSceneData();
+    SceneDefinition* sceneDefinition = m_editorContext.GetSceneData();
 
-    if (sceneData == nullptr)
+    if (sceneDefinition == nullptr)
     {
         LoggerSingleton::Instance().LogWarning("There is no scene opened!");
         return false;
@@ -64,46 +66,46 @@ bool SceneController::SaveSceneData()
 
     Scene* scene = Application::Instance().GetGame()->GetActiveScene();
     Entity* cameraEntity = scene->GetMainCameraEntity();
-    sceneData->mainCameraEntityIdentifier = cameraEntity != nullptr ? cameraEntity->GetIdentifier() : "";
+    sceneDefinition->mainCameraEntityIdentifier = cameraEntity != nullptr ? cameraEntity->GetIdentifier() : "";
 
     Color* backgroundColor = scene->GetBackgroundColor();
-    sceneData->backgroundColor.alpha = backgroundColor->alpha;
-    sceneData->backgroundColor.blue = backgroundColor->blue;
-    sceneData->backgroundColor.green = backgroundColor->green;
-    sceneData->backgroundColor.red = backgroundColor->red;
+    sceneDefinition->backgroundColor.alpha = backgroundColor->alpha;
+    sceneDefinition->backgroundColor.blue = backgroundColor->blue;
+    sceneDefinition->backgroundColor.green = backgroundColor->green;
+    sceneDefinition->backgroundColor.red = backgroundColor->red;
 
     GlobalLight* globalLight = scene->GetGlobalLight();
     glm::vec3 globalLightPosition = globalLight->transform.GetPosition();
     glm::vec3 globalLightRotation = globalLight->transform.GetRotation();
     glm::vec3 globalLightScale = globalLight->transform.GetScale();
 
-    sceneData->globalLight.transform.position.x = globalLightPosition.x;
-    sceneData->globalLight.transform.position.y = globalLightPosition.y;
-    sceneData->globalLight.transform.position.z = globalLightPosition.z;
+    sceneDefinition->globalLight.transform.position.x = globalLightPosition.x;
+    sceneDefinition->globalLight.transform.position.y = globalLightPosition.y;
+    sceneDefinition->globalLight.transform.position.z = globalLightPosition.z;
 
-    sceneData->globalLight.transform.rotation.x = globalLightRotation.x;
-    sceneData->globalLight.transform.rotation.y = globalLightRotation.y;
-    sceneData->globalLight.transform.rotation.z = globalLightRotation.z;
+    sceneDefinition->globalLight.transform.rotation.x = globalLightRotation.x;
+    sceneDefinition->globalLight.transform.rotation.y = globalLightRotation.y;
+    sceneDefinition->globalLight.transform.rotation.z = globalLightRotation.z;
 
-    sceneData->globalLight.transform.scale.x = globalLightScale.x;
-    sceneData->globalLight.transform.scale.y = globalLightScale.y;
-    sceneData->globalLight.transform.scale.z = globalLightScale.z;
+    sceneDefinition->globalLight.transform.scale.x = globalLightScale.x;
+    sceneDefinition->globalLight.transform.scale.y = globalLightScale.y;
+    sceneDefinition->globalLight.transform.scale.z = globalLightScale.z;
 
-    sceneData->globalLight.directionalLight.color.blue = globalLight->directionalLight.color.blue;
-    sceneData->globalLight.directionalLight.color.green = globalLight->directionalLight.color.green;
-    sceneData->globalLight.directionalLight.color.red = globalLight->directionalLight.color.red;
-    sceneData->globalLight.directionalLight.color.alpha = globalLight->directionalLight.color.alpha;
+    sceneDefinition->globalLight.directionalLight.color.blue = globalLight->directionalLight.color.blue;
+    sceneDefinition->globalLight.directionalLight.color.green = globalLight->directionalLight.color.green;
+    sceneDefinition->globalLight.directionalLight.color.red = globalLight->directionalLight.color.red;
+    sceneDefinition->globalLight.directionalLight.color.alpha = globalLight->directionalLight.color.alpha;
 
-    sceneData->globalLight.directionalLight.influence = globalLight->directionalLight.influence;
-    sceneData->globalLight.directionalLight.specular.x = globalLight->directionalLight.specular.x;
-    sceneData->globalLight.directionalLight.specular.y = globalLight->directionalLight.specular.y;
-    sceneData->globalLight.directionalLight.specular.z = globalLight->directionalLight.specular.z;
+    sceneDefinition->globalLight.directionalLight.influence = globalLight->directionalLight.influence;
+    sceneDefinition->globalLight.directionalLight.specular.x = globalLight->directionalLight.specular.x;
+    sceneDefinition->globalLight.directionalLight.specular.y = globalLight->directionalLight.specular.y;
+    sceneDefinition->globalLight.directionalLight.specular.z = globalLight->directionalLight.specular.z;
 
-    sceneData->entities.clear();
+    sceneDefinition->entities.clear();
 
     for (Entity* entity : m_editorContext.GetEntityManager()->GetEntities())
     {
-        EntityConfigData entityConfig;
+        EntityDefinition entityConfig;
         TransformComponent& transform = entity->GetComponent<TransformComponent>();
         glm::vec3 position = transform.GetPosition();
         glm::vec3 scale = transform.GetScale();
@@ -176,15 +178,15 @@ bool SceneController::SaveSceneData()
             entityConfig.components.collider.size.z = colliderComponent.size.z;
         }
 
-        sceneData->entities.push_back(entityConfig);
+        sceneDefinition->entities.push_back(entityConfig);
     }
 
-    if (std::ofstream file(sceneData->path); file.is_open())
+    if (std::ofstream file(sceneDefinition->path); file.is_open())
     {
-        file << Serializers::SceneDataSerializer::Serialize(*sceneData);
+        file << Serializers::SceneDefinitionSerializer::Serialize(*sceneDefinition).dump(4);
         file.close();
 
-        LoggerSingleton::Instance().LogInfo("Scene '" + sceneData->path.string() + "' saved successfully");
+        LoggerSingleton::Instance().LogInfo("Scene '" + sceneDefinition->path.string() + "' saved successfully");
     }
     else
     {
@@ -211,7 +213,7 @@ void SceneController::Stop()
 
     if (m_pOriginalSceneData != nullptr)
     {
-        m_editorContext.SetSceneData(m_pOriginalSceneData);
+        m_editorContext.SetSceneData(*m_pOriginalSceneData);
         m_pOriginalSceneData = nullptr;
     }
 
@@ -223,7 +225,7 @@ void SceneController::LoadScene()
     LoggerSingleton::Instance().LogTrace("SceneController::LoadScene -> Start");
 
     Scene* scene = Application::Instance().GetGame()->GetActiveScene();
-    SceneData* sceneData = m_editorContext.GetSceneData();
+    SceneDefinition* sceneDefinition = m_editorContext.GetSceneData();
 
     if (scene == nullptr)
     {
@@ -238,39 +240,39 @@ void SceneController::LoadScene()
     m_editorContext.GetEntityManager()->Reset();
 
     Color* backgroundColor = scene->GetBackgroundColor();
-    backgroundColor->blue = sceneData->backgroundColor.blue;
-    backgroundColor->red = sceneData->backgroundColor.red;
-    backgroundColor->green = sceneData->backgroundColor.green;
-    backgroundColor->alpha = sceneData->backgroundColor.alpha;
+    backgroundColor->blue = sceneDefinition->backgroundColor.blue;
+    backgroundColor->red = sceneDefinition->backgroundColor.red;
+    backgroundColor->green = sceneDefinition->backgroundColor.green;
+    backgroundColor->alpha = sceneDefinition->backgroundColor.alpha;
 
     GlobalLight* globalLight = scene->GetGlobalLight();
 
     globalLight->transform.SetPosition({
-        sceneData->globalLight.transform.position.x,
-        sceneData->globalLight.transform.position.y,
-        sceneData->globalLight.transform.position.z,
+        sceneDefinition->globalLight.transform.position.x,
+        sceneDefinition->globalLight.transform.position.y,
+        sceneDefinition->globalLight.transform.position.z,
     });
 
     globalLight->transform.SetScale({
-        sceneData->globalLight.transform.scale.x,
-        sceneData->globalLight.transform.scale.y,
-        sceneData->globalLight.transform.scale.z,
+        sceneDefinition->globalLight.transform.scale.x,
+        sceneDefinition->globalLight.transform.scale.y,
+        sceneDefinition->globalLight.transform.scale.z,
     });
 
     globalLight->transform.SetRotation({
-        sceneData->globalLight.transform.rotation.x,
-        sceneData->globalLight.transform.rotation.y,
-        sceneData->globalLight.transform.rotation.z,
+        sceneDefinition->globalLight.transform.rotation.x,
+        sceneDefinition->globalLight.transform.rotation.y,
+        sceneDefinition->globalLight.transform.rotation.z,
     });
 
-    globalLight->directionalLight.color.red = sceneData->globalLight.directionalLight.color.red;
-    globalLight->directionalLight.color.green = sceneData->globalLight.directionalLight.color.green;
-    globalLight->directionalLight.color.blue = sceneData->globalLight.directionalLight.color.blue;
-    globalLight->directionalLight.color.alpha = sceneData->globalLight.directionalLight.color.alpha;
-    globalLight->directionalLight.specular.x = sceneData->globalLight.directionalLight.specular.x;
-    globalLight->directionalLight.specular.y = sceneData->globalLight.directionalLight.specular.y;
-    globalLight->directionalLight.specular.z = sceneData->globalLight.directionalLight.specular.z;
-    globalLight->directionalLight.influence = sceneData->globalLight.directionalLight.influence;
+    globalLight->directionalLight.color.red = sceneDefinition->globalLight.directionalLight.color.red;
+    globalLight->directionalLight.color.green = sceneDefinition->globalLight.directionalLight.color.green;
+    globalLight->directionalLight.color.blue = sceneDefinition->globalLight.directionalLight.color.blue;
+    globalLight->directionalLight.color.alpha = sceneDefinition->globalLight.directionalLight.color.alpha;
+    globalLight->directionalLight.specular.x = sceneDefinition->globalLight.directionalLight.specular.x;
+    globalLight->directionalLight.specular.y = sceneDefinition->globalLight.directionalLight.specular.y;
+    globalLight->directionalLight.specular.z = sceneDefinition->globalLight.directionalLight.specular.z;
+    globalLight->directionalLight.influence = sceneDefinition->globalLight.directionalLight.influence;
 
     Entity* mainCameraEntity = nullptr;
     vector<Entity*> entities = CreateEntities();
@@ -364,9 +366,9 @@ vector<Entity*> SceneController::CreateEntities()
 
 void SceneController::SetParentAndChildren(Entity*& mainCameraEntity, vector<Entity*> entities)
 {
-    SceneData* sceneData = m_editorContext.GetSceneData();
+    SceneDefinition* sceneDefinition = m_editorContext.GetSceneData();
 
-    for (auto& entityConfig : sceneData->entities)
+    for (auto& entityConfig : sceneDefinition->entities)
     {
         const vector<std::string>& childIds = entityConfig.components.children.childIdentifiers;
         const std::string& parentId = entityConfig.components.parent.parentIdentifier;
@@ -378,7 +380,7 @@ void SceneController::SetParentAndChildren(Entity*& mainCameraEntity, vector<Ent
 
         Entity* entity = *itEnt;
 
-        if (entityConfig.identifier == sceneData->mainCameraEntityIdentifier)
+        if (entityConfig.identifier == sceneDefinition->mainCameraEntityIdentifier)
             mainCameraEntity = entity;
 
         // children

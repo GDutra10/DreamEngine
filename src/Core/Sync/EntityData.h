@@ -9,7 +9,8 @@ struct EntityData
 {
     unsigned int id;
     unsigned int parentId;
-    bool active;
+    uint8_t active;
+
     // components
     float transformPositionX;
     float transformPositionY;
@@ -31,10 +32,21 @@ struct EntityData
     float directionalLightColorBlue;
     float directionalLightColorAlpha;
     float directionalLightInfluence;
+    float colliderCenterX;
+    float colliderCenterY;
+    float colliderCenterZ;
+    float colliderSizeX;
+    float colliderSizeY;
+    float colliderSizeZ;
+
+    uint8_t colliderEnabled;
+    uint8_t colliderIsTrigger;
 
     uint8_t uiComponentHas;
     uint8_t cameraComponentHas;
     uint8_t directionalLightComponentHas;
+    uint8_t colliderComponentHas;
+    uint8_t hasParent;
 
     char scriptAssemblyName[256];
     char scriptClassName[256];

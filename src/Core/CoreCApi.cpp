@@ -158,3 +158,17 @@ bool CORE_CALL Core_SceneManagerChangeScene(const char* sceneName) noexcept
 
     return scene->ChangeScene(sceneName);
 }
+
+CORE_API_C int CORE_CALL Core_PrefabInstantiate(const char* resourceId) noexcept
+{
+    if (!resourceId)
+        return -1;
+
+    auto& application = Application::Instance();
+    Scene* scene = application.GetGame()->GetActiveScene();
+
+    if (!scene)
+        return -1;
+
+    return scene->InstantiatePrefab(resourceId);
+}

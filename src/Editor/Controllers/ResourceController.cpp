@@ -6,25 +6,34 @@
 
 #include "Application.h"
 #include "../../Core/EngineDefine.h"
+#include "../../Core/ECS/Components/ChildrenComponent.h"
 #include "../../Core/Loggers/LoggerSingleton.h"
 #include "../../Core/Resources/ResourceManager.h"
-#include "../Serializers/MaterialSerializer.h"
+#include "../../Core/Serializers/MaterialSerializer.h"
+#include "../../Core/Serializers/TextureSerializer.h"
+#include "../../Core/Serializers/UiContentSerializer.h"
+#include "../../Core/Serializers/PrefabEntityDefinitionSerializer.h"
+#include "../../Core/Serializers/SceneDefinitionSerializer.h"
 #include "../Serializers/ModelSerializer.h"
-#include "../Serializers/TextureSerializer.h"
-#include "../Serializers/UiContentSerializer.h"
 #include "../EditorDefine.h"
 #include "../Importers/AssimpModelImporter.h"
-#include "../Serializers/SceneDataSerializer.h"
 #include "../Helpers/FileHelper.h"
 #include <ECS/Components/UiComponent.h>
 #include "../Importers/TextureImporter.h"
+#include "../../Core/GameSystem/Prefab.h"
+#include "../../Core/GameSystem/Definitions/PrefabEntityDefinition.h"
 
 using namespace DreamEngine::Core::Loggers;
+using namespace DreamEngine::Core::GameSystem;
+using namespace DreamEngine::Core::GameSystem::Definitions;
+using namespace DreamEngine::Core::Serializers;
+using namespace DreamEngine::Core::Sync;
 using namespace DreamEngine::Core::ECS::Components;
 using namespace DreamEngine::Editor::Controllers;
 using namespace DreamEngine::Editor::Serializers;
 using namespace DreamEngine::Editor::Helpers;
 using namespace DreamEngine::Editor::Importers;
+using namespace DreamEngine::Editor::Serializers;
 
 ResourceController::ResourceController(EditorContext& editorContext) 
     : m_editorContext(editorContext)
@@ -194,15 +203,15 @@ Result ResourceController::CreateSceneFile(const std::string& filename)
 
         if (file.is_open())
         {
-            Datas::SceneData sceneData;
-            sceneData.globalLight.transform.position = {0.f, 500.f, 0.f};
-            sceneData.globalLight.transform.rotation= {0.f, 0.f, 0.f};
-            sceneData.globalLight.transform.scale = {0.f, 0.f, 0.f};
-            sceneData.globalLight.directionalLight.color = {1.f, 1.f, 1.f};
-            sceneData.globalLight.directionalLight.specular = {1.f, 1.f, 1.f};
-            sceneData.globalLight.directionalLight.influence = 2.0f;
+            SceneDefinition sceneDefinition;
+            sceneDefinition.globalLight.transform.position = {0.f, 500.f, 0.f};
+            sceneDefinition.globalLight.transform.rotation= {0.f, 0.f, 0.f};
+            sceneDefinition.globalLight.transform.scale = {0.f, 0.f, 0.f};
+            sceneDefinition.globalLight.directionalLight.color = {1.f, 1.f, 1.f};
+            sceneDefinition.globalLight.directionalLight.specular = {1.f, 1.f, 1.f};
+            sceneDefinition.globalLight.directionalLight.influence = 2.0f;
 
-            file << SceneDataSerializer::Serialize(sceneData);
+            file << SceneDefinitionSerializer::Serialize(sceneDefinition).dump(4);
             file.close();
 
             LoggerSingleton::Instance().LogTrace("ResourceController::CreateSceneFile -> Scene '" + filename + "' saved");
@@ -406,6 +415,19 @@ UiContent* ResourceController::LoadUiContent(const std::string pathAndFilename)
     return UiContentSerializer::Deserialize(stream);
 }
 
+Prefab* ResourceController::LoadPrefab(const std::string pathAndFilename)
+{
+    LoggerSingleton::Instance().LogTrace("ResourceController::LoadPrefab -> Loading prefab '" + pathAndFilename + "'");
+
+    std::ifstream stream(pathAndFilename);
+
+    Prefab* prefab = new Prefab();
+    prefab->root = PrefabEntityDefinitionSerializer::Deserialize(stream);
+    prefab->resourceId = prefab->root.resourceId;
+
+    return prefab;
+}
+
 void ResourceController::LoadMaterials(const std::vector<std::string>& materialFiles)
 {
     LoggerSingleton::Instance().LogTrace("ResourceController::LoadMaterials -> Start");
@@ -499,6 +521,22 @@ void ResourceController::LoadUiContents(const std::vector<std::string>& uiFiles)
     }
 }
 
+void ResourceController::LoadPrefabs(const std::vector<std::string>& prefabFiles)
+{
+    LoggerSingleton::Instance().LogTrace("ResourceController::LoadPrefabs -> Start");
+
+    for (const std::string& prefabFile : prefabFiles)
+    {
+        Prefab* prefab = LoadPrefab(prefabFile);
+
+        const path p = path(prefabFile);
+        const ProjectConfiguration& projectConfig = m_editorContext.GetProjectConfiguration();
+        prefab->name = p.filename().string();
+
+        TryAddToResourceManager(prefab, false);
+    }
+}
+
 void ResourceController::AddScripts(const std::vector<ScriptInfo>& scriptInfos)
 {
     LoggerSingleton::Instance().LogTrace("ResourceController::AddScripts -> Start");
@@ -556,6 +594,26 @@ void ResourceController::AddScripts(const std::vector<ScriptInfo>& scriptInfos)
         ResourceManager::Instance().RemoveScript(script);
 
     LoggerSingleton::Instance().LogTrace("ResourceController::AddScripts -> Finish");
+}
+
+void ResourceController::SavePrefab(Entity* entity)
+{
+    LoggerSingleton::Instance().LogTrace("ResourceController::SavePrefab -> Start");
+    LoggerSingleton::Instance().LogTrace("ResourceController::SavePrefab -> saving entity as prefab -> " + std::to_string(entity->GetId()));
+
+    Prefab* prefab = new Prefab();
+    prefab->name = entity->GetName();
+    prefab->root = GetPrefabEntityData(entity);
+    ResourceManager::Instance().AddPrefab(prefab);
+    prefab->root.resourceId = prefab->resourceId;
+    std::string content = PrefabEntityDefinitionSerializer::Serialize(prefab->root).dump(4);
+    Result result = FileHelper::CreateFile(m_editorContext.GetSelectedPath().string(), prefab->name + EDITOR_DEFAULT_PREFAB_FILE_EXTENSION, content);
+
+    if (!result.isOk) 
+    {
+        LoggerSingleton::Instance().LogError("ResourceController::SavePrefab -> " + result.errorMessage);
+        ResourceManager::Instance().RemovePrefab(prefab);
+    }
 }
 
 void ResourceController::UnloadAllResources()
@@ -697,4 +755,46 @@ Result ResourceController::TryAddToResourceManager(UiContent* uiContent, const b
     LoggerSingleton::Instance().LogDebug("UIContent '" + uiContent->name + "' (" + uiContent->resourceId + ") added to the resource manager");
 
     return {"", true};
+}
+
+Result ResourceController::TryAddToResourceManager(Prefab* prefab, const bool mustGenerateResourceId)
+{
+    LoggerSingleton::Instance().LogTrace("ResourceController::TryAddToResourceManager -> Start");
+
+    if (prefab == nullptr)
+    {
+        LoggerSingleton::Instance().LogError("ResourceController::TryAddToResourceManager -> Prefab is null");
+        return {"Prefab is null", false};
+    }
+
+    if (!mustGenerateResourceId && ResourceManager::Instance().GetMesh(prefab->resourceId) != nullptr)
+    {
+        LoggerSingleton::Instance().LogWarning("ResourceController::TryAddToResourceManager -> Prefab already exists in the resource manager");
+        return {"Prefab already exists in the resource manager", false};
+    }
+
+    if (mustGenerateResourceId)
+        ResourceManager::Instance().AddPrefab(prefab);
+    else
+        ResourceManager::Instance().AddPrefab(prefab->resourceId, prefab);
+
+    LoggerSingleton::Instance().LogDebug("Prefab '" + prefab->name + "' (" + prefab->resourceId + ") added to the resource manager");
+
+    return {"", true};
+}
+
+PrefabEntityDefinition ResourceController::GetPrefabEntityData(Entity* entity)
+{
+    PrefabEntityDefinition prefabEntityData{};
+    prefabEntityData.entity = entity->GetDefinition();
+
+    ChildrenComponent& childrenComponent = entity->GetComponent<ChildrenComponent>();
+
+    for (Entity* child : childrenComponent.children)
+    {
+        PrefabEntityDefinition childPrefabEntityData = GetPrefabEntityData(child);
+        prefabEntityData.children.push_back(childPrefabEntityData);
+    }
+
+    return prefabEntityData;
 }

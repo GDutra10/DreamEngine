@@ -13,8 +13,9 @@ internal static class EntitySynchronizer
     // without ref, c# pass it a copy of that struct
     public static void SynchronizeFromTo(Entity entity, ref EntityData entityData)
     {
-        entityData.active = entity.Active;
-        entityData.parentId = entity.Parent?.Id ?? 0;
+        entityData.active = ToByte(entity.Active);
+        entityData.parentId = entity.Parent?.Id ?? 1;
+        entityData.parentHas = (byte)(entity.Parent is not null ? 1 : 0);
 
         entityData.transformPositionX = entity.Transform.Position.X;
         entityData.transformPositionY = entity.Transform.Position.Y;
@@ -59,15 +60,33 @@ internal static class EntitySynchronizer
 
             entityData.directionalLightInfluence = directionalLightComponent.Influence;
         }
+
+        // collider component
+        var colliderComponent = entity.GetComponent<ColliderComponent>();
+        entityData.colliderComponentHas = HasComponentInByte(colliderComponent);
+
+        if (colliderComponent is not null)
+        {
+            entityData.colliderEnabled = ToByte(colliderComponent.Enabled);
+            entityData.colliderIsTrigger = ToByte(colliderComponent.IsTrigger);
+
+            entityData.colliderCenterX = colliderComponent.Center.X;
+            entityData.colliderCenterY = colliderComponent.Center.Y;
+            entityData.colliderCenterZ = colliderComponent.Center.Z;
+
+            entityData.colliderSizeX = colliderComponent.Size.X;
+            entityData.colliderSizeY = colliderComponent.Size.Y;
+            entityData.colliderSizeZ = colliderComponent.Size.Z;
+        }
     }
 
     // using the ref keyword is the same case as above
     public static void SynchronizeFromTo(ref EntityData entityData, Entity entity)
     {
         entity.Id = entityData.id;
-        entity.Active = entityData.active;
+        entity.Active = entityData.active == 1;
 
-        if (entityData.parentId != 0)
+        if (entityData.parentHas == 1)
             entity.Parent = Game.Scene.GetEntity(entityData.parentId);
 
         entity.Transform.Position.InternalX = entityData.transformPositionX;
@@ -83,12 +102,15 @@ internal static class EntitySynchronizer
         HandleComponentToEntity<UiComponent>(ref entityData, entity, entityData.uiComponentHas);
         HandleComponentToEntity<CameraComponent>(ref entityData, entity, entityData.cameraComponentHas, HandleCreateCameraComponent);
         HandleComponentToEntity<DirectionalLightComponent>(ref entityData, entity, entityData.directionalLightComponentHas, HandleCreateDirectionalLightComponent);
+        HandleComponentToEntity<ColliderComponent>(ref entityData, entity, entityData.colliderComponentHas, HandleCreateColliderComponent);
     }
 
     private static byte HasComponentInByte(Component? component)
     {
         return (byte)(component is not null ? 1 : 0);
     }
+
+    private static byte ToByte(bool value) => (byte)(value ? 1 : 0);
 
     private static void HandleComponentToEntity<T>(ref EntityData entityData, Entity entity, byte hasComponent, Action<EntityData, T>? action = null) 
         where T : Component
@@ -128,5 +150,19 @@ internal static class EntitySynchronizer
         directionalLightComponent.Specular.Z = entityData.directionalLightSpecularZ;
 
         directionalLightComponent.Influence = entityData.directionalLightInfluence;
+    }
+
+    private static void HandleCreateColliderComponent(EntityData entityData, ColliderComponent colliderComponent)
+    {
+        colliderComponent.Enabled = entityData.colliderEnabled == 1;
+        colliderComponent.IsTrigger = entityData.colliderIsTrigger == 1;
+
+        colliderComponent.Center.X = entityData.colliderCenterX;
+        colliderComponent.Center.Y = entityData.colliderCenterY;
+        colliderComponent.Center.Z = entityData.colliderCenterZ;
+
+        colliderComponent.Size.X = entityData.colliderSizeX;
+        colliderComponent.Size.Y = entityData.colliderSizeY;
+        colliderComponent.Size.Z = entityData.colliderSizeZ;
     }
 }

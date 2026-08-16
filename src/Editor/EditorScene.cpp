@@ -14,13 +14,11 @@
 #include "../Core/Render/Factories/MeshFactory.h"
 #include "../Core/Inputs/Input.h"
 #include "../Core/IO/File.h"
-#include "Serializers/SceneDataSerializer.h"
 #include "ECS/Components/ChildrenComponent.h"
 #include "ECS/Components/MaterialComponent.h"
 
 
 using namespace DreamEngine::Editor;
-using namespace DreamEngine::Editor::Serializers;
 using namespace DreamEngine::Core;
 using namespace DreamEngine::Core::IO;
 using namespace DreamEngine::Core::Resources;
@@ -46,7 +44,7 @@ EditorScene::EditorScene(
       , m_gameWindow(GameWindow("Game", m_editorContext))
       , m_hierarchyWindow(HierarchyWindow("Hierarchy", m_editorContext, m_sceneController, m_entityController))
       , m_loggerWindow(LoggerWindow("Output", m_editorContext))
-      , m_propertyWindow(PropertyWindow("Property", m_editorContext, m_entityController))
+      , m_propertyWindow(PropertyWindow("Property", m_editorContext, m_entityController, m_resourceController))
       , m_projectWindow(ProjectWindow("Project", m_editorContext, m_resourceController))
       , m_sceneWindow(SceneWindow("Scene", m_editorContext, m_cameraEditorController))
       , m_fileExplorerWindow(FileExplorerWindow("File Explorer", m_editorContext, m_resourceController))

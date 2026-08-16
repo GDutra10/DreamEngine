@@ -29,7 +29,7 @@ class ResourceManagerWindow : public BaseWindow
     void DrawTextures();
     void DrawScripts();
     void DrawUiContent();
-    
+    void DrawPrefab();
 };
 
 }  // namespace DreamEngine::Editor::UI::Windows

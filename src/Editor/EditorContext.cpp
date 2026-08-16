@@ -1,21 +1,21 @@
-#include "../../Core/Application.h"
-#include "../../Core/ECS/Components/ChildrenComponent.h"
-#include "../../Core/ECS/Components/UiComponent.h"
-#include "../../Core/Loggers/LoggerSingleton.h"
-#include "../../Core/Resources/ResourceManager.h"
+#include "../Core/Application.h"
+#include "../Core/ECS/Components/ChildrenComponent.h"
+#include "../Core/ECS/Components/UiComponent.h"
+#include "../Core/Loggers/LoggerSingleton.h"
+#include "../Core/Resources/ResourceManager.h"
+#include "../Core/GameSystem/Definitions/SceneDefinition.h"
 #include "EditorDefine.h"
 #include "Helpers/FileHelper.h"
 #include "EditorContext.h"
 #include "Render/RenderViewProvider.h"
-#include "Models/Datas/SceneData.h"
 
 using namespace DreamEngine::Core;
 using namespace DreamEngine::Core::ECS::Components;
+using namespace DreamEngine::Core::GameSystem::Definitions;
 using namespace DreamEngine::Core::Resources;
 using namespace DreamEngine::Core::Loggers;
 using namespace DreamEngine::Editor;
 using namespace DreamEngine::Editor::Helpers;
-using namespace DreamEngine::Editor::Models::Datas;
 
 EditorContext::EditorContext(ProjectConfiguration& projectConfig, EditorConfiguration& editorConfig, Scene* pEditorScene)
     : m_editorLogger(new EditorLogger()), m_projectConfig(projectConfig), m_editorConfig(editorConfig), m_pEntityManager(pEditorScene->GetEntityManager()), m_pEditorScene(pEditorScene)
@@ -23,9 +23,9 @@ EditorContext::EditorContext(ProjectConfiguration& projectConfig, EditorConfigur
     LoggerSingleton::Instance().Attach(m_editorLogger);
 }
 
-DreamEngine::Editor::Models::Datas::SceneData* DreamEngine::Editor::EditorContext::GetSceneData() const
+SceneDefinition* DreamEngine::Editor::EditorContext::GetSceneData() const
 {
-    return m_sceneData;
+    return m_sceneData.get();
 }
 
 ProjectConfiguration& EditorContext::GetProjectConfiguration() const
