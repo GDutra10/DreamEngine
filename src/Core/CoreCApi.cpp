@@ -5,12 +5,17 @@
 #include "Loggers/LoggerSingleton.h"
 #include "Scripting/ScriptEventHandler.h"
 #include "UI/UiManager.h"
+#include "Audio/AudioHandle.h"
+#include "Audio/AudioPlayOptions.h"
+#include "Systems/AudioSystem.h"
 
 // logs
 
 using namespace DreamEngine::Core;
+using namespace DreamEngine::Core::Audio;
 using namespace DreamEngine::Core::Loggers;
 using namespace DreamEngine::Core::UI;
+using namespace DreamEngine::Core::Systems;
 
 void CORE_CALL Core_LogTrace(const char* msg) noexcept
 {
@@ -39,7 +44,7 @@ void CORE_CALL Core_LogError(const char* msg) noexcept
 
 // ui manager
 
-bool CORE_CALL Core_UiManagerSetString(size_t entityId, const char* prop, const char* value) noexcept
+bool CORE_CALL Core_UiManagerSetString(uint32_t entityId, const char* prop, const char* value) noexcept
 {
     Entity* entity = Application::Instance().GetGame()->GetActiveScene()->GetEntityManager()->GetEntityById(entityId);
 
@@ -57,7 +62,7 @@ bool CORE_CALL Core_UiManagerSetString(size_t entityId, const char* prop, const 
     return true;
 }
 
-bool CORE_CALL Core_UiManagerSetInt(size_t entityId, const char* prop, const int value) noexcept
+bool CORE_CALL Core_UiManagerSetInt(uint32_t entityId, const char* prop, const int value) noexcept
 {
     Entity* entity = Application::Instance().GetGame()->GetActiveScene()->GetEntityManager()->GetEntityById(entityId);
 
@@ -74,7 +79,7 @@ bool CORE_CALL Core_UiManagerSetInt(size_t entityId, const char* prop, const int
     return true;
 }
 
-bool CORE_CALL Core_UiManagerSetFloat(size_t entityId, const char* prop, const float value) noexcept
+bool CORE_CALL Core_UiManagerSetFloat(uint32_t entityId, const char* prop, const float value) noexcept
 {
     Entity* entity = Application::Instance().GetGame()->GetActiveScene()->GetEntityManager()->GetEntityById(entityId);
 
@@ -91,7 +96,7 @@ bool CORE_CALL Core_UiManagerSetFloat(size_t entityId, const char* prop, const f
     return true;
 }
 
-bool CORE_CALL Core_UiManagerBindOnClickCallback(size_t entityId, const char* event, int eventId) noexcept
+bool CORE_CALL Core_UiManagerBindOnClickCallback(uint32_t entityId, const char* event, int eventId) noexcept
 {
     Entity* entity = Application::Instance().GetGame()->GetActiveScene()->GetEntityManager()->GetEntityById(entityId);
 
@@ -171,4 +176,39 @@ CORE_API_C int CORE_CALL Core_PrefabInstantiate(const char* resourceId) noexcept
         return -1;
 
     return scene->InstantiatePrefab(resourceId);
+}
+
+CoreAudioHandle CORE_CALL Core_AudioSystemPlay(const char* resourceId, CoreAudioPlayOptions options) noexcept
+{
+    return Core_AudioSystemPlayByEntity(-1, resourceId, options);
+}
+
+CoreAudioHandle CORE_CALL Core_AudioSystemPlayByEntity(uint32_t entityId, const char* resourceId, CoreAudioPlayOptions options) noexcept
+{
+    AudioPlayOptions nativeOptions;
+
+    nativeOptions.volume = options.volume;
+    nativeOptions.pitch = options.pitch;
+    nativeOptions.loop = options.loop != 0;
+    nativeOptions.spatial = options.spatial != 0;
+    nativeOptions.bus = static_cast<AudioBus>(options.bus);
+
+    const AudioHandle handle = AudioSystem::Instance().Play(entityId, resourceId, nativeOptions);
+
+    return { handle.id, handle.generation };
+}
+
+void CORE_CALL Core_AudioSystemStop(CoreAudioHandle handle) noexcept
+{
+    AudioSystem::Instance().Stop({handle.id, handle.generation});
+}
+
+void CORE_CALL Core_AudioSystemResume(CoreAudioHandle handle) noexcept
+{
+    AudioSystem::Instance().Resume({handle.id, handle.generation});
+}
+
+void CORE_CALL Core_AudioSystemPause(CoreAudioHandle handle) noexcept
+{
+    AudioSystem::Instance().Pause({handle.id, handle.generation});
 }

@@ -9,6 +9,7 @@
 #include "../../Core/ECS/Components/ChildrenComponent.h"
 #include "../../Core/Loggers/LoggerSingleton.h"
 #include "../../Core/Resources/ResourceManager.h"
+#include "../../Core/Serializers/AudioClipSerializer.h"
 #include "../../Core/Serializers/MaterialSerializer.h"
 #include "../../Core/Serializers/TextureSerializer.h"
 #include "../../Core/Serializers/UiContentSerializer.h"
@@ -22,6 +23,7 @@
 #include "../Importers/TextureImporter.h"
 #include "../../Core/GameSystem/Prefab.h"
 #include "../../Core/GameSystem/Definitions/PrefabEntityDefinition.h"
+#include "../../Core/IO/File.h"
 
 using namespace DreamEngine::Core::Loggers;
 using namespace DreamEngine::Core::GameSystem;
@@ -308,6 +310,38 @@ Result DreamEngine::Editor::Controllers::ResourceController::CreateUIFile(const 
     return result;
 }
 
+Result ResourceController::CreateAudioClipFromAudioFile(const std::string& filename)
+{
+    LoggerSingleton::Instance().LogTrace("ResourceController::CreateAudioClipFromAudioFile -> Start");
+
+    path path(filename);
+
+    if (!FileHelper::IsExpectedExtension(filename, std::vector<std::string>{EDITOR_SUPPORTED_AUDIO_FILE_EXTENSIONS}))
+    {
+        return {"File not supported", false};
+    }
+
+    AudioClip* audioClip = new AudioClip();
+    audioClip->data = DreamEngine::Core::IO::File::ReadBinary(filename);
+    audioClip->name = path.filename().string();
+    audioClip->filePath = m_editorContext.GetSelectedPath().string() + "\\" + path.filename().string();
+    
+    if (Result res = TryAddToResourceManager(audioClip, true); !res.isOk)
+    {
+        delete audioClip;
+
+        return res;    
+    }
+
+    auto json = AudioClipSerializer::Serialize(*audioClip);
+    auto jsonText = json.dump(4);
+
+    if (Result res = FileHelper::CreateFile(m_editorContext.GetSelectedPath().string() + "\\", path.filename().string() + ".audio", jsonText); !res.isOk)
+        return res;
+
+    return { "", true };
+}
+
 void ResourceController::SaveMaterialFile(const Material* material, const std::string& pathAndFilename)
 {
     LoggerSingleton::Instance().LogTrace("ResourceController::SaveMaterialFile -> Start");
@@ -428,6 +462,21 @@ Prefab* ResourceController::LoadPrefab(const std::string pathAndFilename)
     return prefab;
 }
 
+AudioClip* ResourceController::LoadAudio(const std::string pathAndFilename)
+{
+    LoggerSingleton::Instance().LogTrace("ResourceController::LoadAudio -> Loading audio '" + pathAndFilename + "'");
+    std::ifstream stream(pathAndFilename);
+
+    AudioClip* audio = AudioClipSerializer::Deserialize(stream);
+    std::string filePath = audio->filePath;
+    
+    LoggerSingleton::Instance().LogTrace("ResourceController::LoadAudio -> Loading audio from '" + filePath + "'");
+
+    audio->data = DreamEngine::Core::IO::File::ReadBinary(filePath);
+
+    return audio;
+}
+
 void ResourceController::LoadMaterials(const std::vector<std::string>& materialFiles)
 {
     LoggerSingleton::Instance().LogTrace("ResourceController::LoadMaterials -> Start");
@@ -534,6 +583,23 @@ void ResourceController::LoadPrefabs(const std::vector<std::string>& prefabFiles
         prefab->name = p.filename().string();
 
         TryAddToResourceManager(prefab, false);
+    }
+}
+
+void ResourceController::LoadAudios(const std::vector<std::string>& audioFiles) 
+{
+    LoggerSingleton::Instance().LogTrace("ResourceController::LoadAudios -> Start");
+
+    for (const std::string& audioFile : audioFiles)
+    {
+        std::ifstream stream(audioFile);
+        
+        AudioClip* audioClip = LoadAudio(audioFile);
+
+        const path p = path(audioFile);
+        audioClip->name = p.filename().string();
+
+        TryAddToResourceManager(audioClip, false);
     }
 }
 
@@ -779,6 +845,32 @@ Result ResourceController::TryAddToResourceManager(Prefab* prefab, const bool mu
         ResourceManager::Instance().AddPrefab(prefab->resourceId, prefab);
 
     LoggerSingleton::Instance().LogDebug("Prefab '" + prefab->name + "' (" + prefab->resourceId + ") added to the resource manager");
+
+    return {"", true};
+}
+
+Result ResourceController::TryAddToResourceManager(AudioClip* audioClip, const bool mustGenerateResourceId)
+{
+    LoggerSingleton::Instance().LogTrace("ResourceController::TryAddToResourceManager -> Start");
+
+    if (audioClip == nullptr)
+    {
+        LoggerSingleton::Instance().LogError("ResourceController::TryAddToResourceManager -> audioClip is null");
+        return {"AudioClip is null", false};
+    }
+
+    if (!mustGenerateResourceId && ResourceManager::Instance().GetAudio(audioClip->resourceId) != nullptr)
+    {
+        LoggerSingleton::Instance().LogWarning("ResourceController::TryAddToResourceManager -> AudioClip already exists in the resource manager");
+        return {"AudioClip already exists in the resource manager", false};
+    }
+
+    if (mustGenerateResourceId)
+        ResourceManager::Instance().AddAudio(audioClip);
+    else
+        ResourceManager::Instance().AddAudio(audioClip->resourceId, audioClip);
+
+    LoggerSingleton::Instance().LogDebug("AudioClip '" + audioClip->name + "' (" + audioClip->resourceId + ") added to the resource manager");
 
     return {"", true};
 }

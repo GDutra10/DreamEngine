@@ -1,9 +1,23 @@
 #include "Game.h"
 
 #include "../Loggers/LoggerSingleton.h"
+#include "../Systems/AudioSystem.h"
+#include "../Audio/Backends/MiniaudioBackend.h"
 
 using namespace DreamEngine::Core::GameSystem;
 using namespace DreamEngine::Core::Loggers;
+
+Game::Game(const int width, const int height, const std::string& path, std::map<std::string, Scene*> scenes) : 
+    width(width),
+    height(height),
+    path(path),
+    m_scenes(std::move(scenes))
+{
+    auto* audioBackend = new DreamEngine::Core::Audio::Backends::MiniaudioBackend();
+
+    if (audioBackend->Initialize())
+        AudioSystem::Instance().SetBackend(audioBackend);
+}
 
 bool Game::ChangeActiveScene()
 {

@@ -1,3 +1,4 @@
+using DreamEngine.Audio;
 using DreamEngine.Core;
 using DreamEngine.ECS;
 using DreamEngine.ECS.Components;
@@ -112,5 +113,14 @@ public class Scene
     {
         public Color Light { get; set; }
         public float LightIntensity { get; set; }
+    }
+
+    public static class Audio
+    { 
+        public static AudioHandle Play(string resourceId, AudioPlayOptions audioPlayOptions) => AudioSystem.Play(resourceId, audioPlayOptions);
+        public static AudioHandle Play(Entity entity, string resourceId, AudioPlayOptions audioPlayOptions) => AudioSystem.Play(entity.Id, resourceId, audioPlayOptions);
+        public static void Stop(AudioHandle handle) => AudioSystem.Stop(handle);
+        public static void Pause(AudioHandle handle) => AudioSystem.Pause(handle);
+        public static void Resume(AudioHandle handle) => AudioSystem.Resume(handle);
     }
 }

@@ -226,6 +226,9 @@ void ProjectController::LoadResourcesFromProject(const ProjectConfiguration& pro
 
     std::vector<std::string> prefabFiles = Helpers::FileHelper::GetFilesWithExtension(projectConfiguration.projectPath, EDITOR_DEFAULT_PREFAB_FILE_EXTENSION);
     m_resourceController.LoadPrefabs(prefabFiles);
+    
+    std::vector<std::string> audioFiles = Helpers::FileHelper::GetFilesWithExtension(projectConfiguration.projectPath, EDITOR_DEFAULT_AUDIO_FILE_EXTENSIONS);
+    m_resourceController.LoadAudios(audioFiles);
 }
 
 bool ProjectController::TryAddDreamEngineReferenceInCsproj(const std::string& projectPath, const std::string& projectName)

@@ -3,6 +3,8 @@
 #include <vector>
 #include "Entity.h"
 #include "Components/Component.h"
+#include "Components/AudioListenerComponent.h"
+#include "Components/AudioEmitterComponent.h"
 #include "Components/TransformComponent.h"
 #include "Components/MeshComponent.h"
 #include "Components/DirectionalLightComponent.h"
@@ -30,7 +32,9 @@ typedef std::tuple<std::vector<TransformComponent>,
                    std::vector<NativeScriptComponent>,
                    std::vector<CameraComponent>,
                    std::vector<UiComponent>,
-                   std::vector<ColliderComponent>
+                   std::vector<ColliderComponent>,
+                   std::vector<AudioEmitterComponent>,
+                   std::vector<AudioListenerComponent>
    > EntityComponentVectorTuple;
 
 class CORE_API EntityMemoryPool

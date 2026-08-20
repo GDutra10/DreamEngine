@@ -38,15 +38,25 @@ struct EntityData
     float colliderSizeX;
     float colliderSizeY;
     float colliderSizeZ;
+    float audioEmitterVolume;
+    float audioEmitterPitch;
+    float audioEmitterMinDistance;
+    float audioEmitterMaxDistance;
 
     uint8_t colliderEnabled;
     uint8_t colliderIsTrigger;
+    
+    uint8_t audioListenerEnabled;
+    uint8_t audioEmitterEnabled;
+    uint8_t audioEmitterSpatial;
 
     uint8_t uiComponentHas;
     uint8_t cameraComponentHas;
     uint8_t directionalLightComponentHas;
     uint8_t colliderComponentHas;
     uint8_t hasParent;
+    uint8_t audioListenerComponentHas;
+    uint8_t audioEmitterComponentHas;
 
     char scriptAssemblyName[256];
     char scriptClassName[256];

@@ -12,9 +12,11 @@
 #include "../../Core/ECS/Entity.h"
 #include "../../Core/GameSystem/Prefab.h"
 #include "../../Core/GameSystem/Definitions/PrefabEntityDefinition.h"
+#include "../../Core/Audio/AudioClip.h"
 
 namespace DreamEngine::Editor::Controllers
 {
+using namespace DreamEngine::Core::Audio;
 using namespace DreamEngine::Core::ECS;
 using namespace DreamEngine::Core::Render;
 using namespace DreamEngine::Core::UI;
@@ -31,7 +33,8 @@ class ResourceController
     Result CreateTextureFile(const std::string& filename);
     Result CreateMeshFileFromModelFile(const std::string& filename);
     Result CreateSceneFile(const std::string& filename);
-    Result CreateUIFile(const std::string& filename);    
+    Result CreateUIFile(const std::string& filename);
+    Result CreateAudioClipFromAudioFile(const std::string& filename);
     void SaveMaterialFile(const Material* material, const std::string& pathAndFilename);
     void DeleteMaterialFile(const std::string& pathAndFilename);
     Material* LoadMaterial(const std::string pathAndFilename);
@@ -39,11 +42,13 @@ class ResourceController
     Model& LoadModel(const std::string pathAndFilename);
     UiContent* LoadUiContent(const std::string pathAndFilename);
     Prefab* LoadPrefab(const std::string pathAndFilename);
+    AudioClip* LoadAudio(const std::string pathAndFilename);
     void LoadMaterials(const std::vector<std::string>& materialFiles);
     void LoadTextures(const std::vector<std::string>& textureFiles);
     void LoadModels(const std::vector<std::string>& modelFiles);
     void LoadUiContents(const std::vector<std::string>& uiFiles);
     void LoadPrefabs(const std::vector<std::string>& prefabFiles);
+    void LoadAudios(const std::vector<std::string>& audioFiles);
     void AddScripts(const std::vector<ScriptInfo>& scriptInfos);
     void SavePrefab(Entity* entity);
     void UnloadAllResources();
@@ -57,6 +62,7 @@ class ResourceController
     Result TryAddToResourceManager(Mesh* mesh, const bool mustGenerateResourceId);
     Result TryAddToResourceManager(UiContent* mesh, const bool mustGenerateResourceId);
     Result TryAddToResourceManager(Prefab* prefab, const bool mustGenerateResourceId);
+    Result TryAddToResourceManager(AudioClip* audioClip, const bool mustGenerateResourceId);
     PrefabEntityDefinition GetPrefabEntityData(Entity* entity);
 };
 

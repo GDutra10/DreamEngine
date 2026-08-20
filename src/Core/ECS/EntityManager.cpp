@@ -172,6 +172,8 @@ void EntityManager::Reset()
         entity->GetComponent<NativeScriptComponent>().Reset();
         entity->GetComponent<ScriptComponent>().Reset();
         entity->GetComponent<ColliderComponent>().Reset();
+        entity->GetComponent<AudioEmitterComponent>().Reset();
+        entity->GetComponent<AudioListenerComponent>().Reset();
         UiComponent& uiComponent = entity->GetComponent<UiComponent>();
 
         uiComponent.Reset();

@@ -5,12 +5,16 @@
 
 #include "../Resources/ResourceManager.h"
 
+#include "../Systems/AudioSystem.h"
+
 using namespace DreamEngine::Core::ECS;
 using namespace DreamEngine::Core::GameSystem::Definitions;
 using namespace DreamEngine::Core::Resources;
+using namespace DreamEngine::Core::Systems;
 
 void Entity::Destroy() const
 {
+    AudioSystem::Instance().StopByEntity(m_id);
     EntityMemoryPool::Instance().RemoveEntity(m_id);
 }
 
@@ -131,6 +135,25 @@ const EntityDefinition Entity::GetDefinition()
         definition.components.collider.isTrigger = collider.isTrigger;
     }
 
+    const AudioEmitterComponent& audioEmitter = GetComponent<AudioEmitterComponent>();
+    if (audioEmitter.has)
+    {
+        definition.components.audioEmitter.has = audioEmitter.has;
+        definition.components.audioEmitter.enabled = audioEmitter.enabled;
+        definition.components.audioEmitter.spatial = audioEmitter.spatial;
+        definition.components.audioEmitter.minDistance = audioEmitter.minDistance;
+        definition.components.audioEmitter.maxDistance = audioEmitter.maxDistance;
+        definition.components.audioEmitter.pitch = audioEmitter.pitch;
+        definition.components.audioEmitter.volume = audioEmitter.volume;
+    }
+
+    const AudioListenerComponent& audioListener = GetComponent<AudioListenerComponent>();
+    if (audioListener.has)
+    {
+        definition.components.audioListener.has = audioListener.has;
+        definition.components.audioListener.enabled = audioListener.enabled;
+    }
+
     return definition;
 }
 
@@ -228,6 +251,8 @@ template CORE_API NativeScriptComponent& Entity::GetComponent<NativeScriptCompon
 template CORE_API CameraComponent& Entity::GetComponent<CameraComponent>();
 template CORE_API UiComponent& Entity::GetComponent<UiComponent>();
 template CORE_API ColliderComponent& Entity::GetComponent<ColliderComponent>();
+template CORE_API AudioEmitterComponent& Entity::GetComponent<AudioEmitterComponent>();
+template CORE_API AudioListenerComponent& Entity::GetComponent<AudioListenerComponent>();
 template CORE_API bool Entity::HasComponent<TransformComponent>() const;
 template CORE_API bool Entity::HasComponent<MeshComponent>() const;
 template CORE_API bool Entity::HasComponent<DirectionalLightComponent>() const;
@@ -239,4 +264,6 @@ template CORE_API bool Entity::HasComponent<NativeScriptComponent>() const;
 template CORE_API bool Entity::HasComponent<CameraComponent>() const;
 template CORE_API bool Entity::HasComponent<UiComponent>() const;
 template CORE_API bool Entity::HasComponent<ColliderComponent>() const;
+template CORE_API bool Entity::HasComponent<AudioEmitterComponent>() const;
+template CORE_API bool Entity::HasComponent<AudioListenerComponent>() const;
 

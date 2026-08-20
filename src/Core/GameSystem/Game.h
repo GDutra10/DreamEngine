@@ -15,8 +15,7 @@ class CORE_API Game
     int height;
     std::string path;
     bool hasScriptEngine = true;
-    Game(const int width, const int height, const std::string& path, std::map<std::string, Scene*> scenes)
-        : width(width), height(height), path(path), m_scenes(std::move(scenes)){}
+    Game(const int width, const int height, const std::string& path, std::map<std::string, Scene*> scenes);
     Scene* GetActiveScene() { return m_activeScene; }
     bool ChangeActiveScene();
     bool ChangeActiveScene(const std::string& sceneName);

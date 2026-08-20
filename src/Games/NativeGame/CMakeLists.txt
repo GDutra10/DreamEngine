@@ -12,10 +12,15 @@ add_executable (NativeGame
 
     "Scripts/BoxScript.h"
     "Scripts/BoxScript.cpp"
+    "Scripts/HudScript.h"
+    "Scripts/HudScript.cpp"
+    "Scripts/CameraScript.h"
+    "Scripts/CameraScript.cpp"
 
     "Vendors/stb_image.cpp"
     "Vendors/stb_image.h"
- "Scripts/HudScript.h" "Scripts/HudScript.cpp" "Scripts/CameraScript.h" "Scripts/CameraScript.cpp")
+    
+    )
 
 # add link libraries
 target_link_libraries(NativeGame 

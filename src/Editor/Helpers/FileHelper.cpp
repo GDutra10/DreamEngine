@@ -6,6 +6,7 @@
 #include <vector>
 #include <iterator>
 #include <string>
+#include <algorithm>
 #include "../Models/ProjectConfiguration.h"
 #include "../../Core/Loggers/LoggerSingleton.h"
 
@@ -15,14 +16,19 @@ using namespace DreamEngine::Editor::Helpers;
 
 vector<string> FileHelper::GetFilesWithExtension(const path& directory, const string& extension)
 {
+    std::vector<string> extensions{extension};
+
+    return GetFilesWithExtensions(directory, extensions);
+}
+
+vector<string> FileHelper::GetFilesWithExtensions(const path& directory, const std::vector<string>& extension)
+{
     vector<string> files;
 
     for (const auto& entry : recursive_directory_iterator(directory))
     {
-        if (entry.is_regular_file() && entry.path().extension() == extension)
-        {
+        if (entry.is_regular_file() && IsExpectedExtension(entry.path(), extension))
             files.push_back(entry.path().string());
-        }
     }
 
     return files;
@@ -115,4 +121,12 @@ Result FileHelper::CreateFile(const std::string& filePath, const std::string& fi
     }
 
     return result;
+}
+
+bool FileHelper::IsExpectedExtension(const path& path, const std::vector<std::string>& extensionsExpected)
+{
+    if (std::find(extensionsExpected.begin(), extensionsExpected.end(), path.extension()) != extensionsExpected.end())
+        return true;
+    
+    return false;
 }

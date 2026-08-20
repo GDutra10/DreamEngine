@@ -7,7 +7,8 @@ using namespace DreamEngine::Core::ECS::Components;
 
 TransformComponent::TransformComponent(const glm::vec3& position)
 {
-    transform = glm::mat4(1.0f);
+    transform = glm::mat4(1.0f); 
+    // TODO: Test transform = glm::translate(glm::mat4(1.0f), position);
 }
 
 TransformComponent::TransformComponent(
@@ -16,6 +17,13 @@ TransformComponent::TransformComponent(
     const glm::vec3& rotation)
 {
     transform = glm::mat4(1.0f);
+
+    /*
+    TODO: Test 
+    SetPosition(position);
+    SetRotation(rotation);
+    SetScale(scale);
+    */
 }
 
 glm::vec3 TransformComponent::GetPosition()
@@ -37,6 +45,21 @@ glm::vec3 TransformComponent::GetRotation()
     glm::vec3 eulerAngles;
     glm::extractEulerAngleYXZ(transform, eulerAngles.y, eulerAngles.x, eulerAngles.z);
     return glm::degrees(eulerAngles); // Convert to degrees for easier editing
+}
+
+glm::vec3 TransformComponent::GetForward() const
+{
+    return -glm::normalize(glm::vec3(transform[2]));
+}
+
+glm::vec3 TransformComponent::GetUp() const
+{
+    return glm::normalize(glm::vec3(transform[1]));
+}
+
+glm::vec3 TransformComponent::GetRight() const
+{
+    return glm::normalize(glm::vec3(transform[0]));
 }
 
 void TransformComponent::SetTransform(const glm::mat4& transform)

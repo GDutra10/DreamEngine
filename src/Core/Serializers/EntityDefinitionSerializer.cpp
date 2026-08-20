@@ -98,6 +98,24 @@ json EntityDefinitionSerializer::Serialize(EntityDefinition& entityDefinition)
     if (!entityDefinition.components.parent.parentIdentifier.empty())
         jsonEntity["components"]["parent"]["parentIdentifier"] = entityDefinition.components.parent.parentIdentifier;
 
+    // audio emitter
+    if (entityDefinition.components.audioEmitter.has)
+    {
+        jsonEntity["components"]["audioEmitter"]["enabled"] = entityDefinition.components.audioEmitter.enabled;
+        jsonEntity["components"]["audioEmitter"]["spatial"] = entityDefinition.components.audioEmitter.spatial;
+        
+        jsonEntity["components"]["audioEmitter"]["minDistance"] = entityDefinition.components.audioEmitter.minDistance;
+        jsonEntity["components"]["audioEmitter"]["maxDistance"] = entityDefinition.components.audioEmitter.maxDistance;
+        jsonEntity["components"]["audioEmitter"]["pitch"] = entityDefinition.components.audioEmitter.pitch;
+        jsonEntity["components"]["audioEmitter"]["volume"] = entityDefinition.components.audioEmitter.volume;
+    }
+
+    // audio emitter
+    if (entityDefinition.components.audioListener.has)
+    {
+        jsonEntity["components"]["audioListener"]["enabled"] = entityDefinition.components.audioListener.enabled;
+    }
+
     return jsonEntity;
 }
 
@@ -173,6 +191,23 @@ EntityDefinition EntityDefinitionSerializer::Deserialize(const json& jsonEntity)
             jsonComponent["collider"]["isTrigger"].get_to(entityDefinition.components.collider.isTrigger);
             entityDefinition.components.collider.center = DeserializeVec3(t, "center");
             entityDefinition.components.collider.size = DeserializeVec3(t, "size");
+        }
+
+        if (auto itAudioEmitter = jsonComponent.find("audioEmitter"); itAudioEmitter != jsonComponent.end())
+        {
+            entityDefinition.components.audioEmitter.has = true;
+            jsonComponent["audioEmitter"]["enabled"].get_to(entityDefinition.components.audioEmitter.enabled);
+            jsonComponent["audioEmitter"]["spatial"].get_to(entityDefinition.components.audioEmitter.spatial);
+            jsonComponent["audioEmitter"]["maxDistance"].get_to(entityDefinition.components.audioEmitter.maxDistance);
+            jsonComponent["audioEmitter"]["minDistance"].get_to(entityDefinition.components.audioEmitter.minDistance);
+            jsonComponent["audioEmitter"]["pitch"].get_to(entityDefinition.components.audioEmitter.pitch);
+            jsonComponent["audioEmitter"]["volume"].get_to(entityDefinition.components.audioEmitter.volume);
+        }
+
+        if (auto itAudioListener = jsonComponent.find("audioListener"); itAudioListener != jsonComponent.end())
+        {
+            entityDefinition.components.audioListener.has = true;
+            jsonComponent["audioListener"]["enabled"].get_to(entityDefinition.components.audioListener.enabled);
         }
     }
 

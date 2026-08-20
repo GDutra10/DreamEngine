@@ -101,6 +101,17 @@ void ResourceManager::AddPrefab(const std::string& resourceId, Prefab* prefab)
     prefab->resourceId = resourceId;
 }
 
+void ResourceManager::AddAudio(AudioClip* audio)
+{
+    AddAudio(GUIDHelper::GenerateGUID(), audio);
+}
+
+void ResourceManager::AddAudio(const std::string& resourceId, AudioClip* audio)
+{
+    m_audios.try_emplace(resourceId, audio);
+    audio->resourceId = resourceId;
+}
+
 void ResourceManager::Clear()
 {
     for (auto& it : m_materials)
@@ -155,6 +166,12 @@ void ResourceManager::RemovePrefab(const Prefab* prefab)
 {
     m_prefabs.erase(prefab->resourceId);
     delete prefab;
+}
+
+void ResourceManager::RemoveAudio(const AudioClip* audio)
+{
+    m_audios.erase(audio->resourceId);
+    delete audio;
 }
 
 Shader* ResourceManager::GetShader(const std::string& resourceId)
@@ -268,6 +285,18 @@ Prefab* ResourceManager::GetPrefab(const std::string& resourceId)
     return nullptr;
 }
 
+AudioClip* ResourceManager::GetAudio(const std::string& resourceId)
+{
+    auto it = m_audios.find(resourceId);
+
+    if (it != m_audios.end())
+    {
+        return it->second;
+    }
+
+    return nullptr;
+}
+
 std::map<std::string, Shader*>& ResourceManager::GetShaders()
 {
     return m_shaders;
@@ -306,4 +335,9 @@ std::map<std::string, Font*>& ResourceManager::GetFonts()
 std::map<std::string, Prefab*>& ResourceManager::GetPrefabs()
 {
     return m_prefabs;
+}
+
+std::map<std::string, AudioClip*>& ResourceManager::GetAudios()
+{
+    return m_audios;
 }

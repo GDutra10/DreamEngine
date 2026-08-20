@@ -35,15 +35,25 @@ internal unsafe struct EntityData
     public float colliderSizeX;
     public float colliderSizeY;
     public float colliderSizeZ;
+    public float audioEmitterVolume;
+    public float audioEmitterPitch;
+    public float audioEmitterMinDistance;
+    public float audioEmitterMaxDistance;
 
     public byte colliderEnabled;
     public byte colliderIsTrigger;
+
+    public byte audioListenerEnabled;
+    public byte audioEmitterEnabled;
+    public byte audioEmitterSpatial;
 
     public byte uiComponentHas;
     public byte cameraComponentHas;
     public byte directionalLightComponentHas;
     public byte colliderComponentHas;
     public byte parentHas;
+    public byte audioListenerComponentHas;
+    public byte audioEmitterComponentHas;
 
     public fixed byte scriptAssemblyName[256];
     public fixed byte scriptClassName[256];

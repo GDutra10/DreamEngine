@@ -38,6 +38,12 @@ set(GLAD_SOURCE "${CMAKE_SOURCE_DIR}/src/Vendors/glad/src/glad.c")
 add_library(glad STATIC ${GLAD_SOURCE})
 target_include_directories(glad PUBLIC ${GLAD_INCLUDE_DIR})
 
+# ---- miniaudio ----
+set(MINIAUDIO_DIR "${CMAKE_SOURCE_DIR}/src/Vendors/miniaudio/miniaudio.h")
+set(MINIAUDIO_SOURCE "${CMAKE_SOURCE_DIR}/src/Vendors/miniaudio/miniaudio.c")
+add_library(miniaudio STATIC ${MINIAUDIO_SOURCE})
+target_include_directories(miniaudio PUBLIC ${MINIAUDIO_DIR})
+
 # ---- force GLFW to be built as a shared library ----
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)

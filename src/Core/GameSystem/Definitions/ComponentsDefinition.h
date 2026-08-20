@@ -1,6 +1,8 @@
 #ifndef EDITOR_CORE_GAME_SYSTEM_DEFINITIONS_COMPONENTS_DEFINITION_H_
 #define EDITOR_CORE_GAME_SYSTEM_DEFINITIONS_COMPONENTS_DEFINITION_H_
 
+#include "Components/AudioEmitterComponentDefinition.h"
+#include "Components/AudioListenerComponentDefinition.h"
 #include "Components/CameraComponentDefinition.h"
 #include "Components/ChildrenComponentDefinition.h"
 #include "Components/MaterialComponentDefinition.h"
@@ -24,6 +26,8 @@ struct ComponentsDefinition
     CameraComponentDefinition camera;
     UiComponentDefinition ui;
     ColliderComponentDefinition collider;
+    AudioEmitterComponentDefinition audioEmitter;
+    AudioListenerComponentDefinition audioListener;
 };
 
 }  // namespace DreamEngine::Core::GameSystem::Definitions
