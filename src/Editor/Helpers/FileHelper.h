@@ -27,11 +27,13 @@ class FileHelper
 {
    public:
     static vector<string> GetFilesWithExtension(const path& directory, const string& extension);
+    static vector<string> GetFilesWithExtensions(const path& directory, const std::vector<string>& extension);
     static vector<path> GetAllFilesInCurrentDirectory(const path& directoryPath);
     static path GetExecutablePath();
     static path GetRelativePathByProject(const path& filePath, const ProjectConfiguration& projectConfig);
     static std::vector<unsigned char> LoadFileIntoVector(const std::string& filename);
     static Result CreateFile(const std::string& directoryPath, const std::string& filename, const std::string& content);
+    static bool IsExpectedExtension(const path& path, const std::vector<string>& extensionExpected);
 
    private:
    

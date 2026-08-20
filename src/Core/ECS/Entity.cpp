@@ -135,6 +135,25 @@ const EntityDefinition Entity::GetDefinition()
         definition.components.collider.isTrigger = collider.isTrigger;
     }
 
+    const AudioEmitterComponent& audioEmitter = GetComponent<AudioEmitterComponent>();
+    if (audioEmitter.has)
+    {
+        definition.components.audioEmitter.has = audioEmitter.has;
+        definition.components.audioEmitter.enabled = audioEmitter.enabled;
+        definition.components.audioEmitter.spatial = audioEmitter.spatial;
+        definition.components.audioEmitter.minDistance = audioEmitter.minDistance;
+        definition.components.audioEmitter.maxDistance = audioEmitter.maxDistance;
+        definition.components.audioEmitter.pitch = audioEmitter.pitch;
+        definition.components.audioEmitter.volume = audioEmitter.volume;
+    }
+
+    const AudioListenerComponent& audioListener = GetComponent<AudioListenerComponent>();
+    if (audioListener.has)
+    {
+        definition.components.audioListener.has = audioListener.has;
+        definition.components.audioListener.enabled = audioListener.enabled;
+    }
+
     return definition;
 }
 

@@ -3,6 +3,7 @@ using System.Reflection;
 using DreamEngine.Core;
 using DreamEngine.ECS;
 using DreamEngine.ECS.Components;
+using DreamEngine.Extensions;
 using DreamEngine.Sync.Data;
 
 namespace DreamEngine.Sync;
@@ -13,7 +14,7 @@ internal static class EntitySynchronizer
     // without ref, c# pass it a copy of that struct
     public static void SynchronizeFromTo(Entity entity, ref EntityData entityData)
     {
-        entityData.active = ToByte(entity.Active);
+        entityData.active = entity.Active.ToByte();
         entityData.parentId = entity.Parent?.Id ?? 1;
         entityData.parentHas = (byte)(entity.Parent is not null ? 1 : 0);
 
@@ -67,8 +68,8 @@ internal static class EntitySynchronizer
 
         if (colliderComponent is not null)
         {
-            entityData.colliderEnabled = ToByte(colliderComponent.Enabled);
-            entityData.colliderIsTrigger = ToByte(colliderComponent.IsTrigger);
+            entityData.colliderEnabled = colliderComponent.Enabled.ToByte();
+            entityData.colliderIsTrigger = colliderComponent.IsTrigger.ToByte();
 
             entityData.colliderCenterX = colliderComponent.Center.X;
             entityData.colliderCenterY = colliderComponent.Center.Y;
@@ -77,6 +78,28 @@ internal static class EntitySynchronizer
             entityData.colliderSizeX = colliderComponent.Size.X;
             entityData.colliderSizeY = colliderComponent.Size.Y;
             entityData.colliderSizeZ = colliderComponent.Size.Z;
+        }
+
+        // audio listener component
+        var audioListenerComponent = entity.GetComponent<AudioListenerComponent>();
+        entityData.audioListenerComponentHas = HasComponentInByte(audioListenerComponent);
+
+        if (audioListenerComponent is not null)
+            entityData.audioListenerEnabled = audioListenerComponent.Enabled.ToByte();
+
+        // audio emitter component
+        var audioEmitterComponent = entity.GetComponent<AudioEmitterComponent>();
+        entityData.audioEmitterComponentHas = HasComponentInByte(audioEmitterComponent);
+
+        if (audioEmitterComponent is not null)
+        {
+            entityData.audioEmitterEnabled = audioEmitterComponent.Enabled.ToByte();
+            entityData.audioEmitterSpatial = audioEmitterComponent.Spatial.ToByte();
+
+            entityData.audioEmitterMaxDistance = audioEmitterComponent.MaxDistance;
+            entityData.audioEmitterMinDistance = audioEmitterComponent.MinDistance;
+            entityData.audioEmitterPitch = audioEmitterComponent.Pitch;
+            entityData.audioEmitterVolume = audioEmitterComponent.Volume;
         }
     }
 
@@ -103,14 +126,14 @@ internal static class EntitySynchronizer
         HandleComponentToEntity<CameraComponent>(ref entityData, entity, entityData.cameraComponentHas, HandleCreateCameraComponent);
         HandleComponentToEntity<DirectionalLightComponent>(ref entityData, entity, entityData.directionalLightComponentHas, HandleCreateDirectionalLightComponent);
         HandleComponentToEntity<ColliderComponent>(ref entityData, entity, entityData.colliderComponentHas, HandleCreateColliderComponent);
+        HandleComponentToEntity<AudioListenerComponent>(ref entityData, entity, entityData.audioListenerComponentHas, HandleCreateAudioListenerComponent);
+        HandleComponentToEntity<AudioEmitterComponent>(ref entityData, entity, entityData.audioEmitterComponentHas, HandleCreateAudioEmitterComponent);
     }
 
     private static byte HasComponentInByte(Component? component)
     {
         return (byte)(component is not null ? 1 : 0);
     }
-
-    private static byte ToByte(bool value) => (byte)(value ? 1 : 0);
 
     private static void HandleComponentToEntity<T>(ref EntityData entityData, Entity entity, byte hasComponent, Action<EntityData, T>? action = null) 
         where T : Component
@@ -164,5 +187,21 @@ internal static class EntitySynchronizer
         colliderComponent.Size.X = entityData.colliderSizeX;
         colliderComponent.Size.Y = entityData.colliderSizeY;
         colliderComponent.Size.Z = entityData.colliderSizeZ;
+    }
+
+    private static void HandleCreateAudioListenerComponent(EntityData data, AudioListenerComponent component)
+    {
+        component.Enabled = data.audioListenerEnabled == 1;
+    }
+
+    private static void HandleCreateAudioEmitterComponent(EntityData data, AudioEmitterComponent component)
+    {
+        component.Enabled = data.audioEmitterEnabled == 1;
+        component.Spatial = data.audioEmitterSpatial == 1;
+
+        component.MaxDistance = data.audioEmitterMaxDistance;
+        component.MinDistance = data.audioEmitterMinDistance;
+        component.Pitch = data.audioEmitterPitch;
+        component.Volume = data.audioEmitterVolume;
     }
 }

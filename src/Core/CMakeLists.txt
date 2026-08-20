@@ -71,6 +71,8 @@ add_library (Core SHARED
     "GameSystem/Definitions/SceneDefinition.h"
     "GameSystem/Definitions/TransformDefinition.h"
     "GameSystem/Definitions/Vector3Definition.h"
+    "GameSystem/Definitions/Components/AudioEmitterComponentDefinition.h"
+    "GameSystem/Definitions/Components/AudioListenerComponentDefinition.h"
     "GameSystem/Definitions/Components/CameraComponentDefinition.h"
     "GameSystem/Definitions/Components/ChildrenComponentDefinition.h"
     "GameSystem/Definitions/Components/ColliderComponentDefinition.h"
@@ -160,6 +162,8 @@ add_library (Core SHARED
 	"Scripting/ScriptEventHandler.h"
 	"Scripting/ScriptEventHandler.cpp"
 	
+	"Serializers/AudioClipSerializer.h"
+	"Serializers/AudioClipSerializer.cpp"
 	"Serializers/EntityDefinitionSerializer.h"
     "Serializers/EntityDefinitionSerializer.cpp"
 	"Serializers/MaterialSerializer.h"

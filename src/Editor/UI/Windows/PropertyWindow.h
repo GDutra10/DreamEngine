@@ -37,6 +37,8 @@ class PropertyWindow : public BaseWindow
     void DrawScriptComponent(Entity* selectedEntity);
     void DrawCameraComponent(Entity* selectedEntity);
     void DrawUiComponent(Entity* selectedEntity);
+    void DrawAudioEmitterComponent(Entity* selectedEntity);
+    void DrawAudioListenerComponent(Entity* selectedEntity);
     static void DrawAddComponent(Entity* selectedEntity);
 };
 

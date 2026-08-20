@@ -9,6 +9,8 @@
 #include "../../UI/Views/MaterialView.h"
 #include "../../../Core/Application.h"
 #include "../../../Core/ECS/Entity.h"
+#include "../../../Core/ECS/Components/AudioListenerComponent.h"
+#include "../../../Core/ECS/Components/AudioEmitterComponent.h"
 #include "../../../Core/ECS/Components/DirectionalLightComponent.h"
 #include "../../../Core/ECS/Components/MaterialComponent.h"
 #include "../../../Core/ECS/Components/ScriptComponent.h"
@@ -86,6 +88,8 @@ void PropertyWindow::DrawContent()
         DrawScriptComponent(selectedEntity);
         DrawCameraComponent(selectedEntity);
         DrawUiComponent(selectedEntity);
+        DrawAudioEmitterComponent(selectedEntity);
+        DrawAudioListenerComponent(selectedEntity);
         
         ImGui::Separator();
         DrawAddComponent(selectedEntity);
@@ -542,6 +546,64 @@ void PropertyWindow::DrawUiComponent(Entity* selectedEntity)
     }
 }
 
+void PropertyWindow::DrawAudioEmitterComponent(Entity* selectedEntity) 
+{
+    if (selectedEntity == nullptr)
+        return;
+
+    AudioEmitterComponent& component = selectedEntity->GetComponent<AudioEmitterComponent>();
+
+    if (!component.has)
+        return;
+
+     if (ImGui::CollapsingHeader("Audio Emitter##selected.entity.audioemitter.component", ImGuiTreeNodeFlags_DefaultOpen))
+     {
+        if (ImGuiHelper::BeginTable("selected.entity.audioemitter.component.table", 2))
+        {
+            ImGuiHelper::PrepareRow("Enabled");
+            ImGui::Checkbox("##selected.entity.audioemitter.enabled", &component.enabled);
+
+            ImGuiHelper::PrepareRow("Spatial");
+            ImGui::Checkbox("##selected.entity.audioemitter.spatial", &component.spatial);
+
+            ImGuiHelper::PrepareRow("Min Distance");
+            ImGui::InputFloat("##selected.entity.audioemitter.mindistance", &component.minDistance);
+
+            ImGuiHelper::PrepareRow("Max Distance");
+            ImGui::InputFloat("##selected.entity.audioemitter.maxdistance", &component.maxDistance);
+
+            ImGuiHelper::PrepareRow("Pitch");
+            ImGui::InputFloat("##selected.entity.audioemitter.pitch", &component.pitch);
+
+            ImGuiHelper::PrepareRow("Volume");
+            ImGui::InputFloat("##selected.entity.audioemitter.volume", &component.volume);
+
+            ImGui::EndTable();
+        }
+     }
+}
+
+void PropertyWindow::DrawAudioListenerComponent(Entity* selectedEntity) 
+{
+    if (selectedEntity == nullptr)
+        return;
+
+    AudioListenerComponent& component = selectedEntity->GetComponent<AudioListenerComponent>();
+
+    if (!component.has)
+        return;
+
+    if (ImGui::CollapsingHeader("Audio Listener##selected.entity.audiolistener.component", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        if (ImGuiHelper::BeginTable("selected.entity.audiolistener.component.table", 2))
+        {
+            ImGuiHelper::PrepareRow("Enabled");
+            ImGui::Checkbox("##selected.entity.audiolistener.enabled", &component.enabled);
+            ImGui::EndTable();
+        }
+    }
+}
+
 void PropertyWindow::DrawAddComponent(Entity* selectedEntity)
 {
     if (selectedEntity == nullptr)
@@ -558,6 +620,8 @@ void PropertyWindow::DrawAddComponent(Entity* selectedEntity)
         ScriptComponent& scriptComponent = selectedEntity->GetComponent<ScriptComponent>();
         CameraComponent& cameraComponent = selectedEntity->GetComponent<CameraComponent>();
         UiComponent& uiComponent = selectedEntity->GetComponent<UiComponent>();
+        AudioEmitterComponent& audioEmitterComponent = selectedEntity->GetComponent<AudioEmitterComponent>();
+        AudioListenerComponent& audioListenerComponent = selectedEntity->GetComponent<AudioListenerComponent>();
 
         // mesh
         if (!meshComponent.has)
@@ -698,6 +762,26 @@ void PropertyWindow::DrawAddComponent(Entity* selectedEntity)
             if (ImGui::MenuItem("UI Component##selected.entity.add.ui.component.button"))
             {
                 uiComponent.has = true;
+                ImGui::CloseCurrentPopup();
+            }
+        }
+
+        // ui
+        if (!audioEmitterComponent.has)
+        {
+            if (ImGui::MenuItem("Audio Emitter Component##selected.entity.add.audioemitter.component.button"))
+            {
+                audioEmitterComponent.has = true;
+                ImGui::CloseCurrentPopup();
+            }
+        }
+
+        // ui
+        if (!audioListenerComponent.has)
+        {
+            if (ImGui::MenuItem("Audio Listener Component##selected.entity.add.audiolistener.component.button"))
+            {
+                audioListenerComponent.has = true;
                 ImGui::CloseCurrentPopup();
             }
         }

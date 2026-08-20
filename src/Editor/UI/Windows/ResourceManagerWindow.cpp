@@ -36,6 +36,10 @@ using namespace DreamEngine::Core::Render;
 #define COMBO_RESOURCE_PREFAB "Prefab##resource.manager.window.prefab"
 #endif
 
+#ifndef COMBO_RESOURCE_AUDIO
+#define COMBO_RESOURCE_AUDIO "Audio##resource.manager.window.audio"
+#endif
+
 vector<string> ResourceManagerWindow::m_sResourcesNames = {
     COMBO_RESOURCE_MATERIAL,
     COMBO_RESOURCE_MESH,
@@ -43,7 +47,8 @@ vector<string> ResourceManagerWindow::m_sResourcesNames = {
     COMBO_RESOURCE_TEXTURE,
     COMBO_RESOURCE_SCRIPT, 
     COMBO_RESOURCE_UI,
-    COMBO_RESOURCE_PREFAB
+    COMBO_RESOURCE_PREFAB,
+    COMBO_RESOURCE_AUDIO
 };
 
 ResourceManagerWindow::ResourceManagerWindow(const string& title, EditorContext& editorContext) : BaseWindow(std::move(title), editorContext)
@@ -79,6 +84,9 @@ void ResourceManagerWindow::DrawContent()
         if (ImGui::Selectable(COMBO_RESOURCE_PREFAB, m_resourceSelected == COMBO_RESOURCE_PREFAB))
             m_resourceSelected = COMBO_RESOURCE_PREFAB;
 
+        if (ImGui::Selectable(COMBO_RESOURCE_AUDIO, m_resourceSelected == COMBO_RESOURCE_AUDIO))
+            m_resourceSelected = COMBO_RESOURCE_AUDIO;
+
         ImGui::EndCombo();
     }
 
@@ -89,6 +97,7 @@ void ResourceManagerWindow::DrawContent()
     DrawScripts();
     DrawUiContent();
     DrawPrefab();
+    DrawAudios();
 }
 
 void ResourceManagerWindow::DrawMaterials()
@@ -217,6 +226,25 @@ void ResourceManagerWindow::DrawPrefab()
         for (const pair<const string, Resource*> keyValue : ResourceManager::Instance().GetPrefabs())
         {
             ImGuiHelper::NextRow("resource.manager.prefab." + count, keyValue.second->name.c_str(), keyValue.second->resourceId, false);
+            count++;
+        }
+
+        ImGui::EndTable();
+    }
+}
+
+void ResourceManagerWindow::DrawAudios() 
+{
+    if (m_resourceSelected != COMBO_RESOURCE_AUDIO)
+        return;
+
+    if (ImGuiHelper::BeginTable("resource.manager.audio", 2))
+    {
+        unsigned int count = 0;
+
+        for (const pair<const string, Resource*> keyValue : ResourceManager::Instance().GetAudios())
+        {
+            ImGuiHelper::NextRow("resource.manager.audio." + count, keyValue.second->name.c_str(), keyValue.second->resourceId, false);
             count++;
         }
 

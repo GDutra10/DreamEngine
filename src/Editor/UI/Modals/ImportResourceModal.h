@@ -19,6 +19,7 @@ class ImportResourceModal final : public BaseModal
     FileDialogModal m_fileDialog;
     void DrawContent() override;
     void CreateMeshesFromFile(const std::string& filePath);
+    void CreateAudioFromFile(const std::string& filePath);
 };
 
 }  // namespace DreamEngine::Editor::UI::Modals

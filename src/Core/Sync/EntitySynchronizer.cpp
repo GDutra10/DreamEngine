@@ -5,6 +5,8 @@
 #include "ECS/Components/DirectionalLightComponent.h"
 #include "ECS/Components/CameraComponent.h"
 #include "ECS/Components/ChildrenComponent.h"
+#include "ECS/Components/AudioListenerComponent.h"
+#include "ECS/Components/AudioEmitterComponent.h"
 #include "Application.h"
 #include "glm/gtx/quaternion.hpp"
 
@@ -84,6 +86,27 @@ void EntitySynchronizer::SynchronizeToData(Entity* entity)
         entity->entityData.cameraFov = cameraComponent.fovDegree;
         entity->entityData.cameraNear = cameraComponent.near;
     }
+
+    // audio listener component
+    AudioListenerComponent& audioListenerComponent = entity->GetComponent<AudioListenerComponent>();
+    entity->entityData.audioListenerComponentHas = audioListenerComponent.has;
+
+    if (entity->entityData.audioListenerComponentHas)
+        entity->entityData.audioListenerEnabled = audioListenerComponent.enabled;
+
+    // audio emitter component
+    AudioEmitterComponent& audioEmitterComponent = entity->GetComponent<AudioEmitterComponent>();
+    entity->entityData.audioEmitterComponentHas = audioEmitterComponent.has;
+
+    if (entity->entityData.audioEmitterComponentHas)
+    {
+        entity->entityData.audioEmitterEnabled = audioEmitterComponent.enabled;
+        entity->entityData.audioEmitterMaxDistance = audioEmitterComponent.maxDistance;
+        entity->entityData.audioEmitterMinDistance = audioEmitterComponent.minDistance;
+        entity->entityData.audioEmitterPitch = audioEmitterComponent.pitch;
+        entity->entityData.audioEmitterSpatial = audioEmitterComponent.spatial;
+        entity->entityData.audioEmitterVolume = audioEmitterComponent.volume;
+    }
 }
 
 void EntitySynchronizer::SynchronizeFromData(Entity* entity)
@@ -141,6 +164,21 @@ void EntitySynchronizer::SynchronizeFromData(Entity* entity)
     cameraComponent.far = entity->entityData.cameraFar;
     cameraComponent.fovDegree = entity->entityData.cameraFov;
     cameraComponent.near = entity->entityData.cameraNear;
+
+    // update audio listener component
+    AudioListenerComponent& audioListenerComponent = entity->GetComponent<AudioListenerComponent>();
+    audioListenerComponent.has = entity->entityData.audioListenerComponentHas;
+    audioListenerComponent.enabled = entity->entityData.audioListenerEnabled;
+
+    // update audio emitter component
+    AudioEmitterComponent& audioEmitterComponent = entity->GetComponent<AudioEmitterComponent>();
+    audioEmitterComponent.has = entity->entityData.audioEmitterComponentHas;
+    audioEmitterComponent.enabled = entity->entityData.audioEmitterEnabled;
+    audioEmitterComponent.maxDistance = entity->entityData.audioEmitterMaxDistance;
+    audioEmitterComponent.minDistance = entity->entityData.audioEmitterMinDistance;
+    audioEmitterComponent.pitch = entity->entityData.audioEmitterPitch;
+    audioEmitterComponent.spatial = entity->entityData.audioEmitterSpatial;
+    audioEmitterComponent.volume = entity->entityData.audioEmitterVolume;
 }
 
 void DreamEngine::Core::Sync::EntitySynchronizer::HandleParentComponent(Entity* entity)

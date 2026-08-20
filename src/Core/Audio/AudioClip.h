@@ -13,6 +13,7 @@ class CORE_API AudioClip : public Resource
 {
    public:
     std::vector<uint8_t> data;
+    std::string filePath;
 };
 }  // namespace DreamEngine::Core::Audio
 #endif

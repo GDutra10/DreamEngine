@@ -96,12 +96,30 @@ void ImportResourceModal::DrawContent()
             return result;
         });
 
+    // Import Audio
+    ImGui::Text("Audio");
+    if (ImGui::Button("Import##import.resource.import.audio", buttonSize))
+        m_fileDialog.Open(
+            [this](const std::string& filePath) -> bool
+            {
+                CreateAudioFromFile(filePath);
+                return true;
+            });
+
     ImGui::EndGroup();
 }
 
 void ImportResourceModal::CreateMeshesFromFile(const std::string& filePath)
 {
     Result result = m_resourceController.CreateMeshFileFromModelFile(filePath);
+
+    if (result.isOk)
+        Close();
+}
+
+void ImportResourceModal::CreateAudioFromFile(const std::string& filePath) 
+{
+    Result result = m_resourceController.CreateAudioClipFromAudioFile(filePath);
 
     if (result.isOk)
         Close();

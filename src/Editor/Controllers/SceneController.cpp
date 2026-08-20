@@ -8,6 +8,9 @@
 #include "../../Core/Loggers/LoggerSingleton.h"
 #include "../../Core/Serializers/SceneDefinitionSerializer.h"
 #include "../../Core/GameSystem/Definitions/SceneDefinition.h"
+#include "../../Core/Systems/AudioSystem.h"
+#include "ECS/Components/AudioEmitterComponent.h"
+#include "ECS/Components/AudioListenerComponent.h"
 #include "ECS/Components/ChildrenComponent.h"
 #include "ECS/Components/MaterialComponent.h"
 #include "ECS/Components/ParentComponent.h"
@@ -22,6 +25,7 @@ using namespace DreamEngine::Core::ECS::Components;
 using namespace DreamEngine::Core::GameSystem::Definitions;
 using namespace DreamEngine::Core::Loggers;
 using namespace DreamEngine::Core::Serializers;
+using namespace DreamEngine::Core::Systems;
 using namespace DreamEngine::Editor::Controllers;
 
 SceneController::SceneController(EditorContext& editorContext) 
@@ -178,6 +182,24 @@ bool SceneController::SaveSceneData()
             entityConfig.components.collider.size.z = colliderComponent.size.z;
         }
 
+        if (const AudioEmitterComponent& audioEmitterComponent = entity->GetComponent<AudioEmitterComponent>(); audioEmitterComponent.has)
+        {
+            entityConfig.components.audioEmitter.has = true;
+            entityConfig.components.audioEmitter.enabled = audioEmitterComponent.enabled;
+            entityConfig.components.audioEmitter.spatial = audioEmitterComponent.spatial;
+
+            entityConfig.components.audioEmitter.minDistance = audioEmitterComponent.minDistance;
+            entityConfig.components.audioEmitter.maxDistance = audioEmitterComponent.maxDistance;
+            entityConfig.components.audioEmitter.pitch = audioEmitterComponent.pitch;
+            entityConfig.components.audioEmitter.volume = audioEmitterComponent.volume;
+        }
+
+        if (const AudioListenerComponent& audioListenerComponent = entity->GetComponent<AudioListenerComponent>(); audioListenerComponent.has)
+        {
+            entityConfig.components.audioListener.has = true;
+            entityConfig.components.audioListener.enabled = audioListenerComponent.enabled;
+        }
+
         sceneDefinition->entities.push_back(entityConfig);
     }
 
@@ -209,6 +231,7 @@ void SceneController::Stop()
 {
     LoggerSingleton::Instance().LogTrace("SceneController::Stop -> Start");
 
+    AudioSystem::Instance().StopAll();
     m_editorContext.GetEditorScene()->SetMustRunScriptComponents(false);
 
     if (m_pOriginalSceneData != nullptr)
@@ -356,6 +379,25 @@ vector<Entity*> SceneController::CreateEntities()
             colliderComponent.size.x = entityConfig.components.collider.size.x;
             colliderComponent.size.y = entityConfig.components.collider.size.y;
             colliderComponent.size.z = entityConfig.components.collider.size.z;
+        }
+
+        if (entityConfig.components.audioEmitter.has)
+        {
+            AudioEmitterComponent& emitterComponent = entity->GetComponent<AudioEmitterComponent>();
+            emitterComponent.has = true;
+            emitterComponent.enabled = entityConfig.components.audioEmitter.enabled;
+            emitterComponent.spatial = entityConfig.components.audioEmitter.spatial;
+            emitterComponent.minDistance = entityConfig.components.audioEmitter.minDistance;
+            emitterComponent.maxDistance = entityConfig.components.audioEmitter.maxDistance;
+            emitterComponent.pitch = entityConfig.components.audioEmitter.pitch;
+            emitterComponent.volume = entityConfig.components.audioEmitter.volume;
+        }
+
+        if (entityConfig.components.audioListener.has)
+        {
+            AudioListenerComponent& listenerComponent = entity->GetComponent<AudioListenerComponent>();
+            listenerComponent.has = true;
+            listenerComponent.enabled = entityConfig.components.audioListener.enabled;
         }
 
         entities.push_back(entity);
