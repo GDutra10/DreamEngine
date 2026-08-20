@@ -8,9 +8,13 @@
 #include <ECS/Components/MeshComponent.h>
 #include <ECS/Components/MaterialComponent.h>
 #include <ECS/Components/NativeScriptComponent.h>
-
 #include "ECS/Components/CameraComponent.h"
 #include "ECS/Components/UiComponent.h"
+#include "ECS/Components/AudioListenerComponent.h"
+#include "ECS/Components/AudioEmitterComponent.h"
+#include <Systems/AudioSystem.h>
+
+
 #include "Vendors/stb_image.h"
 #include "Scripts/BoxScript.h"
 #include "Scripts/CameraScript.h"
@@ -20,11 +24,14 @@
 #include <vector>
 #include <filesystem>
 #include <iostream>
+#include <cstdint>
+#include <string>
 
 using namespace DreamEngine::Core;
 using namespace DreamEngine::Core::IO;
 using namespace DreamEngine::Core::Resources;
 using namespace DreamEngine::Core::Loggers;
+using namespace DreamEngine::Core::Systems;
 
 void FirstScene::Update(const float deltaTime) 
 {
@@ -46,6 +53,12 @@ void FirstScene::Initialize()
 
     LoadResources();
     CreateEntities();
+
+    AudioPlayOptions options;
+    options.loop = true;
+    options.spatial = true; // will be treat as global one, because has no entity to know his location
+    options.bus = AudioBus::Master;
+    AudioSystem::Instance().Play("scenario", options);
 }
 
 void FirstScene::Unload() 
@@ -106,6 +119,10 @@ void FirstScene::LoadResources()
     defaultFont->path = filePath;
     ResourceManager::Instance().AddFont("default_font", defaultFont);
     UiManager::AddFont(defaultFont);
+
+    // audios
+    ResourceManager::Instance().AddAudio("explosion", LoadFromFile("Assets/Sounds/explosion.mp3"));
+    ResourceManager::Instance().AddAudio("scenario", LoadFromFile("Assets/Sounds/scenario.mp3"));
 }
 
 void FirstScene::CreateEntities()
@@ -128,6 +145,10 @@ void FirstScene::CreateEntities()
     nativeScriptComponent.has = true;
     nativeScriptComponent.script = new BoxScript();
 
+    AudioEmitterComponent& audioEmitterComponent = entity->GetComponent<AudioEmitterComponent>();
+    audioEmitterComponent.has = true;
+    audioEmitterComponent.spatial = true;
+
     // add camera
     Entity* cameraEntity = this->m_pEntityManager->AddEntity("main_camera");
     CameraComponent& cameraComponent = cameraEntity->GetComponent<CameraComponent>();
@@ -136,6 +157,10 @@ void FirstScene::CreateEntities()
     NativeScriptComponent& cameraScriptComponent = cameraEntity->GetComponent<NativeScriptComponent>();
     cameraScriptComponent.has = true;
     cameraScriptComponent.script = new CameraScript();
+
+    AudioListenerComponent& audioListenerComponent = cameraEntity->GetComponent<AudioListenerComponent>();
+    audioListenerComponent.has = true;
+    audioListenerComponent.enabled = true;
 
     this->SetMainCameraEntity(cameraEntity);
 
@@ -148,4 +173,36 @@ void FirstScene::CreateEntities()
     NativeScriptComponent& uiScriptComponent = uiEntity->GetComponent<NativeScriptComponent>();
     uiScriptComponent.has = true;
     uiScriptComponent.script = new HudScript();
+}
+
+std::vector<uint8_t> FirstScene::ReadBinaryFile(const std::string& path)
+{
+    std::ifstream file(path, std::ios::binary | std::ios::ate);
+
+    if (!file.is_open())
+        return {};
+
+    const std::streamsize size = file.tellg();
+
+    if (size <= 0)
+        return {};
+
+    file.seekg(0, std::ios::beg);
+
+    std::vector<uint8_t> data(static_cast<size_t>(size));
+
+    if (!file.read(reinterpret_cast<char*>(data.data()), size))
+    {
+        return {};
+    }
+
+    return data;
+}
+
+AudioClip* FirstScene::LoadFromFile(const std::string& path)
+{
+    AudioClip* clip = new AudioClip();
+    clip->data = ReadBinaryFile(path);
+
+    return clip;
 }

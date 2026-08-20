@@ -49,6 +49,8 @@ size_t EntityMemoryPool::AddEntity(const std::string& tag)
         std::get<std::vector<CameraComponent>>(m_entityComponentPool).emplace_back();
         std::get<std::vector<UiComponent>>(m_entityComponentPool).emplace_back();
         std::get<std::vector<ColliderComponent>>(m_entityComponentPool).emplace_back();
+        std::get<std::vector<AudioEmitterComponent>>(m_entityComponentPool).emplace_back();
+        std::get<std::vector<AudioListenerComponent>>(m_entityComponentPool).emplace_back();
 
         m_numEntities++;
     }
@@ -69,6 +71,8 @@ size_t EntityMemoryPool::AddEntity(const std::string& tag)
         std::get<std::vector<CameraComponent>>(m_entityComponentPool)[index].has = false;
         std::get<std::vector<UiComponent>>(m_entityComponentPool)[index].has = false;
         std::get<std::vector<ColliderComponent>>(m_entityComponentPool)[index].has = false;
+        std::get<std::vector<AudioEmitterComponent>>(m_entityComponentPool)[index].has = false;
+        std::get<std::vector<AudioListenerComponent>>(m_entityComponentPool)[index].has = false;
     }
 
     return index;
@@ -90,6 +94,8 @@ void EntityMemoryPool::RemoveEntity(const size_t entityId)
     std::get<std::vector<CameraComponent>>(m_entityComponentPool)[entityId].has = false;
     std::get<std::vector<UiComponent>>(m_entityComponentPool)[entityId].has = false;
     std::get<std::vector<ColliderComponent>>(m_entityComponentPool)[entityId].has = false;
+    std::get<std::vector<AudioEmitterComponent>>(m_entityComponentPool)[entityId].has = false;
+    std::get<std::vector<AudioListenerComponent>>(m_entityComponentPool)[entityId].has = false;
     NativeScriptComponent& nativeComponent = std::get<std::vector<NativeScriptComponent>>(m_entityComponentPool)[entityId];
     nativeComponent.has = false;
     
@@ -114,7 +120,9 @@ EntityMemoryPool::EntityMemoryPool(size_t maxEntities) : m_numEntities(maxEntiti
                         std::vector<NativeScriptComponent>(m_numEntities), 
                         std::vector<CameraComponent>(m_numEntities),
                         std::vector<UiComponent>(m_numEntities),
-                        std::vector<ColliderComponent>(m_numEntities)
+                        std::vector<ColliderComponent>(m_numEntities),
+                        std::vector<AudioEmitterComponent>(m_numEntities),
+                        std::vector<AudioListenerComponent>(m_numEntities)
             );
 
         for (size_t index = 0; index < m_numEntities; index++) 
@@ -137,6 +145,8 @@ EntityMemoryPool::EntityMemoryPool(size_t maxEntities) : m_numEntities(maxEntiti
             std::get<std::vector<CameraComponent>>(m_entityComponentPool)[index].has = false;
             std::get<std::vector<UiComponent>>(m_entityComponentPool)[index].has = false;
             std::get<std::vector<ColliderComponent>>(m_entityComponentPool)[index].has = false;
+            std::get<std::vector<AudioEmitterComponent>>(m_entityComponentPool)[index].has = false;
+            std::get<std::vector<AudioListenerComponent>>(m_entityComponentPool)[index].has = false;
         }
 }
 
@@ -179,6 +189,8 @@ template NativeScriptComponent& EntityMemoryPool::GetComponent<NativeScriptCompo
 template CameraComponent& EntityMemoryPool::GetComponent<CameraComponent>(size_t entityId);
 template UiComponent& EntityMemoryPool::GetComponent<UiComponent>(size_t entityId);
 template ColliderComponent& EntityMemoryPool::GetComponent<ColliderComponent>(size_t entityId);
+template AudioEmitterComponent& EntityMemoryPool::GetComponent<AudioEmitterComponent>(size_t entityId);
+template AudioListenerComponent& EntityMemoryPool::GetComponent<AudioListenerComponent>(size_t entityId);
 template bool EntityMemoryPool::HasComponent<TransformComponent>(size_t entityId);
 template bool EntityMemoryPool::HasComponent<MeshComponent>(size_t entityId);
 template bool EntityMemoryPool::HasComponent<DirectionalLightComponent>(size_t entityId);
@@ -190,3 +202,5 @@ template bool EntityMemoryPool::HasComponent<NativeScriptComponent>(size_t entit
 template bool EntityMemoryPool::HasComponent<CameraComponent>(size_t entityId);
 template bool EntityMemoryPool::HasComponent<UiComponent>(size_t entityId);
 template bool EntityMemoryPool::HasComponent<ColliderComponent>(size_t entityId);
+template bool EntityMemoryPool::HasComponent<AudioEmitterComponent>(size_t entityId);
+template bool EntityMemoryPool::HasComponent<AudioListenerComponent>(size_t entityId);

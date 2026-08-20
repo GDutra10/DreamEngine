@@ -21,6 +21,18 @@ add_library (Core SHARED
 	"CoreExport.h"
 	"EngineDefine.h"
 
+	"Audio/AudioBackend.cpp"
+	"Audio/AudioBackend.h"
+	"Audio/AudioBackendHandle.h"
+	"Audio/AudioBus.h"
+	"Audio/AudioClip.h"
+	"Audio/AudioHandle.h"
+	"Audio/AudioPlayOptions.h"
+	"Audio/AudioVoice.h"
+	"Audio/Backends/MiniaudioAudioVoice.h"
+	"Audio/Backends/MiniaudioBackend.h"
+	"Audio/Backends/MiniaudioBackend.cpp"
+
 	"ECS/Entity.h"
 	"ECS/Entity.cpp"
 	"ECS/EntityManager.h"
@@ -28,6 +40,8 @@ add_library (Core SHARED
 	"ECS/EntityMemoryPool.h"
 	"ECS/EntityMemoryPool.cpp"
 	"ECS/Components/Component.h"
+	"ECS/Components/AudioEmitterComponent.h"
+	"ECS/Components/AudioListenerComponent.h"
 	"ECS/Components/ColliderComponent.h"
 	"ECS/Components/TransformComponent.h"
 	"ECS/Components/TransformComponent.cpp" 
@@ -173,6 +187,8 @@ add_library (Core SHARED
 	"Sync/GameSynchronizer.cpp"
 	"Sync/SceneData.h"
 
+	"Systems/AudioSystem.h"
+	"Systems/AudioSystem.cpp"
 	"Systems/PhysicsSystem.h"
 	"Systems/PhysicsSystem.cpp"
 
@@ -224,7 +240,8 @@ target_link_libraries(Core
 		glfw 
 		glad
 		RmlUi::Core
-		nlohmann_json)
+		nlohmann_json
+		miniaudio)
 
 # Include GLFW headers
 #target_include_directories(Core PUBLIC ${CMAKE_SOURCE_DIR}/src/Vendors/glfw/include)

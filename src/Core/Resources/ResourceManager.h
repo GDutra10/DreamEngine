@@ -5,6 +5,7 @@
 #include <string>
 #include "CoreExport.h"
 #include "Font.h"
+#include "../Audio/AudioClip.h"
 #include "../Render/Texture.h"
 #include "../Render/Material.h"
 #include "../Render/Mesh.h"
@@ -15,6 +16,7 @@
 namespace DreamEngine::Core::Resources
 {
 
+using namespace DreamEngine::Core::Audio;
 using namespace DreamEngine::Core::Render;
 using namespace DreamEngine::Core::Scripting;
 using namespace DreamEngine::Core::UI;
@@ -41,11 +43,14 @@ class CORE_API ResourceManager
     void AddFont(const std::string& resourceId, Font* font);
     void AddPrefab(Prefab* prefab);
     void AddPrefab(const std::string& resourceId, Prefab* prefab);
+    void AddAudio(AudioClip* audio);
+    void AddAudio(const std::string & resourceId, AudioClip * audio);
     void Clear();
     void RemoveMaterial(const Material* material);
     void RemoveScript(const Script* script);
     void RemoveUiContent(const UiContent* uiContent);
     void RemovePrefab(const Prefab* prefab);
+    void RemoveAudio(const AudioClip* audio);
     Shader* GetShader(const std::string& resourceId);
     Material* GetMaterial(const std::string& resourceId);
     Texture* GetTexture(const std::string& resourceId);
@@ -55,6 +60,7 @@ class CORE_API ResourceManager
     UiContent* GetUiContent(const std::string& resourceId);
     Font* GetFont(const std::string& resourceId);
     Prefab* GetPrefab(const std::string& resourceId);
+    AudioClip* GetAudio(const std::string& resourceId);
     std::map<std::string, Shader*>& GetShaders();
     std::map<std::string, Material*>& GetMaterials();
     std::map<std::string, Texture*>& GetTextures();
@@ -63,6 +69,7 @@ class CORE_API ResourceManager
     std::map<std::string, UiContent*>& GetUiContents();
     std::map<std::string, Font*>& GetFonts();
     std::map<std::string, Prefab*>& GetPrefabs();
+    std::map<std::string, AudioClip*>& GetAudios();
    protected:
     std::map<std::string, Shader*> m_shaders;
     std::map<std::string, Material*> m_materials;
@@ -72,6 +79,7 @@ class CORE_API ResourceManager
     std::map<std::string, UiContent*> m_uiContents;
     std::map<std::string, Font*> m_fonts;
     std::map<std::string, Prefab*> m_prefabs;
+    std::map<std::string, AudioClip*> m_audios;
 };
 }  // namespace DreamEngine::Core::Resources
 #endif

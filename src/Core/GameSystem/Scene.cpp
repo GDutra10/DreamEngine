@@ -13,6 +13,7 @@
 #include "PreFab.h"
 #include "Definitions/SceneDefinition.h"
 #include "Loggers/LoggerSingleton.h"
+#include "Systems/AudioSystem.h"
 
 using namespace DreamEngine::Core;
 using namespace DreamEngine::Core::GameSystem;
@@ -20,6 +21,7 @@ using namespace DreamEngine::Core::GameSystem::Definitions;
 using namespace DreamEngine::Core::ECS;
 using namespace DreamEngine::Core::ECS::Components;
 using namespace DreamEngine::Core::Loggers;
+using namespace DreamEngine::Core::Systems;
 
 Color* Scene::GetBackgroundColor() const
 {
@@ -150,6 +152,8 @@ void Scene::Update(const float deltaTime)
     m_pPhysicsSystem->Update(*m_pEntityManager, deltaTime);
     ScriptEventHandler::ProcessCollisionEvents(*m_pEntityManager, m_mustRunManagedScripts);
 
+    AudioSystem::Instance().Update(*this);
+
     UiManager::Update();
     m_mustRecreateEntitiesInScriptEngine = false;
 }
@@ -170,9 +174,11 @@ void Scene::Initialize()
 void Scene::Unload()
 {
     UiManager::RemoveContents();
+    AudioSystem::Instance().StopAll();
 
     delete m_pEntityManager;
     delete m_pResourceManager;
+    delete m_pPhysicsSystem;
 }
 
 EntityManager* Scene::GetEntityManager() const

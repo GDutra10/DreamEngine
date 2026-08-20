@@ -10,5 +10,6 @@ class BoxScript : public NativeScript
    protected:
     void Start() override;
    private:
+    bool m_isAlive = true;
     TransformComponent* m_transformComponent = nullptr;
 };

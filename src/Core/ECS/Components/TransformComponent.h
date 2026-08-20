@@ -22,6 +22,9 @@ class CORE_API TransformComponent : public Component
     glm::vec3 GetPosition();
     glm::vec3 GetScale();
     glm::vec3 GetRotation();
+    glm::vec3 GetForward() const;
+    glm::vec3 GetUp() const;
+    glm::vec3 GetRight() const;
     void SetTransform(const glm::mat4& transform);
     void SetPosition(const glm::vec3& position);
     void SetScale(const glm::vec3& scale);
