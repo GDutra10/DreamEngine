@@ -7,7 +7,7 @@ namespace DreamEngine::Core::Sync
 class InputSynchronizer
 {
    public:
-    static InputData* Synchronize();
+    static InputData Synchronize();
 };
 }  // namespace DreamEngine::Core::Sync
 #endif

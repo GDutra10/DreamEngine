@@ -94,7 +94,7 @@ add_library (Core SHARED
 	"Inputs/Input.h" 
 	"Inputs/Input.cpp" 
 	"Inputs/Key.h" 
-	"Inputs/KeyState.h"
+	"Inputs/ButtonState.h"
 	"Inputs/MouseButton.h"
 
 	"Loggers/ConsoleLogger.h" 
@@ -193,6 +193,8 @@ add_library (Core SHARED
 
 	"Systems/AudioSystem.h"
 	"Systems/AudioSystem.cpp"
+	"Systems/InputSystem.h"
+	"Systems/InputSystem.cpp"
 	"Systems/PhysicsSystem.h"
 	"Systems/PhysicsSystem.cpp"
 

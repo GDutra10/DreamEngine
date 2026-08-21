@@ -37,31 +37,31 @@ Camera* CameraEditorController::GetCamera() const
 
 void CameraEditorController::Move(const float deltaTime) const
 {
-    if (!Input::IsPressed(MouseButton::MOUSE_BUTTON_RIGHT))
+    if (!Input::IsMouseClickDown(MouseButton::MOUSE_BUTTON_RIGHT))
         return;
 
-    if (Input::IsPressed(Key::W))
+    if (Input::IsKeyDown(Key::W))
     {
         // forward
         const glm::vec3 normalizedFront = glm::normalize(m_pCamera->front);
         m_pCamera->position += normalizedFront * cameraSpeed * deltaTime;
     }
 
-    if (Input::IsPressed(Key::S))
+    if (Input::IsKeyDown(Key::S))
     {
         // backward
         const glm::vec3 normalizedFront = glm::normalize(m_pCamera->front);
         m_pCamera->position += normalizedFront * -cameraSpeed * deltaTime;
     }
 
-    if (Input::IsPressed(Key::A))
+    if (Input::IsKeyDown(Key::A))
     {
         // move left
         const glm::vec3 left = glm::normalize(glm::cross(m_pCamera->up, m_pCamera->front));
         m_pCamera->position += left * cameraSpeed * deltaTime;
     }
 
-    if (Input::IsPressed(Key::D))
+    if (Input::IsKeyDown(Key::D))
     {
         // move right
         const glm::vec3 left = glm::normalize(glm::cross(m_pCamera->up, m_pCamera->front));
@@ -73,7 +73,7 @@ void CameraEditorController::Rotate()
 {
     Scene* editorScene = m_editorContext.GetEditorScene();
 
-    if (Input::IsPressed(MouseButton::MOUSE_BUTTON_RIGHT))
+    if (Input::IsMouseClickDown(MouseButton::MOUSE_BUTTON_RIGHT))
     {
         if (editorScene->GetShowCursor())
             editorScene->SetShowCursor(false);

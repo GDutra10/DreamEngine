@@ -5,12 +5,14 @@
 #include "../Core/Inputs/Input.h"
 #include "../Core/Resources/ResourceManager.h"
 #include "../Core/Loggers/LoggerSingleton.h"
+#include "../Core/Systems/InputSystem.h"
 
 using namespace DreamEngine::Core;
 using namespace DreamEngine::Core::Inputs;
 using namespace DreamEngine::Core::Loggers;
 using namespace DreamEngine::Core::Resources;
 using namespace DreamEngine::Core::Render::OpenGL;
+using namespace DreamEngine::Core::Systems;
 
 bool Application::m_sFirstMouseCallback = true;
 float Application::m_sMouseLastX = 0.0f;
@@ -232,19 +234,19 @@ void Application::MousePositionCallback(GLFWwindow* window, double xPosIn, doubl
     m_sMouseLastY = yPos;
 
     UiManager::ProcessMouseMove(static_cast<int>(xPos), static_cast<int>(yPos));
-    Input::SetMousePosition({xOffset, yOffset});
+    InputSystem::SetMousePosition({xOffset, yOffset});
 }
 
 void Application::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
     UiManager::ProcessMouseButton(button, action, mods);
-    Input::SetMouseState(GetMouseButtonByGLFW(button), GetMouseKeyEventByGLFW(action));
+    InputSystem::SetMouseButton(GetMouseButtonByGLFW(button), GetIsButtonDown(action));
 }
 
 void Application::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     UiManager::ProcessKey(key, scancode, action, mods);
-    Input::SetKeyState(GetKeyByGLFWKey(key), GetMouseKeyEventByGLFW(action));
+    InputSystem::SetKey(GetKeyByGLFWKey(key), GetIsButtonDown(action));
 }
 
 void Application::FrameBufferSizeCallback(GLFWwindow* window, const int width, const int height)
@@ -273,7 +275,10 @@ MouseButton Application::GetMouseButtonByGLFW(const int mouseButton)
         case GLFW_MOUSE_BUTTON_8:
             return MOUSE_BUTTON_8;
         default:
+        {
             throw std::exception("Mouse not mapped");
+            return UNKNOW;
+        }
     }
 }
 
@@ -406,9 +411,9 @@ Key Application::GetKeyByGLFWKey(const int key)
         case GLFW_KEY_RIGHT_CONTROL:
             return RIGHT_CONTROL;
         case GLFW_KEY_LEFT_SHIFT:
-            return LEFT_CONTROL;
+            return LEFT_SHIFT;
         case GLFW_KEY_RIGHT_SHIFT:
-            return RIGHT_CONTROL;
+            return RIGHT_SHIFT;
         case GLFW_KEY_TAB:
             return TAB;
         case GLFW_KEY_SPACE:
@@ -474,22 +479,22 @@ Key Application::GetKeyByGLFWKey(const int key)
         case GLFW_KEY_WORLD_2:
             return WORLD_2;
         default:
+        {
             LoggerSingleton::Instance().LogWarning("Key '" + std::to_string(key) + "' not mapped!");
             //throw std::exception("Key not mapped");
+            return Key::UNKONOW;
+        }
     }
 }
 
-KeyState Application::GetMouseKeyEventByGLFW(const int action)
+bool Application::GetIsButtonDown(const int action)
 {
     switch (action)
     {
         case GLFW_PRESS:
-        case GLFW_REPEAT:
-            return KeyState::Press;
+            return true;
         case GLFW_RELEASE:
-            return KeyState::Release;
         default:
-            LoggerSingleton::Instance().LogWarning("KeyEvent '" + std::to_string(action) + "' not mapped!");
-            //throw std::exception("KeyEvent not implemented!");
+            return false;
     }
 }

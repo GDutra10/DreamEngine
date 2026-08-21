@@ -33,6 +33,11 @@ public class Scene
         return entity;
     }
 
+    public bool DestroyEntity(Entity entity)
+    {
+        return entity != null && SceneManager.DestroyEntity(entity.Id);
+    }
+
     public bool PrefabInstantiate(string resourceId) => SceneManager.PrefabInstantiate(resourceId);
 
     public void SetShowCursor(bool showCursor)

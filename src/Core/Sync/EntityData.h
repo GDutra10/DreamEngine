@@ -7,8 +7,8 @@ namespace DreamEngine::Core::Sync
 {
 struct EntityData
 {
-    unsigned int id;
-    unsigned int parentId;
+    uint32_t id;
+    uint32_t parentId;
     uint8_t active;
 
     // components

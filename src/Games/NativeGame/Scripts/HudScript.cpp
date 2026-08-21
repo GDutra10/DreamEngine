@@ -31,25 +31,25 @@ void HudScript::Start()
 
 void HudScript::Update()
 {
-    if (Input::IsPressed(Key::F1))
+    if (Input::IsKeyDown(Key::F1))
     {
         m_health++;
         UiManager::Set(m_pUiComponent->instance, "health", m_health);
     }
 
-    if (Input::IsPressed(Key::F2))
+    if (Input::IsKeyDown(Key::F2))
     {
         m_ammo++;
         UiManager::Set(m_pUiComponent->instance, "ammo", m_ammo);
     }
 
-    if (Input::IsPressed(Key::F3))
+    if (Input::IsKeyDown(Key::F3))
     {
         m_name += "!";
         UiManager::Set(m_pUiComponent->instance, "name", m_name);
     }
 
-    if (Input::IsPressed(Key::F4))
+    if (Input::IsKeyDown(Key::F4))
     {
         m_degree += 0.01f;
         UiManager::Set(m_pUiComponent->instance, "degree", m_degree);

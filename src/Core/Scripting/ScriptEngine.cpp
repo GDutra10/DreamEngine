@@ -149,17 +149,17 @@ bool ScriptEngine::IsRunning()
     return m_spHostHandle != nullptr;
 }
 
-void ScriptEngine::UpdateGame(Sync::GameData* gameData, Sync::EntityData* entityDataArray, const int entityCount)
+void ScriptEngine::UpdateGame(Sync::GameData* gameData, Sync::EntityData* entityDataArray, int32_t entityCount)
 {
     m_spUpdateGameDelegate(gameData, entityDataArray, entityCount);
 }
 
-void ScriptEngine::ProcessEvent(const int eventId)
+void ScriptEngine::ProcessEvent(int32_t eventId)
 {
     m_spProcessEventDelegate(eventId);
 }
 
-void ScriptEngine::ProcessCollisionEvent(unsigned int entityId, unsigned int otherEntityId, unsigned int eventType, bool isTrigger) 
+void ScriptEngine::ProcessCollisionEvent(uint32_t entityId, uint32_t otherEntityId, uint32_t eventType, uint8_t isTrigger)
 {
     m_spProcessCollisionEventDelegate(entityId, otherEntityId, eventType, isTrigger);
 }

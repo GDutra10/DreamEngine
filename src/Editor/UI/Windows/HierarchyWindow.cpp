@@ -5,7 +5,6 @@
 #include "../../../Core/Loggers/LoggerSingleton.h"
 #include "../../../Core/Inputs/Input.h"
 #include "../../../Core/Inputs/Key.h"
-#include "../../../Core/Inputs/KeyState.h"
 #include "ECS/Components/ChildrenComponent.h"
 #include "ECS/Components/ParentComponent.h"
 
@@ -95,6 +94,6 @@ void HierarchyWindow::AddEntityTreeNode(Entity* entity)
     }
 
     // delete entity
-    if (isSelectedEntity && Core::Inputs::Input::IsPressed(Core::Inputs::Key::DELETE) && m_isFocused)
+    if (isSelectedEntity && Core::Inputs::Input::IsKeyDown(Core::Inputs::Key::DELETE) && m_isFocused)
         m_entityController.DeleteEntity(entity);
 }

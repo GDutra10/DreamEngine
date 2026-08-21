@@ -2,7 +2,8 @@ namespace DreamEngine.Inputs;
 
 public enum MouseButton
 {
-	MOUSE_BUTTON_LEFT,
+    UNKNOW = -1,
+    MOUSE_BUTTON_LEFT,
     MOUSE_BUTTON_MIDDLE,
     MOUSE_BUTTON_RIGHT,
     MOUSE_BUTTON_4,
