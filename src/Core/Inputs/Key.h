@@ -7,6 +7,8 @@ namespace DreamEngine::Core::Inputs
 {
 enum CORE_API Key
 {
+    UNKONOW = -1,
+
     KP_NUM_0,
     KP_NUM_1,
     KP_NUM_2,
@@ -102,7 +104,9 @@ enum CORE_API Key
     RIGHT_BRACKET,
     PERIOD,
     WORLD_1,
-    WORLD_2
+    WORLD_2,
+    
+    KEY_COUNT,
 };
 }  // namespace DreamEngine::Core
 #endif

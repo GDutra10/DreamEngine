@@ -7,7 +7,7 @@ namespace DreamEngine::Core::Sync
 {
 struct SceneData
 {
-    unsigned int mainCameraEntityId;
+    uint32_t mainCameraEntityId;
     uint8_t showCursor;
     uint8_t mustRecreateEntities;
     float globalLightColorR;

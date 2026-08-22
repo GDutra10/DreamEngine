@@ -14,6 +14,7 @@
 #include "Definitions/SceneDefinition.h"
 #include "Loggers/LoggerSingleton.h"
 #include "Systems/AudioSystem.h"
+#include "Systems/InputSystem.h"
 
 using namespace DreamEngine::Core;
 using namespace DreamEngine::Core::GameSystem;
@@ -128,7 +129,6 @@ void Scene::Update(const float deltaTime)
     {
         ScriptEventHandler::Process();
         GameData* pGameData = GameSynchronizer::Synchronize(this->GetIsFocused());
-
         std::vector<EntityData> entityDataArray;
 
         for (Entity* entity : m_pEntityManager->GetEntities())
@@ -155,6 +155,9 @@ void Scene::Update(const float deltaTime)
     AudioSystem::Instance().Update(*this);
 
     UiManager::Update();
+
+    InputSystem::EndFrame();
+
     m_mustRecreateEntitiesInScriptEngine = false;
 }
 

@@ -1,27 +1,31 @@
 #ifndef CORE_INPUTS_INPUT_H_
 #define CORE_INPUTS_INPUT_H_
 
-#include <unordered_map>
-#include "Key.h"
-#include "KeyState.h"
-#include "MouseButton.h"
 #include "glm/vec2.hpp"
+
+#include "Key.h"
+#include "MouseButton.h"
 
 namespace DreamEngine::Core::Inputs
 {
 class CORE_API Input
 {
    public:
-    static glm::vec2 mousePosition;
-    static std::unordered_map<int, KeyState> keyStates;
-    static std::unordered_map<int, KeyState> mouseButtonStates;
     static glm::vec2 GetMousePosition();
-    static bool IsPressed(Key key);
-    static bool IsPressed(MouseButton mouseButton);
-    static void SetKeyState(const Key key, const KeyState keyState);
-    static void SetMouseState(const MouseButton mouseButton, const KeyState keyState);
-    static void SetMousePosition(glm::vec2 position);
 
+    // first frame the key goes down
+    static bool IsKeyPressed(Key key);
+    // every frame while held
+    static bool IsKeyDown(Key key);
+    // first frame the key goes up
+    static bool IsKeyReleased(Key key);
+
+    // first frame the key goes down
+    static bool IsMouseClickPressed(MouseButton mouseButton);
+    // every frame while held
+    static bool IsMouseClickDown(MouseButton mouseButton);
+    // first frame the key goes down
+    static bool IsMouseClickReleased(MouseButton mouseButton);
    private:
     
 };

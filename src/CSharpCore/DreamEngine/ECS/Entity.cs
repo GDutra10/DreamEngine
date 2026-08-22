@@ -79,6 +79,11 @@ public class Entity
             RemoveComponent(component);
     }
 
+    public void Destroy()
+    {
+        Game.Scene.DestroyEntity(this);
+    }
+
     internal void AddComponent<T>(T component) where T : Component
     {
         _components.Add(component);

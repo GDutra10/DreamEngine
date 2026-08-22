@@ -47,7 +47,7 @@ void TextEditorWindow::DrawContent()
         }
     }
 
-    if (this->IsFocused() && Input::IsPressed(Key::LEFT_CONTROL) && Input::IsPressed(Key::S) && !m_savedFile)
+    if (this->IsFocused() && Input::IsKeyDown(Key::LEFT_CONTROL) && Input::IsKeyDown(Key::S) && !m_savedFile)
     {
         LoggerSingleton::Instance().LogDebug("Save File");
 

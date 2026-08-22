@@ -7,6 +7,8 @@ internal static class InputSynchronizer
 {
     public static void Synchronize(ref InputData inputData)
     {
+        Input.InitializeInput();
+
         Input.SetMousePosition(inputData.mousePositionX, inputData.mousePositionY);
         Input.SetKeyState(Key.KP_NUM_0, inputData.keyKpNum0State);
         Input.SetKeyState(Key.KP_NUM_1, inputData.keyKpNum1State);

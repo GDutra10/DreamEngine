@@ -1,37 +1,50 @@
 #include "Input.h"
 
+#include "../Systems/InputSystem.h"
+
 using namespace DreamEngine::Core::Inputs;
 
-std::unordered_map<int, KeyState> Input::keyStates;
-std::unordered_map<int, KeyState> Input::mouseButtonStates;
-glm::vec2 Input::mousePosition;
+using namespace DreamEngine::Core::Systems;
 
 glm::vec2 Input::GetMousePosition()
 {
-    return mousePosition;
+    return InputSystem::GetMousePosition();
 }
 
-bool Input::IsPressed(const Key key)
+bool Input::IsKeyPressed(Key key)
 {
-    return keyStates[key] == KeyState::Press;
+    const auto& state = InputSystem::GetButtonState(key);
+
+    return state.current && !state.previous;
 }
 
-bool Input::IsPressed(const MouseButton mouseButton)
+bool Input::IsKeyDown(Key key)
 {
-    return mouseButtonStates[mouseButton] == KeyState::Press;
+    return InputSystem::GetButtonState(key).current;
 }
 
-void Input::SetKeyState(const Key key, const KeyState keyState)
+bool Input::IsKeyReleased(Key key)
 {
-    keyStates[key] = keyState;
+    const auto& state = InputSystem::GetButtonState(key);
+
+    return !state.current && state.previous;
 }
 
-void Input::SetMouseState(const MouseButton mouseButton, const KeyState keyState)
+bool Input::IsMouseClickPressed(MouseButton mouseButton)
 {
-    mouseButtonStates[mouseButton] = keyState;
+    const auto& state = InputSystem::GetMouseButtonState(mouseButton);
+
+    return state.current && !state.previous;
 }
 
-void Input::SetMousePosition(const glm::vec2 position)
+bool Input::IsMouseClickDown(MouseButton mouseButton)
 {
-    mousePosition = position;
+    return InputSystem::GetMouseButtonState(mouseButton).current;
+}
+
+bool Input::IsMouseClickReleased(MouseButton mouseButton)
+{
+    const auto& state = InputSystem::GetMouseButtonState(mouseButton);
+
+    return !state.current && state.previous;
 }

@@ -6,7 +6,6 @@
 //#include <GLFW/glfw3.h>
 #include "ApplicationOptions.h"
 #include "Inputs/Key.h"
-#include "Inputs/KeyState.h"
 #include "Inputs/MouseButton.h"
 #include "Render/RenderPipeline.h"
 #include "Render/RenderType.h"
@@ -64,7 +63,7 @@ class CORE_API Application
     static void FrameBufferSizeCallback(GLFWwindow* window, int width, int height);
     static MouseButton GetMouseButtonByGLFW(int mouseButton);
     static Key GetKeyByGLFWKey(int key);
-    static KeyState GetMouseKeyEventByGLFW(int action);
+    static bool GetIsButtonDown(int action);
 };
 }  // namespace DreamEngine::Core
 #endif

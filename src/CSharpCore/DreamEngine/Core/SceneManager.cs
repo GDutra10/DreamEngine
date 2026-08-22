@@ -18,6 +18,13 @@ internal static class SceneManager
         [DllImport(
             CoreConstants.DllName,
             CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "Core_SceneManagerDestroyEntity")]
+        public static extern bool DestroyEntity(
+            [MarshalAs(UnmanagedType.LPUTF8Str)] uint entityId);
+
+        [DllImport(
+            CoreConstants.DllName,
+            CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "Core_SceneManagerSetMainCamera")]
         public static extern bool SetMainCamera(uint entityId);
 
@@ -57,6 +64,8 @@ internal static class SceneManager
             Id = id
         };
     }
+
+    internal static bool DestroyEntity(uint entityId) => NativeMethods.DestroyEntity(entityId);
 
     internal static bool PrefabInstantiate(string resourceId)
     {

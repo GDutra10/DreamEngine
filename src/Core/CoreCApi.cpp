@@ -129,6 +129,22 @@ unsigned int CORE_CALL Core_SceneManagerCreateEntity(const char* tag, const char
     return entity->GetId();
 }
 
+bool CORE_CALL Core_SceneManagerDestroyEntity(uint32_t entityId) noexcept
+{
+    Entity* entity = Application::Instance().GetGame()->GetActiveScene()->GetEntityManager()->GetEntityById(entityId);
+
+    if (entity == nullptr)
+    {
+        LoggerSingleton::Instance().LogWarning("Core_SceneManagerDestroyEntity -> Entity '" + std::to_string(entityId) + "' not found!");
+        
+        return false;
+    }
+
+    entity->Destroy();
+
+    return true;
+}
+
 bool CORE_CALL Core_SceneManagerSetMainCamera(unsigned int entityId) noexcept
 {
     Entity* entity = Application::Instance().GetGame()->GetActiveScene()->GetEntityManager()->GetEntityById(entityId);

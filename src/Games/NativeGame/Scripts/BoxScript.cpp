@@ -18,17 +18,14 @@ void BoxScript::Update()
 {
     m_transformComponent->transform = glm::rotate(m_transformComponent->transform, 0.01f, glm::vec3(0.0f, 1.0f, 1.0f));
 
-    if (Input::IsPressed(Key::F8) && m_isAlive)
+    if (Input::IsKeyPressed(Key::F8))
     {
         AudioPlayOptions options;
         options.spatial = true;
         options.loop = false;
         options.bus = AudioBus::SFX;
 
-        AudioSystem::Instance().Play("explosion", options);
-        //AudioSystem::Instance().Play(this->entity->GetId(), "explosion", options);
-
-        m_isAlive = false;
+        //AudioSystem::Instance().Play("explosion", options);
+        AudioSystem::Instance().Play(this->entity->GetId(), "explosion", options);
     }
-
 }

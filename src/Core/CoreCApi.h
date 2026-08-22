@@ -37,6 +37,7 @@ CORE_API_C bool CORE_CALL Core_UiManagerBindOnClickCallback(uint32_t entityId, c
 
 // scene manager
 CORE_API_C unsigned int CORE_CALL Core_SceneManagerCreateEntity(const char* tag, const char* name) noexcept;
+CORE_API_C bool CORE_CALL Core_SceneManagerDestroyEntity(uint32_t entityId) noexcept;
 CORE_API_C bool CORE_CALL Core_SceneManagerSetMainCamera(unsigned int entityId) noexcept;
 CORE_API_C bool CORE_CALL Core_SceneManagerSetShowCursor(bool showCursor) noexcept;
 CORE_API_C bool CORE_CALL Core_SceneManagerSetGlobalLight(float r, float g, float b, float intensity) noexcept;

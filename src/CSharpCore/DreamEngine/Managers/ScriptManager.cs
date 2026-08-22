@@ -2,11 +2,13 @@
 using DreamEngine.Core;
 using DreamEngine.ECS;
 using DreamEngine.Exceptions;
+using DreamEngine.Extensions;
 using DreamEngine.Physics;
 using DreamEngine.Scripting;
 using DreamEngine.Sync;
 using DreamEngine.Sync.Data;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 
@@ -122,8 +124,9 @@ internal static class ScriptManager
     {
         try
         {
-            var gameData = Marshal.PtrToStructure<GameData>(gameDataHandle);
-            var entityData = (EntityData*)entitiesDataArrayPtr;
+            GameData* gameDataPtr = (GameData*)gameDataHandle;
+            GameData gameData = *gameDataPtr;
+            EntityData* entityData = (EntityData*)entitiesDataArrayPtr;
 
             // Sync managed scene from native data
             GameSynchronizer.Synchronize(ref gameData, entityData, entityCount);
@@ -146,7 +149,8 @@ internal static class ScriptManager
             Game.Scene.Update(indexById, entityData);
 
             // Write back game data (only if you actually modify it)
-            Marshal.StructureToPtr(gameData, gameDataHandle, false);
+            //Marshal.StructureToPtr(gameData, gameDataHandle, false);
+            *gameDataPtr = gameData;
         }
         catch (Exception e)
         {
@@ -166,7 +170,7 @@ internal static class ScriptManager
         }
     }
 
-    public static void ProcessCollisionEvent(uint entityId, uint otherEntityId, uint eventType, bool isTrigger)
+    public static void ProcessCollisionEvent(uint entityId, uint otherEntityId, uint eventType, byte isTrigger)
     {
         if (!Game.Scene.Entities.TryGetValue(entityId, out var entity))
             return;
@@ -179,7 +183,7 @@ internal static class ScriptManager
 
         var type = (CollisionEventType)eventType;
 
-        if (isTrigger)
+        if (isTrigger.ToBool())
         {
             switch (type)
             {

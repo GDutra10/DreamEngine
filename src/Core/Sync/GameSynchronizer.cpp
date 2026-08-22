@@ -12,7 +12,7 @@ GameData* GameSynchronizer::Synchronize(const bool isFocused)
     gameData->sceneData = *Application::Instance().GetGame()->GetActiveScene()->GetSceneData();
 
     if (isFocused)
-        gameData->inputData = *InputSynchronizer::Synchronize();
+        gameData->inputData = InputSynchronizer::Synchronize();
 
     return gameData;
 }

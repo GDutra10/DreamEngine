@@ -29,11 +29,11 @@ extern "C"
 }
 
 // scripts manager
-typedef void* (*getScriptInfoDelegate)(int*);
-typedef void (*releaseScriptInfoDelegate)(void*, int*);
-typedef void (*updateGameDelegate)(Sync::GameData*, Sync::EntityData*, int);
-typedef void (*processEventDelegate)(int);
-typedef void (*processCollisionEventDelegate)(unsigned int entityId, unsigned int otherEntityId, unsigned int eventType, bool isTrigger);
+typedef void* (*getScriptInfoDelegate)(int32_t*);
+typedef void (*releaseScriptInfoDelegate)(void*, int32_t*);
+typedef void (*updateGameDelegate)(Sync::GameData*, Sync::EntityData*, int32_t);
+typedef void (*processEventDelegate)(int32_t);
+typedef void (*processCollisionEventDelegate)(uint32_t entityId, uint32_t otherEntityId, uint32_t eventType, uint8_t isTrigger);
 
 // assembly manager
 typedef void (*assemblyInitializeDelegate)(const char*);
@@ -50,9 +50,9 @@ class CORE_API ScriptEngine
     void Shutdown();
     bool IsRunning();
 
-    static void UpdateGame(Sync::GameData* gameData, Sync::EntityData* entityDataArray, int entityCount);
-    static void ProcessEvent(int eventId);
-    static void ProcessCollisionEvent(unsigned int entityId, unsigned int otherEntityId, unsigned int eventType, bool isTrigger);
+    static void UpdateGame(Sync::GameData* gameData, Sync::EntityData* entityDataArray, int32_t entityCount);
+    static void ProcessEvent(int32_t eventId);
+    static void ProcessCollisionEvent(uint32_t entityId, uint32_t otherEntityId, uint32_t eventType, uint8_t isTrigger);
     std::vector<ScriptInfo> GetClassInfoList();
 
    private:

@@ -2,6 +2,7 @@ namespace DreamEngine.Inputs;
 
 public enum Key
 {
+    UNKOWN = -1,
     KP_NUM_0,
     KP_NUM_1,
     KP_NUM_2,

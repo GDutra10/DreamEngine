@@ -7,6 +7,8 @@ namespace DreamEngine::Core::Inputs
 {
 enum CORE_API MouseButton
 {
+    UNKNOW = -1,
+    
     MOUSE_BUTTON_LEFT,
     MOUSE_BUTTON_MIDDLE,
     MOUSE_BUTTON_RIGHT,
@@ -15,6 +17,8 @@ enum CORE_API MouseButton
     MOUSE_BUTTON_6,
     MOUSE_BUTTON_7,
     MOUSE_BUTTON_8,
+
+    MOUSE_BUTTON_COUNT
 };
 }  // namespace DreamEngine::Core::Inputs
 #endif

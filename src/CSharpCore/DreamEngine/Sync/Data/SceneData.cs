@@ -1,4 +1,8 @@
-﻿namespace DreamEngine.Sync.Data;
+﻿using System.Runtime.InteropServices;
+
+namespace DreamEngine.Sync.Data;
+
+[StructLayout(LayoutKind.Sequential)]
 internal struct SceneData
 {
     public uint mainCameraEntityId;
